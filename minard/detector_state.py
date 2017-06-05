@@ -129,7 +129,7 @@ def get_detector_state_check(run=0):
         if relay_mask is None:
             messages.append("MTCA/+ relay mask unknown")
         else:
-            mtca_names = ['N100', 'N20', 'ESUMLO', 'ESUMHI', 'OWLEHI', 'OWLELO', 'OWLN']
+            mtca_names = ['N100', 'N20', 'ESUMLO', 'ESUMHI', 'OWLELO','OWLEHI', 'OWLN']
             for i, (relay, mtca) in enumerate(zip(relay_mask,mtca_names)):
                crates = []
                potential_crates = range(19) if i<4 else [3,13,18]
