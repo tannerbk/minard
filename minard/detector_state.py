@@ -125,6 +125,12 @@ def get_detector_state_check(run=0):
         elif not (gt_crate_mask & (1<<23)):
             messages.append("TUBII is not in the GT crate mask")
 
+        lockout_width = mtc['lockout_width']
+        if lockout_width is None:
+            messages.append("Lockout width unknown")
+        elif lockout_width != 420:
+            messages.append("Lockout width is a bad value: %i" % lockout_width)
+
         relay_mask = mtc['mtca_relays']
         if relay_mask is None:
             messages.append("MTCA/+ relay mask unknown")
