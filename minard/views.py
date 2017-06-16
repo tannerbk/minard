@@ -749,9 +749,14 @@ def pcatellie():
         runs_for_fiber = [run for run in runs
                           if int(run["fiber_number"]) == fiber[0]]
         sorted_runs = sorted(runs_for_fiber,
-                             key=lambda run: (run["pca_status"] == "True", int(run["run_number"])),
-                             reverse=True)
+                                  key=lambda run: (int(run["run_number"])),
+                                  reverse=True)
+        good_runs_for_fiber = [run for run in runs_for_fiber if (run["pca_status"] == "0")]
+        sorted_runs_good = sorted(good_runs_for_fiber,
+                                  key=lambda run: (int(run["run_number"])),
+                                  reverse=True)
         pca_run = sorted_runs[0]["run_number"] if sorted_runs else ""
+        pca_run_good = sorted_runs_good[0]["run_number"] if sorted_runs_good else ""
         pca_result = sorted_runs[0]["pca_status"] if sorted_runs else ""
         fibers.append({'fiber_number': fiber[0],
                        'node': fiber[1],
@@ -760,6 +765,7 @@ def pcatellie():
                        'is_dead': fiber[4],
                        'fiber_type': fiber[5],
                        'pca_run': pca_run,
+                       'pca_run_good': pca_run_good,
                        'pca_result': pca_result})
 
     return render_template('pcatellie.html',

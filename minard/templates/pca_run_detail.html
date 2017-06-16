@@ -54,9 +54,9 @@
             <h3 class="panel-title">Nhit(EXTA) / Occupancy</h3>
         </div>
         <div class="panel-body">
-            <img src="{{ url_for('static', filename="pca/NHits-" + run_number + ".png") }}"
+            <img src="{{ url_for('static', filename="pca/" + run_number + "/NHits-" + run_number + ".png") }}"
             alt="NHit histogram" class="img-responsive col-md-6">
-            <img src="{{ url_for('static', filename="pca/OccPerPMT-" + run_number + ".png") }}"
+            <img src="{{ url_for('static', filename="pca/" + run_number + "/OccPerPMT-" + run_number + ".png") }}"
             alt="Occupancy histogram" class="img-responsive col-md-6">
         </div>
     </div>
@@ -68,9 +68,9 @@
             <h3 class="panel-title">Coverage: All / Central</h3>
         </div>
         <div class="panel-body">
-            <img src="{{ url_for('static', filename="pca/coverage-" + run_number + ".png") }}"
+            <img src="{{ url_for('static', filename="pca/" + run_number + "/coverage-" + run_number + ".png") }}"
             alt="Coverage graph" class="img-responsive col-md-6">
-            <img src="{{ url_for('static', filename="pca/coverageselect-" + run_number + ".png") }}"
+            <img src="{{ url_for('static', filename="pca/" + run_number + "/coverageselect-" + run_number + ".png") }}"
             alt="Central coverage graph" class="img-responsive col-md-6">
         </div>
     </div>
@@ -82,9 +82,9 @@
             <h3 class="panel-title">Hits per PMT: All / Central</h3>
         </div>
         <div class="panel-body">
-            <img src="{{ url_for('static', filename="pca/HitsPerPMTAll-" + run_number + ".png") }}"
+            <img src="{{ url_for('static', filename="pca/" + run_number + "/HitsPerPMTAll-" + run_number + ".png") }}"
             alt="Hits per PMT histogram" class="img-responsive col-md-6">
-            <img src="{{ url_for('static', filename="pca/HitsPerPMT-" + run_number + ".png") }}"
+            <img src="{{ url_for('static', filename="pca/" + run_number + "/HitsPerPMT-" + run_number + ".png") }}"
             alt="Central hits per PMT histogram" class="img-responsive col-md-6">
         </div>
     </div>
@@ -98,9 +98,9 @@
             <h3 class="panel-title">QHS: uncal / cal</h3>
         </div>
         <div class="panel-body">
-            <img src="{{ url_for('static', filename="pca/QHSUnCal-" + run_number + ".png") }}"
+            <img src="{{ url_for('static', filename="pca/" + run_number + "/QHSUnCal-" + run_number + ".png") }}"
             alt="QHS Uncalibrated" class="img-responsive col-md-6">
-            <img src="{{ url_for('static', filename="pca/QHSCal-" + run_number + ".png") }}"
+            <img src="{{ url_for('static', filename="pca/" + run_number + "/QHSCal-" + run_number + ".png") }}"
             alt="QHS ECA calibrated" class="img-responsive col-md-6">
         </div>
     </div>
@@ -112,9 +112,9 @@
             <h3 class="panel-title">QHL: uncal / cal</h3>
         </div>
         <div class="panel-body">
-            <img src="{{ url_for('static', filename="pca/QHLUnCal-" + run_number + ".png") }}"
+            <img src="{{ url_for('static', filename="pca/" + run_number + "/QHLUnCal-" + run_number + ".png") }}"
             alt="QHL Uncalibrated" class="img-responsive col-md-6">
-            <img src="{{ url_for('static', filename="pca/QHLCal-" + run_number + ".png") }}"
+            <img src="{{ url_for('static', filename="pca/" + run_number + "/QHLCal-" + run_number + ".png") }}"
             alt="QHL ECA calibrated" class="img-responsive col-md-6">
         </div>
     </div>
@@ -126,11 +126,11 @@
             <h3 class="panel-title">Time: uncal / cal / residual</h3>
         </div>
         <div class="panel-body">
-            <img src="{{ url_for('static', filename="pca/TimeUnCal-" + run_number + ".png") }}"
+            <img src="{{ url_for('static', filename="pca/" + run_number + "/TimeUnCal-" + run_number + ".png") }}"
             alt="Time Uncalibrated" class="img-responsive col-md-6">
-            <img src="{{ url_for('static', filename="pca/TimeCal-" + run_number + ".png") }}"
+            <img src="{{ url_for('static', filename="pca/" + run_number + "/TimeCal-" + run_number + ".png") }}"
             alt="Time ECA calibrated" class="img-responsive col-md-6">
-            <img src="{{ url_for('static', filename="pca/TimeResidual-" + run_number + ".png") }}"
+            <img src="{{ url_for('static', filename="pca/" + run_number + "/TimeResidual-" + run_number + ".png") }}"
             alt="Time ECA calibrated" class="img-responsive col-md-6">
 
         </div>
@@ -143,7 +143,7 @@
             <h3 class="panel-title">NHit vs. event number</h3>
         </div>
         <div class="panel-body">
-            <img src="{{ url_for('static', filename="pca/NHitvsEvent-" + run_number + ".png") }}"
+            <img src="{{ url_for('static', filename="pca/" + run_number + "/NHitvsEvent-" + run_number + ".png") }}"
             alt="NHit vs. event number" class="img-responsive col-md-6">
         </div>
     </div>

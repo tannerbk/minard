@@ -10,3 +10,4 @@ sqlalchemy
 psycopg2
 #alabaster
 couchdb
+wtforms

@@ -145,7 +145,6 @@ def get_detector_state_check(run=0):
                if len(crates) > 0:
                    messages.append("Crates %s are out of %s MTCA+ relay mask" % (str(crates)[1:-1], mtca))
 
-
     if tubii is None:
         messages.append("tubii state unknown")
     else:
@@ -190,8 +189,10 @@ def get_detector_state_check(run=0):
             if detector_state[crate][slot] is None:
                 messages.append("crate %i, slot %i is offline" % (crate, slot))
                 continue
+
             if readout_mask is not None and not (readout_mask & (1<<slot)) and xl3_mode == 2:
                 messages.append("crate %i, slot %i is out of the xl3 readout mask" % (crate, slot))
+
             slot_sequencers = detector_state[crate][slot]['disable_mask']
             if slot_sequencers is not None and slot_sequencers == 0xffffffff and (readout_mask & (1<<slot)):
                 messages.append("Sequencers disabled for crate %i, slot %i" % (crate, slot))
@@ -240,6 +241,55 @@ def get_detector_state_check(run=0):
                                 ("on" if sequencer else "off", "on" if sequencer_nominal else "off")))
                         if sequencer == 0:
                             channels.append((crate, slot, channel, "sequencer is off, but channel is at HV!"))
+=======
+
+            if hv_relay_mask1 is None or hv_relay_mask2 is None:
+                continue
+
+            hv_relay_mask = hv_relay_mask2 << 32 | hv_relay_mask1
+
+            for channel in range(32):
+                hv_enabled = hv_relay_mask & (1 << (slot*4 + (3-channel//8))) and hv_on
+                if detector_state[crate][slot]['tr100_mask'] is None:
+                    messages.append("trigger settings unknown for crate %i, slot %i" % (crate, slot))
+                    continue
+                if detector_state[crate][slot]['tr20_mask'] is None:
+                    messages.append("trigger settings unknown for crate %i, slot %i" % (crate, slot))
+                    continue
+                if detector_state[crate][slot]['disable_mask'] is None:
+                    messages.append("sequencer settings unknown for crate %i, slot %i" % (crate, slot))
+                    continue
+                n100 = bool(detector_state[crate][slot]['tr100_mask'][channel])
+                n20 = bool(detector_state[crate][slot]['tr20_mask'][channel])
+                sequencer = bool(~detector_state[crate][slot]['disable_mask'] & (1 << channel))
+                try:
+                    n100_nominal, n20_nominal, sequencer_nominal = nominal_settings[crate][slot][channel]
+                except KeyError:
+                    messages.append("unable to get nominal settings for %i/%i/%i" % (crate, slot, channel))
+                    continue
+
+                if not hv_enabled:
+                    if n100:
+                        if hv_on:
+                            channels.append((crate,slot,channel,"HV relay is open, but N100 trigger is on"))
+                        else:
+                            channels.append((crate,slot,channel,"HV is off, but N100 trigger is on"))
+                    if n20:
+                        if hv_on:
+                            channels.append((crate,slot,channel,"HV relay is open, but N20 trigger is on"))
+                        else:
+                            channels.append((crate,slot,channel,"HV is off, but N20 trigger is on"))
+                else:
+                    if n100_nominal != n100:
+                        channels.append((crate, slot, channel, "N100 trigger is %s, but nominal setting is %s" % \
+                            ("on" if n100 else "off", "on" if n100_nominal else "off")))
+                    if n20_nominal != n20:
+                        channels.append((crate, slot, channel, "N20 trigger is %s, but nominal setting is %s" % \
+                            ("on" if n20 else "off", "on" if n20_nominal else "off")))
+                    if sequencer_nominal != sequencer:
+                        channels.append((crate, slot, channel, "sequencer is %s, but nominal setting is %s" % \
+                            ("on" if sequencer else "off", "on" if sequencer_nominal else "off")))
+>>>>>>> fc3efe2611cdf0e9d0ea80bc6321240aa38a10a1
 
     return messages, channels
 
