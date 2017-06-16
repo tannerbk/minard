@@ -238,6 +238,8 @@ def get_detector_state_check(run=0):
                         if sequencer_nominal != sequencer:
                             channels.append((crate, slot, channel, "sequencer is %s, but nominal setting is %s" % \
                                 ("on" if sequencer else "off", "on" if sequencer_nominal else "off")))
+                        if sequencer == 0:
+                            channels.append((crate, slot, channel, "sequencer is off, but channel is at HV!"))
 
     return messages, channels
 
