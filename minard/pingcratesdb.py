@@ -62,4 +62,12 @@ def del_run_from_db(run_number):
     p.zrem(RUN_INDEX, key)
     p.zrem(TIME_INDEX, key)
     return p.execute()
- 
+
+def add_ping_info(run_dict):
+
+    run_number = run_dict['run_number']
+    key = 'pingcrates-run-%s' % run_number
+    p = redis.pipeline()
+    p.hmset(key, run_dict)
+    p.execute()
+

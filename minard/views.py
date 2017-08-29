@@ -23,6 +23,7 @@ import ecadb
 import nlrat
 import noisedb
 import pingcratesdb
+from pingcratesdb import add_ping_info
 from .polling import polling_runs, polling_info, polling_info_card, polling_check, polling_history
 from .channeldb import ChannelStatusForm, upload_channel_status, get_channels, get_channel_status, get_channel_status_form, get_channel_history, get_pmt_info, get_nominal_settings, get_most_recent_polling_info, get_discriminator_threshold, get_all_thresholds
 import re
@@ -965,13 +966,18 @@ def physicsdq():
 
 @app.route('/pingcrates')
 def pingcrates():
+    run_dict = {}
     runs = pingcratesdb.runs_after_run(0)
+    run_dict['run_number'] = runs[0]
+    run_dict['comment'] = ""
+    run_dict['expert'] = ""
+    add_ping_info(run_dict)
     return render_template('pingcrates.html', runs=runs)
 
 @app.route('/pingcrates_run/<run_number>')
 def pingcrates_run(run_number):
     return render_template('pingcrates_run.html', run_number=run_number)
- 
+
 @app.route('/physicsdq/<run_number>')
 def physicsdq_run_number(run_number):
     ratdb_dict = HLDQTools.import_HLDQ_ratdb(int(run_number))

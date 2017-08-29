@@ -30,6 +30,8 @@
         <th> Crates Failed N20 </th>
         <th> Run Type </th>
         <th> Time Run Was Processed </th>
+        <th> Comment </th>
+        <th> Expert </th>
       </tr>
     </thead>
     {% for run in runs if run %}
@@ -46,9 +48,37 @@
         <th> {{run.n20_crates_failed}} </th>
         <th> {{run.run_type}} </th>
         <th> {{run.time|timefmt}} </th>
+        {% if run.comment %}
+          <th> {{run.comment}} </th>
+          <th> {{run.expert}} </th>
+        {% else %}
+          <th> <input type="text" id="comment" style="width: 80px;"> </th>
+          <th> <input type="text" id="expert" style="width: 80px;"> </th>
+        {% endif %}
       </tr>
     {% endfor %}
   </table>
 </div>
 
+{% endblock %}
+{% block script %}
+<script>
+    document.getElementById("comment")
+        .addEventListener("keyup", function(event) {
+         if(event.keyCode == 13){
+            update_comment();
+        }
+    });
+    document.getElementById("expert")
+        .addEventListener("keyup", function(event) {
+         if(event.keyCode == 13){
+            update_comment();
+        }
+    });
+    function update_comment() {
+        var params = {};
+        params['comment'] = document.getElementById("comment").value;
+        window.location.replace($SCRIPT_ROOT + "/pingcrates?" + $.param(params));
+    }
+</script>
 {% endblock %}
