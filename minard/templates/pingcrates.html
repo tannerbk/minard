@@ -12,13 +12,13 @@
       <tr class="success"> <th> If the run status is "Pass" the N100 and N20 trigger signals look good for all crates and slots! </th> </tr>
       <tr class="danger"> <th>  If the run status is "Fail" note it in the shift report and the shift slack. No immediate action is needed, but it might be a data quality issue. </th> </tr>
       <tr class="warning"> <th> If the run status is "Warn" a detector expert will take a look. No action is needed. </th> </tr>
+      <tr class="info"> <th> If the run status is "Override" the run failed but an expert had a look and ping crates is fine. </th> </tr>
   </table>
 </div>
 
 <div class="page-header">
   <h1 align="center">Ping Crates</h1>
 </div>
-
 
 <div class="container">
   <table class="table table-hover">
@@ -28,10 +28,9 @@
         <th> Status </th>
         <th> Crates Failed N100 </th>
         <th> Crates Failed N20 </th>
+        <th> Crates Offline </th>
         <th> Run Type </th>
         <th> Time Run Was Processed </th>
-        <th> Comment </th>
-        <th> Expert </th>
       </tr>
     </thead>
     {% for run in runs if run %}
@@ -41,44 +40,23 @@
         <tr class="success">
       {% elif run.status == "Warn" %}
         <tr class="warning">
+      {% elif run.status == "Override" %}
+        <tr class="info">
       {% endif %}
         <th><a href="{{url_for('pingcrates_run',run_number=run.run_number) }}">{{run.run_number}}</a></th>
         <th> {{run.status}} </th> 
         <th> {{run.n100_crates_failed}} </th>
         <th> {{run.n20_crates_failed}} </th>
+        {% if run.crate_off %}
+          <th> {{run.crate_off}} </th>
+        {% else %}
+          <th> None </th>
+        {% endif %}
         <th> {{run.run_type}} </th>
         <th> {{run.time|timefmt}} </th>
-        {% if run.comment %}
-          <th> {{run.comment}} </th>
-          <th> {{run.expert}} </th>
-        {% else %}
-          <th> <input type="text" id="comment" style="width: 80px;"> </th>
-          <th> <input type="text" id="expert" style="width: 80px;"> </th>
-        {% endif %}
       </tr>
     {% endfor %}
   </table>
 </div>
 
-{% endblock %}
-{% block script %}
-<script>
-    document.getElementById("comment")
-        .addEventListener("keyup", function(event) {
-         if(event.keyCode == 13){
-            update_comment();
-        }
-    });
-    document.getElementById("expert")
-        .addEventListener("keyup", function(event) {
-         if(event.keyCode == 13){
-            update_comment();
-        }
-    });
-    function update_comment() {
-        var params = {};
-        params['comment'] = document.getElementById("comment").value;
-        window.location.replace($SCRIPT_ROOT + "/pingcrates?" + $.param(params));
-    }
-</script>
 {% endblock %}

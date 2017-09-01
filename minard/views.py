@@ -966,12 +966,7 @@ def physicsdq():
 
 @app.route('/pingcrates')
 def pingcrates():
-    run_dict = {}
     runs = pingcratesdb.runs_after_run(0)
-    run_dict['run_number'] = runs[0]
-    run_dict['comment'] = ""
-    run_dict['expert'] = ""
-    add_ping_info(run_dict)
     return render_template('pingcrates.html', runs=runs)
 
 @app.route('/pingcrates_run/<run_number>')
