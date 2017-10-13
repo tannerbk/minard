@@ -219,6 +219,8 @@ def pull():
                     cache['trig:fecd']['100M'] += 1
                 elif pmt.ChannelID == 31:
                     cache['trig:fecd']['100H'] += 1
+                elif pmt.ChannelID == 4:
+                    cache['trig:fecd']['TaggedSource'] += 1
 
                 # don't include FEC/D in qhs sum and nhit
                 continue
