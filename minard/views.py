@@ -842,7 +842,7 @@ def get_metric(expr, start, stop, step):
         import random
         total = get_timeseries('TOTAL',start,stop,step)
         values = [int(random.random() < step/315360) if i else 0 for i in total]
-    elif '-' in expr:
+    elif '-' in expr and 'FECD' not in expr:
         # e.g. PULGT-nhit, which means the average nhit for PULGT triggers
         # this is not a rate, so we divide by the # of PULGT triggers for
         # the interval instead of the interval length
@@ -861,6 +861,9 @@ def get_metric(expr, start, stop, step):
     elif 'FECD' in expr:
         field = expr.split('/')[1]
         values = get_timeseries_field('trig:fecd',field,start,stop,step)
+        if '-' in expr:
+            counts = get_timeseries_field('trig:fecd',field,start,stop,step)
+            values = [float(a)/int(b) if a and b else None for a, b in zip(values,counts)]
 
         interval = get_interval(step)
 

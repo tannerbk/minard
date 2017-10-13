@@ -99,6 +99,7 @@ add_horizon(TRIGGER_NAMES,format_rate);
 if (url_params.display == 'fecd') {
     add_horizon(TRIGGER_NAMES.slice(1,6).map(function(x) { return "FECD/" + x }),format_rate);
     add_horizon(["FECD/TaggedSource"],format_rate);
+    add_horizon(["FECD/TaggedSource-nhit"],format('.2s'));
 }
 add_horizon(["0\u03bd\u03b2\u03b2"],format_rate);
 add_horizon(["TOTAL-nhit","TOTAL-charge","PULGT-nhit","PULGT-charge","EXTA-nhit"], format('.2s'));

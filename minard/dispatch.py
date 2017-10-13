@@ -207,6 +207,7 @@ def pull():
         for pmt in pmt_gen:
             id = 16*32*pmt.CrateID + 32*pmt.BoardID + pmt.ChannelID
             cache_pmt[id] += 1
+            nhit_source = 0
 
             if pmt.CrateID == 17 and pmt.BoardID == 15:
                 if pmt.ChannelID == 17:
@@ -221,9 +222,12 @@ def pull():
                     cache['trig:fecd']['100H'] += 1
                 elif pmt.ChannelID == 4:
                     cache['trig:fecd']['TaggedSource'] += 1
+                    nhit_source += 1
 
                 # don't include FEC/D in qhs sum and nhit
                 continue
+
+            cache['trig:fecd']['TaggedSource-nhit'] += nhit_source
 
             nhit += 1
 
