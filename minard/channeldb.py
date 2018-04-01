@@ -71,14 +71,16 @@ def get_fec_db_history(crate, card, channel):
     conn = engine.connect()
 
     query = ("SELECT run, timestamp, mbid, dbid FROM ("
-        "SELECT run, timestamp, mbid, dbid[%i] as dbid, "
-        "lag(mbid) OVER (ORDER BY run ASC) "
-            "IS DISTINCT FROM mbid AS fec_changed, "
-        "lag(dbid[%i]) OVER (ORDER BY run ASC) "
-            "IS DISTINCT FROM dbid[%i] AS db_changed "
-        "FROM detector_state WHERE crate = %%(crate)s AND "
-        "slot = %%(card)s AND mbid IS NOT NULL AND dbid IS NOT NULL AND "
-        "run > 0) sub WHERE fec_changed OR db_changed ORDER BY run" % \
+        "SELECT run, mbid, dbid FROM ("
+            "SELECT run, mbid, dbid[%i] as dbid, "
+            "lag(mbid) OVER (ORDER BY run ASC) "
+                "IS DISTINCT FROM mbid AS fec_changed, "
+            "lag(dbid[%i]) OVER (ORDER BY run ASC) "
+                "IS DISTINCT FROM dbid[%i] AS db_changed "
+            "FROM detector_state WHERE crate = %%(crate)s AND "
+            "slot = %%(card)s AND mbid IS NOT NULL AND dbid IS NOT NULL AND "
+            "run > 0) sub WHERE fec_changed OR db_changed"
+        ") _ NATURAL JOIN run_state ORDER BY run" % \
         (channel//8+1, channel//8+1, channel//8+1))
 
     result = conn.execute(query, crate=crate, card=card)

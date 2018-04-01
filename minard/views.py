@@ -12,6 +12,7 @@ from .tools import parseiso, total_seconds
 from collections import deque, namedtuple
 from .timeseries import get_timeseries, get_interval, get_hash_timeseries
 from .timeseries import get_timeseries_field, get_hash_interval
+from .timeseries import get_cavity_temp
 from math import isnan
 import os
 import sys
@@ -691,6 +692,14 @@ def docs(dir='', subdir='', filename='index.html'):
     path = join('docs', dir, subdir, filename)
     return app.send_static_file(path)
 
+@app.route('/cavity-temp')
+def cavity_temp():
+    if len(request.args) == 0:
+        return redirect(url_for('cavity_temp',step=867,height=20,_external=True))
+    step = request.args.get('step',1,type=int)
+    height = request.args.get('height',40,type=int)
+    return render_template('cavity_temp.html',step=step,height=height)
+
 @app.route('/snostream')
 def snostream():
     if len(request.args) == 0:
@@ -990,7 +999,10 @@ def metric_hash():
     return jsonify(values=values)
 
 def get_metric(expr, start, stop, step):
-    if expr in ('L2:gtid', 'L2:run'):
+    if expr.split('-')[0] == 'temp':
+        sensor = int(expr.split('-')[1])
+        values = get_cavity_temp(sensor, start, stop, step)
+    elif expr in ('L2:gtid', 'L2:run'):
         values = get_timeseries(expr, start, stop, step)
     elif expr in ('gtid', 'run', 'subrun'):
         values = get_timeseries_field('trig', expr, start, stop, step)

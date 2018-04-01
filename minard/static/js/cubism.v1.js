@@ -761,6 +761,7 @@ cubism_contextPrototype.horizon = function() {
       scale = d3.scale.linear().interpolate(d3.interpolateRound),
       metric = cubism_identity,
       extent = null,
+      offset = 0,
       title = cubism_identity,
       format = d3.format(".2s"),
       colors = ["#08519c","#3182bd","#6baed6","#bdd7e7","#bae4b3","#74c476","#31a354","#006d2c"];
@@ -844,8 +845,9 @@ cubism_contextPrototype.horizon = function() {
 
           for (var i = i0, n = width, y1; i < n; ++i) {
             y1 = metric_.valueAt(i);
-            if (y1 <= 0) { negative = true; continue; }
             if (y1 === undefined) continue;
+            y1 += offset;
+            if (y1 <= 0) { negative = true; continue; }
             canvas.fillRect(i, y1 = scale(y1), 1, y0 - y1);
           }
         }
@@ -868,6 +870,8 @@ cubism_contextPrototype.horizon = function() {
 
             for (var i = i0, n = width, y1; i < n; ++i) {
               y1 = metric_.valueAt(i);
+              if (y1 === undefined) continue;
+              y1 += offset;
               if (y1 >= 0) continue;
               canvas.fillRect(i, scale(-y1), 1, y0 - scale(-y1));
             }
@@ -945,6 +949,12 @@ cubism_contextPrototype.horizon = function() {
   horizon.extent = function(_) {
     if (!arguments.length) return extent;
     extent = _;
+    return horizon;
+  };
+
+  horizon.offset = function(_) {
+    if (!arguments.length) return offset;
+    offset = _;
     return horizon;
   };
 

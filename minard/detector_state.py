@@ -289,8 +289,12 @@ def get_detector_state_check(run=0):
                     else:
                         messages.append("crates %s are out of the %s MTCA+ relay mask" % (str(crates)[1:-1], mtca))
 
+    # TUBII channel mapping changed at run 110119
+    if run == 0 or run > 110119:
+        attenuated = [3, 5, 7]
+        nonattenuated = [0, 1, 2, 4, 6]
     # TUBII channel mapping changed at run 107556
-    if run == 0 or run > 107556:
+    elif run > 107556:
         attenuated = [3, 6, 7]
         nonattenuated = [0, 1, 2, 4, 5]
     else:

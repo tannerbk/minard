@@ -263,7 +263,7 @@
 		    <thead>
 			<tr>
 			    <th>Run</th>
-			    <!--<th>Date</th>-->
+			    <th>Date</th>
 			    <th>MBID</th>
 			    <th>DBID</th>
 			</tr>
@@ -271,7 +271,7 @@
 		    {% for row in fec_db_history | reverse %}
 		    <tr>
 			<td>{{ row['run'] }}</td>
-			<!--<td>{{ row['timestamp'].strftime("%Y-%m-%d") }}</td>-->
+			<td>{{ row['timestamp'].strftime("%Y-%m-%d") }}</td>
 			<td><a href="http://snopl.us/debugdb/board/{{ '%04x' % row['mbid'] }}">{{ '0x%04x' % row['mbid'] }}</a></td>
 			<td><a href="http://snopl.us/debugdb/board/{{ '%04x' % row['dbid'] }}">{{ '0x%04x' % row['dbid'] }}</a></td>
 		    </tr>
