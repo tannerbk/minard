@@ -36,7 +36,7 @@
  
     Detector base currents for run
     <select id="poll_run_base" onchange="update('base',this.value);
-                update_crate('base', this.value, crate_sel.value);">
+                update_crate('base', this.value, crate_sel2.value);">
         {% for row in base_runs %}
             <option value={{row['run']}}>{{row['run']}}</option>
         {% endfor %}
@@ -47,7 +47,6 @@
     </div>
 
 </div>
-
 
 <div class="container">
 
