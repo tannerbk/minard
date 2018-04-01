@@ -9,6 +9,7 @@ from minard.timeseries import INTERVALS, EXPIRE, HASH_INTERVALS, HASH_EXPIRE
 from minard.redistools import hmincrby, hdivk, setavgmax
 import random
 from snotdaq import Logger
+import os
 
 # Set up the logging
 log = Logger()
