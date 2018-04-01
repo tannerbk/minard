@@ -10,7 +10,8 @@ build:
 
 docs:
 	$(MAKE) -C docs html
-	cp -r docs/_build/html minard/static/docs
+	@mkdir -p minard/static/docs
+	cp -r docs/_build/html/* minard/static/docs
 
 /opt/minard/bin/activate:
 	virtualenv --system-site-packages /opt/minard

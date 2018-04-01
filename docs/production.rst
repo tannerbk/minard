@@ -1,27 +1,28 @@
 Production Install
 ==================
 
-To install minard for production use, first run the INSTALL script::
+To install minard for production use, just run make install::
 
     git clone git@github.com/snoplus/minard
     cd minard
-    sudo ./INSTALL
+    sudo make install
 
-The INSTALL script will:
+The install rule will:
 
-    * install redis in `/usr/local`
     * create a virtual environment in `/opt/minard`
     * install/update minard
+    * set up init scripts and configuration files for gunicorn and nginx
+
+In addition to this, you will have to separately:
+
+    * install redis
+    * install nginx
+    * set up init scripts and configuration files for redis
     * install/update disp
     * create users `gunicorn`, `minard`, `nginx`
-    * set up init scripts and configuration files for gunicorn, redis, and nginx
+    * set up the iptables rules to allow the L2 and nearline processes to write to redis
 
-
-To open the redis port for the L2 process on the buffer machine::
-
-    $ sudo iptables -I INPUT -p tcp --dport 6379 -s buffer1.sp.snolab.ca -j ACCEPT
-    $ sudo iptables -I INPUT -p tcp --dport 6379 -s buffer2.sp.snolab.ca -j ACCEPT
-
-and then to save them (on RedHat distributions)::
-
-    $ sudo /sbin/service iptables save
+Some of the above procedures are automated via salt, and some are not. To get
+everything installed from scratch you should have a look at the `SNO+ computing
+manual <https://snopl.us/detector/documents/snoplus_computing_manual.pdf>`_ and
+talk to experts.
