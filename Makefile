@@ -33,16 +33,14 @@ install: /opt/minard/bin/activate
 	$(INSTALL) init/gunicorn /etc/init.d/
 	$(INSTALL) init/gunicorn_snoplus_log /etc/init.d/
 	$(INSTALL) init/minard-dispatch /etc/init.d/
-	$(INSTALL) init/data_producer /etc/init.d/
-	$(INSTALL) init/data_consumer_cmos /etc/init.d/
-	$(INSTALL) init/data_consumer_base /etc/init.d/
+	$(INSTALL) init/minard-cmos /etc/init.d/
+	$(INSTALL) init/minard-base /etc/init.d/
 	$(INSTALL) init/baseline_monitor /etc/init.d/
 	chkconfig gunicorn on
 	chkconfig gunicorn_snoplus_log on
 	chkconfig minard-dispatch on
-	chkconfig data_producer on
-	chkconfig data_consumer_cmos on
-	chkconfig data_consumer_base on
+	chkconfig minard-cmos on
+	chkconfig minard-base on
 	chkconfig baseline_monitor on
 	service gunicorn restart
 
