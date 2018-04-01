@@ -1,22 +1,26 @@
 #!/bin/sh
 #
 # chkconfig: - 58 74
-# description: minard dispatch push
+# description: minard dispatch
 
 . /etc/init.d/functions
 
-EXEC=/opt/minard/bin/minard_dispatch_push
+EXEC=/opt/minard/bin/minard-dispatch
 USER=minard
-LOGFILE=/var/log/minard/minard_dispatch_push.log
 MINARD_SETTINGS=/etc/minard/settings.cfg
+
+WORKERS=4
 
 export MINARD_SETTINGS
 
 case $1 in
     start)
-	echo -n "starting $EXEC"
-	daemon --user=$USER --check=$EXEC "nohup $EXEC > $LOGFILE 2>&1 &"
-	echo
+	for i in `seq 1 $WORKERS`; do
+	    echo -n "starting $EXEC"
+	    LOGFILE=/var/log/minard/minard_dispatch_$i.log
+	    daemon --user=$USER --check=$EXEC $EXEC -n $WORKERS -i $i -d --logfile=$LOGFILE
+	    echo
+	done
 	;;
     stop)
 	pkill -f $EXEC

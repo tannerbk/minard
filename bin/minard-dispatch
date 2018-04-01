@@ -1,14 +1,17 @@
 #!/usr/bin/env python
-from __future__ import print_function, absolute_import
+from __future__ import print_function, division
 import time
 from redis import Redis
 from dispatch import Dispatch, unpack_trigger_type, unpack_header, unpack_pmt_record, RECORD_IDS
 from collections import defaultdict
-import zmq
 import threading
 from minard.timeseries import INTERVALS, EXPIRE, HASH_INTERVALS, HASH_EXPIRE
 from minard.redistools import hmincrby, hdivk, setavgmax
 import random
+from snotdaq import Logger
+
+# Set up the logging
+log = Logger()
 
 redis = Redis()
 
@@ -51,22 +54,6 @@ def post(host):
     timer = threading.Timer(20.0, post, args=[host])
     timer.daemon = True
     timer.start()
-
-def push(host):
-    """
-    Connects to a dispatcher at ip address `host` and pushes the records to
-    a ZMQ socket.
-    """
-    dispatcher = Dispatch(host)
-
-    post(host)
-
-    context = zmq.Context()
-    zmq_socket = context.socket(zmq.PUSH)
-    zmq_socket.bind('tcp://127.0.0.1:5560')
-
-    for record in dispatcher:
-        zmq_socket.send_pyobj((int(time.time()),record.raw))
 
 def flush_cache(cache, cache_set, cache_nhit, cache_pmt, time):
     # for docs on redis pipeline see http://redis.io/topics/pipelining
@@ -132,11 +119,13 @@ def flush_cache(cache, cache_set, cache_nhit, cache_pmt, time):
 
     p.execute()
 
-def pull():
-    """Connects to a ZMQ socket and processes the dispatch stream."""
-    context = zmq.Context()
-    zmq_socket = context.socket(zmq.PULL)
-    zmq_socket.connect('tcp://127.0.0.1:5560')
+def pull(host, num_workers, worker):
+    """Connects to the dispatcher and processes the dispatch stream."""
+    dispatcher = Dispatch(host)
+
+    log.notice("connected to %s" % host)
+
+    post(host)
 
     cache = {}
     cache['trig'] = defaultdict(int)
@@ -152,11 +141,8 @@ def pull():
     then = None
 
     while True:
-        try:
-            now, record = zmq_socket.recv_pyobj(zmq.NOBLOCK)
-        except zmq.ZMQError:
-            record = None
-            now = int(time.time())
+        record = dispatcher.recv(block=False)
+        now = int(time.time())
 
         if then is None:
             then = now
@@ -183,10 +169,11 @@ def pull():
 
         if record is None:
             # nothing to process, take a break
+            log.debug("timeout")
             time.sleep(0.01)
             continue
 
-        record_id, data = unpack_header(record)
+        record_id, data = unpack_header(record.raw)
 
         if record_id != RECORD_IDS['PMT_RECORD']:
             continue
@@ -197,6 +184,10 @@ def pull():
 
         run = pev.RunNumber
         gtid = pev.TriggerCardData.BcGT
+
+        if gtid % num_workers != worker:
+            continue
+
         nhit = pev.NPmtHit
         subrun = pev.DaqStatus # seriously :)
         trig = unpack_trigger_type(pev)
@@ -250,15 +241,56 @@ def pull():
                 cache['trig:charge'][i] += qhs_sum
                 cache_nhit[name].append(nhit)
 
+def daemonize():
+    if os.fork() != 0:
+        os._exit(0)
+
+    os.setsid()
+
+    f = open('/dev/null', 'w')
+
+    fd = f.fileno()
+
+    os.dup2(fd, 0)
+    os.dup2(fd, 1)
+    os.dup2(fd, 2)
+
 if __name__ == '__main__':
+    import sys
     import argparse
 
-    parser = argparse.ArgumentParser(description='Process SNO+ events from a dispatch stream')
-    parser.add_argument('action', help='push/pull')
-    parser.add_argument('--host', default='builder1.sp.snolab.ca', help='hostname of the dispatcher')
+    parser = argparse.ArgumentParser(description='Process SNO+ events from a dispatch stream and update redis')
+    parser.add_argument('--host', default='localhost',
+                        help='hostname of the dispatcher')
+    parser.add_argument('-n', '--num-workers', type=int, default=1,
+                        help='total number of workers running')
+    parser.add_argument('-w', '--worker', type=int, default=0,
+                        help='the worker number. This means the script will only process GTIDs which are equal to the worker number mod the total number of workers.')
+    parser.add_argument("--logfile", help="filename for log file",
+                        default=None)
+    parser.add_argument("-d", "--daemonize", action="store_true",
+			default=False)
+    parser.add_argument('--loglevel',
+                        help="logging level (debug, verbose, notice, warning)",
+                        default='notice')
     args = parser.parse_args()
 
-    if args.action == 'push':
-        push(args.host)
-    else:
-        pull()
+    log.set_verbosity(args.loglevel)
+
+    if args.logfile:
+        log.set_logfile(args.logfile)
+
+    if args.daemonize:
+	daemonize()
+
+    if args.worker >= args.num_workers:
+        log.warn("worker number must be less than the number of workers")
+        sys.exit(1)
+
+    while True:
+	try:
+	    pull(args.host, args.num_workers, args.worker)
+	except Exception as e:
+	    log.warn("unhandled exception: %s" % str(e))
+            time.sleep(60)
+	    continue
