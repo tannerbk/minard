@@ -1386,30 +1386,43 @@ def muon_list():
     if gold:
         gold_runs = golden_run_list(selected_run, limit, run_range_low, run_range_high)
 
-    mruns, mcount, mfake, mmruns, mmcount, livetime = muonsdb.get_muons(limit, selected_run, run_range_low, run_range_high, gold_runs)
+    mruns, mcount, mfake, mmruns, mmcount, atmruns, atmcount, livetime = muonsdb.get_muons(limit, selected_run, run_range_low, run_range_high, gold_runs)
 
-    return render_template('muon_list.html', mruns=mruns, limit=limit, selected_run=selected_run, run_range_low=run_range_low, run_range_high=run_range_high, gold=gold, mcount=mcount, mmcount=mmcount, mfake=mfake, livetime=livetime)
+    return render_template('muon_list.html', mruns=mruns, limit=limit, selected_run=selected_run, run_range_low=run_range_low, run_range_high=run_range_high, gold=gold, mcount=mcount, mmcount=mmcount, mfake=mfake, atmcount=atmcount, livetime=livetime)
 
 @app.route('/muons_by_run/<run_number>')
 def muons_by_run(run_number):
-    _, muons, _, mmuons = muonsdb.get_muon_info_by_run(int(run_number)) 
+    _, muons, _, mmuons, _, atm = muonsdb.get_muon_info_by_run(int(run_number)) 
     run_number=int(run_number)
 
     # Make parsing of muon info easier
-    gtids = muons[run_number][0]
-    times = muons[run_number][1]
     muon_info = []
-    for i in range(len(gtids)):
-        muon_info.append((gtids[i], times[i]))
+    if muons:
+        gtids = muons[run_number][0]
+        times = muons[run_number][1]
+        for i in range(len(gtids)):
+            muon_info.append((gtids[i], times[i]))
 
     # Make parsing of missed muon info easier
-    mgtids = mmuons[run_number][0]
-    mtimes = mmuons[run_number][1]
     mmuon_info = []
-    for i in range(len(mgtids)):
-        mmuon_info.append((mgtids[i], mtimes[i]))
+    if mmuons:
+        mgtids = mmuons[run_number][0]
+        mtimes = mmuons[run_number][1]
+        for i in range(len(mgtids)):
+            mmuon_info.append((mgtids[i], mtimes[i]))
 
-    return render_template('muons_by_run.html', run_number=run_number, muon_info=muon_info, mmuon_info=mmuon_info) 
+    # Make parsing of atmospherics info easier
+    atm_info = []
+    if atm:
+        atmgtids = atm[run_number][0]
+        atmtimes = atm[run_number][1]
+        atmfollowers = atm[run_number][2]
+        for i in range(len(atmgtids)):
+            atm_info.append((atmgtids[i], atmtimes[i], atmfollowers[i]))
+    else:
+        atm_info.append(("Not Processed", "-", "-"))
+
+    return render_template('muons_by_run.html', run_number=run_number, muon_info=muon_info, mmuon_info=mmuon_info, atm_info=atm_info) 
 
 @app.route('/trigger_clock_jump')
 def trigger_clock_jump():
