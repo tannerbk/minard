@@ -63,8 +63,8 @@ minard-cmos
 * **Log File**: ``/var/log/minard/minard_cmos.log``
 * **Description**: Reads CMOS rates from the data server and writes to the redis database.
 
-data_consumer_base
-------------------
+minard-base
+-----------
 
 * **Command**: ``minard-base [--host HOST] [--port PORT] [--logfile LOGFILE] [-d] [--loglevel LOGLEVEL]``
 * **Run as**: minard
