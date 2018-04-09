@@ -44,7 +44,7 @@ def get_run_list(limit, selected_run, run_range_low, run_range_high, all_runs, g
 def muons(limit, selected_run, run_range_low, run_range_high, all_runs, gold):
 
     muon_fail = {}
-    _, mcount, _, _, mmcount, _ = get_muons(limit, selected_run, run_range_low, run_range_high, gold)
+    _, mcount, _, _, mmcount, _, _, _ = get_muons(limit, selected_run, run_range_low, run_range_high, gold)
 
     for run in all_runs:
         try:
