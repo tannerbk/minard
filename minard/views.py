@@ -1232,7 +1232,7 @@ def occupancy_by_trigger():
 
     gold_runs = 0
     if gold:
-        gold_runs = golden_run_list(selected_run, limit, run_range_low, run_range_high)
+        gold_runs = golden_run_list()
 
     if not selected_run:
         runs = occupancy.run_list(limit, run_range_low, run_range_high, gold_runs)
@@ -1267,7 +1267,7 @@ def nearline_monitoring_summary():
     # Select only golden runs
     gold_runs = 0
     if gold:
-        gold_runs = golden_run_list(selected_run, limit, run_range_low, run_range_high)
+        gold_runs = golden_run_list()
 
     # Get the run type and run list from the nearline database
     runTypes, runs = nearline_monitor.get_run_types(limit, selected_run, run_range_low, run_range_high, gold_runs)
@@ -1327,7 +1327,7 @@ def pingcrates():
 
     gold_runs = 0
     if gold:
-        gold_runs = golden_run_list(selected_run, limit, run_range_low, run_range_high)
+        gold_runs = golden_run_list()
 
     data = pingcratesdb.ping_crates_list(limit, selected_run, run_range_low, run_range_high, gold_runs)
     return render_template('pingcrates.html', data=data, limit=limit, selected_run=selected_run, run_range_low=run_range_low, run_range_high=run_range_high, gold=gold)
@@ -1346,7 +1346,7 @@ def channelflags():
 
     gold_runs = 0
     if gold:
-        gold_runs = golden_run_list(selected_run, limit, run_range_low, run_range_high)
+        gold_runs = golden_run_list()
 
     if not selected_run:
         runs, nsync16, nsync24, nresyncs, sync16s, sync24s, missed, sync16s_pr, sync24s_pr, normal, owl, other = channelflagsdb.get_channel_flags(limit, run_range_low, run_range_high, False, gold_runs)
@@ -1381,46 +1381,20 @@ def muon_list():
     run_range_low = request.args.get("run_range_low", 0, type=int)
     run_range_high = request.args.get("run_range_high", 0, type=int)
     gold = request.args.get("gold_runs", 0, type=int)
+    atm = request.args.get("atm", 0, type=int)
 
     gold_runs = 0
     if gold:
-        gold_runs = golden_run_list(selected_run, limit, run_range_low, run_range_high)
+        gold_runs = golden_run_list()
 
-    mruns, mcount, mfake, mmruns, mmcount, atmruns, atmcount, livetime = muonsdb.get_muons(limit, selected_run, run_range_low, run_range_high, gold_runs)
+    mruns, mcount, mmcount, atmcount, livetime, mfake = muonsdb.get_muons(limit, selected_run, run_range_low, run_range_high, gold_runs, atm)
 
-    return render_template('muon_list.html', mruns=mruns, limit=limit, selected_run=selected_run, run_range_low=run_range_low, run_range_high=run_range_high, gold=gold, mcount=mcount, mmcount=mmcount, mfake=mfake, atmcount=atmcount, livetime=livetime)
+    return render_template('muon_list.html', mruns=mruns, limit=limit, selected_run=selected_run, run_range_low=run_range_low, run_range_high=run_range_high, gold=gold, mcount=mcount, mmcount=mmcount, mfake=mfake, atmcount=atmcount, livetime=livetime, atm=atm)
 
 @app.route('/muons_by_run/<run_number>')
 def muons_by_run(run_number):
-    _, muons, _, mmuons, _, atm = muonsdb.get_muon_info_by_run(int(run_number)) 
+    muon_info, mmuon_info, atm_info = muonsdb.get_muon_info_by_run(int(run_number))
     run_number=int(run_number)
-
-    # Make parsing of muon info easier
-    muon_info = []
-    if muons:
-        gtids = muons[run_number][0]
-        times = muons[run_number][1]
-        for i in range(len(gtids)):
-            muon_info.append((gtids[i], times[i]))
-
-    # Make parsing of missed muon info easier
-    mmuon_info = []
-    if mmuons:
-        mgtids = mmuons[run_number][0]
-        mtimes = mmuons[run_number][1]
-        for i in range(len(mgtids)):
-            mmuon_info.append((mgtids[i], mtimes[i]))
-
-    # Make parsing of atmospherics info easier
-    atm_info = []
-    if atm:
-        atmgtids = atm[run_number][0]
-        atmtimes = atm[run_number][1]
-        atmfollowers = atm[run_number][2]
-        for i in range(len(atmgtids)):
-            atm_info.append((atmgtids[i], atmtimes[i], atmfollowers[i]))
-    else:
-        atm_info.append(("Not Processed", "-", "-"))
 
     return render_template('muons_by_run.html', run_number=run_number, muon_info=muon_info, mmuon_info=mmuon_info, atm_info=atm_info) 
 
@@ -1434,7 +1408,7 @@ def trigger_clock_jump():
 
     gold_runs = 0
     if gold:
-        gold_runs = golden_run_list(selected_run, limit, run_range_low, run_range_high)
+        gold_runs = golden_run_list()
 
     runs, njump10, njump50, clock_status = triggerclockjumpsdb.get_clock_jumps(limit, selected_run, run_range_low, run_range_high, gold_runs)
 

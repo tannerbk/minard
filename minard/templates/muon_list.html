@@ -31,7 +31,7 @@
         <th> </th>
       </tr>
       <tr>
-        <th> <select id="limit" onchange="get_limit(this.value, 0, 0, 0, {{gold}});">
+        <th> <select id="limit" onchange="get_limit(this.value, 0, 0, 0, {{gold}}, {{atm}});">
                {% if selected_run != 0 or run_range_high != 0 %}
                  <option selected value="-">-</option>
                {% else %}
@@ -44,13 +44,18 @@
                {% endfor %}
              </select> </th>
 
-        <th> <input style="margin-bottom: 30px; width: 80px;" type="text" id="run" value={{selected_run}} onKeyDown="if(event.keyCode==13) get_limit(0, this.value, 0, 0, {{gold}});"></input> </th>
-        <th> <input style="margin-bottom: 30px; width: 80px;" type="text" id="low" value={{run_range_low}} onKeyDown="if(event.keyCode==13) get_limit(0, 0, this.value, high.value, {{gold}});"></input>
-             - <input style="margin-bottom: 30px; width: 80px;" type="text" id="high" value={{run_range_high}} onKeyDown="if(event.keyCode==13) get_limit(0, 0, low.value, this.value, {{gold}});"></input> </th>
+        <th> <input style="margin-bottom: 30px; width: 80px;" type="text" id="run" value={{selected_run}} onKeyDown="if(event.keyCode==13) get_limit(0, this.value, 0, 0, {{gold}}, {{atm}});"></input> </th>
+        <th> <input style="margin-bottom: 30px; width: 80px;" type="text" id="low" value={{run_range_low}} onKeyDown="if(event.keyCode==13) get_limit(0, 0, this.value, high.value, {{gold}}, {{atm}});"></input>
+             - <input style="margin-bottom: 30px; width: 80px;" type="text" id="high" value={{run_range_high}} onKeyDown="if(event.keyCode==13) get_limit(0, 0, low.value, this.value, {{gold}}, {{atm}});"></input> </th>
         {% if not gold %}
-          <th> <button type="submit" class="btn btn-success" onclick="get_limit(limit.value, run.value, low.value, high.value, 1)">Show Only Gold Runs</button> </th>
+          <th> <button type="submit" class="btn btn-success" onclick="get_limit(limit.value, run.value, low.value, high.value, 1, {{atm}})">Show Only Gold Runs</button> </th>
         {% else %}
-          <th> <button type="submit" class="btn btn-success" onclick="get_limit(limit.value, run.value, low.value, high.value, 0)">Show All Runs</button> </th>
+          <th> <button type="submit" class="btn btn-success" onclick="get_limit(limit.value, run.value, low.value, high.value, 0, {{atm}})">Show All Runs</button> </th>
+        {% endif %}
+        {% if not atm %}
+          <th> <button type="submit" class="btn btn-success" onclick="get_limit(limit.value, run.value, low.value, high.value, {{gold}}, 1)">Show Only Runs With Events Tagged as Atmospheric Neutrinos!</button> </th>
+        {% else %}
+          <th> <button type="submit" class="btn btn-success" onclick="get_limit(limit.value, run.value, low.value, high.value, {{gold}}, 0)">Show All Runs</button> </th>
         {% endif %}
       </tr>
     </table>
@@ -94,13 +99,14 @@
 {% endblock %}
 {% block script %}
   <script>
-    function get_limit(limit, run, low, high, gold){
+    function get_limit(limit, run, low, high, gold, atm){
       params = {};
       params["limit"] = limit;
       params["run"] = run;
       params["run_range_low"] = low;
       params["run_range_high"] = high;
       params["gold_runs"] = gold;
+      params["atm"] = atm;
       window.location.replace($SCRIPT_ROOT + "/muon_list?" + $.param(params));
     }
   </script>

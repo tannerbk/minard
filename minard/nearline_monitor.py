@@ -6,6 +6,7 @@ from .triggerclockjumpsdb import get_clock_jumps, get_clock_jumps_by_run
 from .nlrat import RUN_TYPES
 from .occupancy import run_list, occupancy_by_trigger, occupancy_by_trigger_limit
 from .muonsdb import get_muons
+from time import time as t
 
 # Limits for failing channel flags check
 OUT_OF_SYNC_1 = 32
@@ -44,7 +45,7 @@ def get_run_list(limit, selected_run, run_range_low, run_range_high, all_runs, g
 def muons(limit, selected_run, run_range_low, run_range_high, all_runs, gold):
 
     muon_fail = {}
-    _, mcount, _, _, mmcount, _, _, _ = get_muons(limit, selected_run, run_range_low, run_range_high, gold)
+    _, mcount, mmcount, _, _, _ = get_muons(limit, selected_run, run_range_low, run_range_high, gold, 0)
 
     for run in all_runs:
         try:

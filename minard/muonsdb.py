@@ -4,93 +4,86 @@ import time
 
 TZERO = 14610*24*3600
 
-def get_muons(limit, selected_run, run_range_low, run_range_high, gold):
+def get_muons(limit, selected_run, run_range_low, run_range_high, gold, atm):
     """
-    Returns a list of muon gtids for either
-    a run list or a selected run
+    Returns a list of muon gtids for either a run list or a selected run
     """
     conn = engine_nl.connect()
 
+    runs = []
+
     if not selected_run and not run_range_high:
         current_run = get_latest_run()
-        run = current_run - limit
-        result_muons = conn.execute("SELECT DISTINCT ON (run) run, array_length(gtids, 1), "
-                                    "gtids, days, secs, nsecs "
-                                    "FROM muons where run > %s ORDER BY run DESC, "
-                                    "timestamp DESC", (run,))
-        result_missed = conn.execute("SELECT DISTINCT ON (run) run, array_length(gtids, 1) "
-                                     "FROM missed_muons where run > %s ORDER BY run DESC, "
-                                     "timestamp DESC", (run,))
-        result_atm = conn.execute("SELECT DISTINCT ON (run) run, array_length(gtids, 1) "
-                                  "FROM atmospherics where run > %s ORDER BY run DESC, "
-                                  "timestamp DESC", (run,))
+        run_range = current_run - limit
+        # This missed muon array can be very long, so just select on its length
+        if not atm:
+            result = conn.execute("SELECT DISTINCT ON (a.run) a.run, a.gtids, a.days, a.secs, a.nsecs, "
+                                  "array_length(b.gtids, 1), c.gtids FROM muons AS a LEFT JOIN missed_muons "
+                                  "AS b ON a.run=b.run LEFT JOIN atmospherics AS c ON a.run=c.run "
+                                  "WHERE a.run >= %s ORDER BY run DESC", (run_range,))
+        else:
+            result = conn.execute("SELECT DISTINCT ON (a.run) a.run, b.gtids, b.days, b.secs, b.nsecs, "
+                                  "array_length(c.gtids, 1), a.gtids FROM atmospherics "
+                                  "AS a INNER JOIN muons AS b ON a.run=b.run INNER JOIN "
+                                  "missed_muons AS c ON a.run=c.run WHERE array_length(a.gtids, 1) > 0 "
+                                  "AND a.run >= %s ORDER BY a.run DESC", (run_range,))
     elif run_range_high:
-        result_muons = conn.execute("SELECT DISTINCT ON (run) run, array_length(gtids, 1), "
-                                    "gtids, days, secs, nsecs "
-                                    "FROM muons where run >= %s AND run <= %s ORDER BY run DESC, "
-                                    "timestamp DESC", (run_range_low, run_range_high))
-        result_missed = conn.execute("SELECT DISTINCT ON (run) run, array_length(gtids, 1) "
-                                     "FROM missed_muons where run >= %s AND run <= %s ORDER BY run DESC, "
-                                     "timestamp DESC", (run_range_low, run_range_high))
-        result_atm = conn.execute("SELECT DISTINCT ON (run) run, array_length(gtids, 1) "
-                                  "FROM atmospherics where run >= %s AND run <= %s ORDER BY run DESC, "
-                                  "timestamp DESC", (run_range_low, run_range_high))
+        if not atm:
+            result = conn.execute("SELECT DISTINCT ON (a.run) a.run, a.gtids, a.days, a.secs, a.nsecs, "
+                                  "array_length(b.gtids, 1), c.gtids FROM muons AS a LEFT JOIN missed_muons "
+                                  "AS b ON a.run=b.run LEFT JOIN atmospherics AS c ON a.run=c.run "
+                                  "WHERE a.run >= %s and a.run <= %s ORDER BY run DESC", \
+                                  (run_range_low, run_range_high))
+        else:
+            result = conn.execute("SELECT DISTINCT ON (a.run) a.run, b.gtids, b.days, b.secs, b.nsecs, "
+                                  "array_length(c.gtids, 1), a.gtids FROM atmospherics "
+                                  "AS a INNER JOIN muons AS b ON a.run=b.run INNER JOIN "
+                                  "missed_muons AS c ON a.run=c.run WHERE array_length(a.gtids, 1) > 0 "
+                                  "AND a.run >= %s AND a.run <= %s ORDER BY a.run DESC", \
+                                  (run_range_low, run_range_high))
     else:
-        result_muons = conn.execute("SELECT run, array_length(gtids, 1), gtids, days, secs, nsecs "
-                                    "FROM muons where run = %s ORDER BY timestamp DESC LIMIT 1", \
-                                    (selected_run,))
-        result_missed = conn.execute("SELECT run, array_length(gtids, 1) "
-                                     "FROM missed_muons where run = %s ORDER BY timestamp DESC "
-                                     "LIMIT 1", (selected_run,))
-        result_atm = conn.execute("SELECT run, array_length(gtids, 1) "
-                                  "FROM atmospherics where run = %s ORDER BY timestamp DESC "
-                                  "LIMIT 1", (selected_run,))
+        result = conn.execute("SELECT DISTINCT ON (a.run) a.run, a.gtids, a.days, a.secs, a.nsecs, "
+                              "array_length(b.gtids, 1), c.gtids FROM muons AS a LEFT JOIN missed_muons "
+                              "AS b ON a.run=b.run LEFT JOIN atmospherics AS c ON a.run=c.run "
+                              "WHERE a.run = %s", (selected_run,))
 
-    rows_muons = result_muons.fetchall()
-    rows_missed = result_missed.fetchall()
-    rows_atm = result_atm.fetchall()
+    rows = result.fetchall()
 
-    muon_runs = []
     muon_count = {}
-    muon_fake = {}
-    livetime_lost = {}
-    for run, count, gtids, days, secs, nsecs in rows_muons:
-        if gold != 0 and run not in gold:
-            continue
-        muon_runs.append(run)
-        muon_count[run] = count
-        if gtids and gtids[0] == -1:
-            muon_fake[run] = 1
-        livetime = []
-        # Count the livetime lost to muons by run, accounting for overlap
-        for t in range(len(days)):
-            time = days[t]*24*3600 + secs[t] + float(nsecs[t])/1e9
-            livetime.append(time)
-            if t == 0:
-                livetime_lost[run] = 20
-            elif(livetime[t] > livetime[t-1] + 20):
-                livetime_lost[run] += 20
-            else:
-                livetime_lost[run] += int((livetime[t] - livetime[t-1]))
-
-    missed_muon_runs = []
-    missed_muon_count = {}
-    for run, count in rows_missed:
-        if gold != 0 and run not in gold:
-            continue
-        missed_muon_runs.append(run)
-        missed_muon_count[run] = count
-
-    atm_runs = []
+    mmuon_count = {}
     atm_count = {}
-    for run, count in rows_atm:
+    livetime_lost = {} 
+    fake = {}
+
+    for run, agtids, adays, asecs, ansecs, bgtids, cgtids in rows:
+
+        # Check if the run is on the gold list
         if gold != 0 and run not in gold:
             continue
-        atm_runs.append(run)
-        atm_count[run] = count
 
-    return muon_runs, muon_count, muon_fake, missed_muon_runs, \
-           missed_muon_count, atm_runs, atm_count, livetime_lost
+        runs.append(run)
+
+        if agtids is None:
+            continue
+
+        # Check if we inserted a fake muon
+        if len(agtids) > 0 and agtids[0] == -1:
+            fake[run] = 1
+        muon_count[run] = len(agtids)
+        # array_length returns None for size zero arrays
+        if bgtids is None:
+            mmuon_count[run] = 0
+        else:
+            mmuon_count[run] = bgtids
+        # Calculate livetime lost to muons, which are the dominant source
+        livetime_lost[run] = calculate_livetime_lost(adays, asecs, ansecs)
+        # Lots of unprocessed runs, so check to make sure 
+        if cgtids is not None:
+            atm_count[run] = len(cgtids)
+            continue
+        atm_count[run] = "Not Processed"
+
+    return runs, muon_count, mmuon_count, atm_count, livetime_lost, fake
 
 
 def get_muon_info_by_run(selected_run):
@@ -99,51 +92,60 @@ def get_muon_info_by_run(selected_run):
     '''
     conn = engine_nl.connect()
 
-    result_muons = conn.execute("SELECT run, gtids, days, secs, nsecs "
-                                "FROM muons WHERE run = %s ORDER BY timestamp DESC LIMIT 1", \
-                                (selected_run,))
-    result_missed = conn.execute("SELECT run, gtids, days, secs, nsecs "
-                                 "FROM missed_muons WHERE run = %s ORDER BY timestamp DESC "
-                                 "LIMIT 1", (selected_run,))
-    result_atm = conn.execute("SELECT run, gtids, days, secs, nsecs, followers "
-                              "FROM atmospherics WHERE run = %s ORDER BY timestamp DESC "
-                              "LIMIT 1", (selected_run,))
+    result = conn.execute("SELECT DISTINCT ON (a.run) a.gtids, a.days, a.secs, a.nsecs, "
+                          "b.gtids, b.days, b.secs, b.nsecs, c.gtids, c.days, c.secs, "
+                          "c.nsecs, c.followers FROM muons AS a LEFT JOIN missed_muons "
+                          "AS b ON a.run=b.run LEFT JOIN atmospherics AS c ON a.run=c.run "
+                          "WHERE a.run = %s", (selected_run,))
 
-    rows_muons = result_muons.fetchall()
-    rows_missed = result_missed.fetchall()
-    rows_atms = result_atm.fetchall()
+    rows = result.fetchall()
 
-    muon_runs = []
-    muon = {}
-    for run, gtids, days, secs, nsecs in rows_muons:
-        t_array = []
-        muon_runs.append(run)
-        for t in range(len(days)):
-            total_secs = TZERO + days[t]*24*3600 + secs[t] + float(nsecs[t])/1e9
-            stime = time.strftime("%a, %d %b %Y %H:%M:%S ", time.gmtime(total_secs))
-            t_array.append(stime)
-        muon[run] = [gtids, t_array]
+    muons, mmuons, atm = ([],)*3
+    for agtids, adays, asecs, ansecs, \
+        bgtids, bdays, bsecs, bnsecs, \
+        cgtids, cdays, csecs, cnsecs, cfollowers in rows:
 
-    missed_muon_runs = []
-    missed_muon = {}
-    for run, gtids, days, secs, nsecs in rows_missed:
-        t_array = []
-        for t in range(len(days)):
-            total_secs = TZERO + days[t]*24*3600 + secs[t] + float(nsecs[t])/1e9
-            stime = time.strftime("%a, %d %b %Y %H:%M:%S ", time.gmtime(total_secs))
-            t_array.append(stime)
-        missed_muon_runs.append(run)
-        missed_muon[run] = [gtids, t_array]
+        muons  = make_info(adays, asecs, ansecs, agtids)
+        mmuons = make_info(bdays, bsecs, bnsecs, bgtids)
+        atm    = make_info(cdays, csecs, cnsecs, cgtids, cfollowers)
 
-    atm_runs = []
-    atm = {}
-    for run, gtids, days, secs, nsecs, follower in rows_atms:
-        t_array = []
-        atm_runs.append(run)
-        for t in range(len(days)):
-            total_secs = TZERO + days[t]*24*3600 + secs[t] + float(nsecs[t])/1e9
-            stime = time.strftime("%a, %d %b %Y %H:%M:%S ", time.gmtime(total_secs))
-            t_array.append(stime)
-        atm[run] = [gtids, t_array, follower]
+    return muons, mmuons, atm 
 
-    return muon_runs, muon, missed_muon_runs, missed_muon, atm_runs, atm
+
+def make_info(days, secs, nsecs, gtids, followers=None):
+    """
+    Append all the information to a single array
+    """
+    array = []
+    if gtids is None:
+        array.append(('Not Processed', '-'))
+        return array
+    for t in range(len(days)):
+        total_secs = TZERO + days[t]*24*3600 + secs[t] + float(nsecs[t])/1e9
+        stime = time.strftime("%a, %d %b %Y %H:%M:%S ", time.gmtime(total_secs))
+        if followers:
+            array.append((gtids[t], stime, followers[t]))
+            continue
+        array.append((gtids[t], stime))
+
+    return array
+
+
+def calculate_livetime_lost(days, secs, nsecs):
+    """
+    Calculate the livetime lost to muons. Account for overlap.
+    """
+    livetime_lost = 0
+    livetime = []
+    for t in range(len(days)):
+        time = days[t]*24*3600 + secs[t] + float(nsecs[t])/1e9
+        livetime.append(time)
+        if t == 0:
+            livetime_lost = 20
+        elif(livetime[t] > livetime[t-1] + 20):
+            livetime_lost += 20
+        else:
+            livetime_lost += int((livetime[t] - livetime[t-1]))
+
+    return livetime_lost
+
