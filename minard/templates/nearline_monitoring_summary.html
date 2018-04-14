@@ -18,6 +18,23 @@ td, th {
 tr:nth-child(even) {
     background-color: #f0f0f0;
 }
+.btn1 {
+    background-color: #FFD700;
+    padding: 6px 6px;
+    text-align: center;
+    font-size: 14px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+.btn2 {
+    background-color: #228B22;
+    padding: 6px 6px;
+    color: white;
+    text-align: center;
+    font-size: 14px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
 </style>
 {% endblock %}
 {% block body %}
@@ -72,9 +89,9 @@ tr:nth-child(even) {
           {% endfor %}
         </select> </th>
         {% if not gold %}
-          <th> <button type="submit" class="btn btn-success" onclick="get_limit(limit.value, run.value, low.value, high.value, 1, rtype.value)">Show Only Gold Runs</button> </th>
+          <th> <button type="submit" class="btn1" onclick="get_limit(limit.value, run.value, low.value, high.value, 1, rtype.value)">Show Only Gold Runs</button> </th>
         {% else %}
-          <th> <button type="submit" class="btn btn-success" onclick="get_limit(limit.value, run.value, low.value, high.value, 0, rtype.value)">Show All Runs</button> </th>
+          <th> <button type="submit" class="btn2" onclick="get_limit(limit.value, run.value, low.value, high.value, 0, rtype.value)">Show All Runs</button> </th>
         {% endif %}
       </tr>
     </table>

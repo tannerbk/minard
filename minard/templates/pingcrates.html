@@ -2,6 +2,25 @@
 {% block title %}Ping Crates{% endblock %}
 {% block head %}
   {{ super() }}
+  <style>
+    .btn1 {
+        background-color: #FFD700;
+        padding: 6px 6px;
+        text-align: center;
+        font-size: 14px;
+        margin: 4px 2px;
+        cursor: pointer;
+    }
+    .btn2 {
+        background-color: #228B22;
+        padding: 6px 6px;
+        color: white;
+        text-align: center;
+        font-size: 14px;
+        margin: 4px 2px;
+        cursor: pointer;
+    }
+  </style>
 {% endblock %}
 {% block body %}
   {{ super() }}
@@ -48,9 +67,9 @@
         <th> <input style="margin-bottom: 30px; width: 80px;" type="text" id="low" value={{run_range_low}} onKeyDown="if(event.keyCode==13) get_limit(0, 0, this.value, high.value, {{gold}});"></input>
              - <input style="margin-bottom: 30px; width: 80px;" type="text" id="high" value={{run_range_high}} onKeyDown="if(event.keyCode==13) get_limit(0, 0, low.value, this.value, {{gold}});"></input> </th>
         {% if not gold %}
-          <th> <button type="submit" class="btn btn-success" onclick="get_limit(limit.value, run.value, low.value, high.value, 1)">Show Only Gold Runs</button> </th>
+          <th> <button type="submit" class="btn1" onclick="get_limit(limit.value, run.value, low.value, high.value, 1)">Show Only Gold Runs</button> </th>
         {% else %}
-          <th> <button type="submit" class="btn btn-success" onclick="get_limit(limit.value, run.value, low.value, high.value, 0)">Show All Runs</button> </th>
+          <th> <button type="submit" class="btn2" onclick="get_limit(limit.value, run.value, low.value, high.value, 0)">Show All Runs</button> </th>
         {% endif %}
       </tr>
     </table>
