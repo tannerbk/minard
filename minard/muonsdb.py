@@ -100,7 +100,10 @@ def get_muon_info_by_run(selected_run):
 
     rows = result.fetchall()
 
-    muons, mmuons, atm = ([],)*3
+    muons = []
+    mmuons = []
+    atm = []
+
     for agtids, adays, asecs, ansecs, \
         bgtids, bdays, bsecs, bnsecs, \
         cgtids, cdays, csecs, cnsecs, cfollowers in rows:
