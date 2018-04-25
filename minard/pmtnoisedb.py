@@ -1,12 +1,8 @@
 from .db import engine_nl
 
 import sys
-from .views import app
 
-# TODO
-# must support both runs_after_run() and get_run_by_run_number()
-# return types should be DICTS!
-
+# all fields 
 fields = ['average_nhit_trigenabled',
           'run_number',
           'analyze_time',
@@ -25,11 +21,6 @@ fields = ['average_nhit_trigenabled',
           'average_noise_crate',
           'average_qhl_hhp_crate',
           'timestamp']
-
-cols = ''
-for f in fields:
-    cols += '%s,'
-cols = '(' + cols[:-1] + ')'
 
 def dictify(rows):
     rv = []
