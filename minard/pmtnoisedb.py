@@ -1,33 +1,13 @@
 from .db import engine_nl
 
-import sys
-
-# all fields 
-fields = ['average_nhit_trigenabled',
-          'run_number',
-          'analyze_time',
-          'average_noiserate',
-          'online_pmt',
-          'average_nhit_normal',
-          'n_pgt',
-          'average_qhl_thresh',
-          'average_qhl_peak',
-          'average_qhs_peak',
-          'run_time',
-          'average_qhs_hhp',
-          'average_qhs_thresh',
-          'average_nhit_raw',
-          'average_qhl_hhp',
-          'average_noise_crate',
-          'average_qhl_hhp_crate',
-          'timestamp']
-
+# turn a sql result into a list of dicts
 def dictify(rows):
+    keys = rows.keys()
     rv = []
     for row in rows:
         d = {}
-        for i,f in enumerate(fields):
-            d[f] = row[i]
+        for k in keys:
+            d[k] = row[k]
         rv.append(d)
     return rv
 
