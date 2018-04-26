@@ -523,6 +523,26 @@ def nhit_monitor(key):
 
     return render_template('nhit_monitor.html', results=results)
 
+@app.route('/nhit-monitor-thresholds-nearline')
+def nhit_monitor_thresholds_nearline():
+    limit = request.args.get("limit", 100, type=int)
+    offset = request.args.get("offset", 0, type=int)
+    results = detector_state.get_nhit_monitor_thresholds_nearline(limit, offset)
+
+    if results is None:
+	return render_template('nhit_monitor_thresholds_nearline.html', error="No nhit monitor records.")
+
+    return render_template('nhit_monitor_thresholds_nearline.html', results=results, limit=limit, offset=offset)
+
+@app.route('/nhit-monitor-nearline/<int:run>')
+def nhit_monitor_nearline(run):
+    results = detector_state.get_nhit_monitor_nearline(run)
+
+    if results is None:
+	return render_template('nhit_monitor_nearline.html', error="No nhit monitor record with key %i." % key)
+
+    return render_template('nhit_monitor_nearline.html', results=results)
+
 @app.route('/trigger')
 def trigger():
     results = detector_state.get_latest_trigger_scans()

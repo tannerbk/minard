@@ -1,6 +1,6 @@
 from __future__ import print_function, division
 from .views import app
-from .db import engine
+from .db import engine, engine_nl
 from .channeldb import get_nominal_settings_for_run
 from collections import defaultdict
 
@@ -488,6 +488,38 @@ def get_nhit_monitor(key):
     conn = engine.connect()
 
     result = conn.execute("SELECT * FROM nhit_monitor WHERE key=%s", (key,))
+
+    if result is None:
+        return None
+
+    keys = result.keys()
+    row = result.fetchone()
+
+    return dict(zip(keys,row))
+
+def get_nhit_monitor_thresholds_nearline(limit=100, offset=0):
+    """
+    Returns a list of the latest nhit monitor records in the nearline database.
+    """
+    conn = engine_nl.connect()
+
+    result = conn.execute("SELECT * FROM nhit_monitor_thresholds ORDER BY timestamp DESC LIMIT %s OFFSET %s", (limit,offset))
+
+    if result is None:
+        return None
+
+    keys = result.keys()
+    rows = result.fetchall()
+
+    return [dict(zip(keys,row)) for row in rows]
+
+def get_nhit_monitor_nearline(run):
+    """
+    Return an nhit monitor record from the nearline database.
+    """
+    conn = engine_nl.connect()
+
+    result = conn.execute("SELECT * FROM nhit_monitor WHERE run=%s", (run,))
 
     if result is None:
         return None
