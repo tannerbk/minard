@@ -534,9 +534,9 @@ def nhit_monitor_thresholds_nearline():
 
     return render_template('nhit_monitor_thresholds_nearline.html', results=results, limit=limit, offset=offset)
 
-@app.route('/nhit-monitor-nearline/<int:run>')
-def nhit_monitor_nearline(run):
-    results = detector_state.get_nhit_monitor_nearline(run)
+@app.route('/nhit-monitor-nearline/<int:key>')
+def nhit_monitor_nearline(key):
+    results = detector_state.get_nhit_monitor_nearline(key)
 
     if results is None:
 	return render_template('nhit_monitor_nearline.html', error="No nhit monitor record with key %i." % key)

@@ -513,13 +513,13 @@ def get_nhit_monitor_thresholds_nearline(limit=100, offset=0):
 
     return [dict(zip(keys,row)) for row in rows]
 
-def get_nhit_monitor_nearline(run):
+def get_nhit_monitor_nearline(key):
     """
     Return an nhit monitor record from the nearline database.
     """
     conn = engine_nl.connect()
 
-    result = conn.execute("SELECT * FROM nhit_monitor WHERE run=%s", (run,))
+    result = conn.execute("SELECT * FROM nhit_monitor WHERE key=%s", (key,))
 
     if result is None:
         return None

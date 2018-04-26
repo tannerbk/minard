@@ -33,6 +33,7 @@
 			    <th colspan="5">Width</th>
 			</tr>
 			<tr>
+                            <th>Key</th>
 			    <th>Run</th>
 			    <th>Timestamp</th>
 			    <th>100L</th>
@@ -49,7 +50,8 @@
 		    </thead>
 		    {% for row in results %}
 		    <tr>
-			<td><a href="{{ url_for('nhit_monitor_nearline', run=row['run']) }}">{{ row['run'] }}</a></td>
+			<td><a href="{{ url_for('nhit_monitor_nearline', key=row['key']) }}">{{ row['key'] }}</a></td>
+                        <td>{{ row['run'] }}</td>
 			<td>{{ row['timestamp'].strftime("%Y-%m-%d %H:%M:%S") }}</td>
                         <td>
 			{% if row['nhit_100_lo'] is not none %}
