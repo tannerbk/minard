@@ -6,7 +6,6 @@ from .triggerclockjumpsdb import get_clock_jumps, get_clock_jumps_by_run
 from .nlrat import RUN_TYPES
 from .occupancy import run_list, occupancy_by_trigger, occupancy_by_trigger_limit
 from .muonsdb import get_muons
-from time import time as t
 
 # Limits for failing channel flags check
 OUT_OF_SYNC_1 = 32
