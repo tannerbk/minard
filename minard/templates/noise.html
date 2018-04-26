@@ -25,7 +25,7 @@
       </tr>
     </thead>
     <tbody>
-      {% for run in runs|reverse if run %}
+      {% for run in runs if run %}
       {% if "n_pgt" in run and run["n_pgt"]|int() > 10000 %}
       <tr class="info">
       {% else %}

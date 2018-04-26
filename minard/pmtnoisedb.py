@@ -16,7 +16,7 @@ def runs_after_run(run, maxrun='+inf'):
     cmd = 'SELECT * FROM pmtnoise WHERE %d < run_number' % run
     if maxrun < '+inf':
         cmd += ' AND run_number < %d' % maxrun
-    cmd += ';'
+    cmd += ' ORDER BY run_number DESC;'
     rows = conn.execute(cmd)
     return dictify(rows)
 
