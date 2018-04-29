@@ -497,13 +497,16 @@ def get_nhit_monitor(key):
 
     return dict(zip(keys,row))
 
-def get_nhit_monitor_thresholds_nearline(limit=100, offset=0):
+def get_nhit_monitor_thresholds_nearline(limit=100, offset=0, sort_by="run"):
     """
     Returns a list of the latest nhit monitor records in the nearline database.
     """
     conn = engine_nl.connect()
 
-    result = conn.execute("SELECT * FROM nhit_monitor_thresholds ORDER BY run DESC, timestamp DESC LIMIT %s OFFSET %s", (limit,offset))
+    if sort_by == 'run':
+        result = conn.execute("SELECT * FROM nhit_monitor_thresholds ORDER BY run DESC, timestamp DESC LIMIT %s OFFSET %s", (limit,offset))
+    if sort_by == 'key':
+        result = conn.execute("SELECT * FROM nhit_monitor_thresholds ORDER BY key DESC, timestamp DESC LIMIT %s OFFSET %s", (limit,offset))
 
     if result is None:
         return None

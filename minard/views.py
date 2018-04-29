@@ -527,12 +527,13 @@ def nhit_monitor(key):
 def nhit_monitor_thresholds_nearline():
     limit = request.args.get("limit", 100, type=int)
     offset = request.args.get("offset", 0, type=int)
-    results = detector_state.get_nhit_monitor_thresholds_nearline(limit, offset)
+    sort_by = request.args.get("sort_by", "run")
+    results = detector_state.get_nhit_monitor_thresholds_nearline(limit, offset, sort_by)
 
     if results is None:
 	return render_template('nhit_monitor_thresholds_nearline.html', error="No nhit monitor records.")
 
-    return render_template('nhit_monitor_thresholds_nearline.html', results=results, limit=limit, offset=offset)
+    return render_template('nhit_monitor_thresholds_nearline.html', results=results, limit=limit, offset=offset, sort_by=sort_by)
 
 @app.route('/nhit-monitor-nearline/<int:key>')
 def nhit_monitor_nearline(key):
