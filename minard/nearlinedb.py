@@ -54,7 +54,7 @@ def get_failed_runs(run, run_range_low=0, run_range_high=0):
     conn = engine_nl.connect()
 
     if run_range_high:
-        result = conn.execute("SELECT DISTONCT ON (run, name) run, name, status FROM nearline " 
+        result = conn.execute("SELECT DISTINCT ON (run, name) run, name, status FROM nearline " 
                               "WHERE run >= %s AND run <= %s ORDER BY run DESC, name DESC, timestamp DESC",
                               (run_range_low, run_range_high,))
     else:
