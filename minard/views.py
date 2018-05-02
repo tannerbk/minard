@@ -31,6 +31,7 @@ import fiber_position
 import occupancy
 import channelflagsdb
 import dropout
+import pmtnoisedb
 from run_list import golden_run_list
 from .polling import polling_runs, polling_info, polling_info_card, polling_check, polling_history, polling_summary
 from .channeldb import ChannelStatusForm, upload_channel_status, get_channels, get_channel_status, get_channel_status_form, get_channel_history, get_pmt_info, get_nominal_settings, get_most_recent_polling_info, get_discriminator_threshold, get_all_thresholds, get_maxed_thresholds, get_gtvalid_lengths, get_pmt_types, pmt_type_description, get_fec_db_history
@@ -1232,12 +1233,12 @@ def calibdq_tellie_subrun_number(run_number,subrun_number):
 
 @app.route('/noise')
 def noise():
-    runs = redisdb.runs_after_run('noise_runs_by_number', 0)
+    runs = pmtnoisedb.runs_after_run(0)
     return render_template('noise.html', runs=runs)
 
 @app.route('/noise_run_detail/<run_number>')
 def noise_run_detail(run_number):
-    run = redisdb.get_run_by_number('noise_runs_by_number', run_number)
+    run = pmtnoisedb.get_run_by_number(run_number)
     if len(run):
         return render_template('noise_run_detail.html', run=run[0], run_number=run_number)
     else:
