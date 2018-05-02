@@ -11,17 +11,23 @@ def dictify(rows):
         rv.append(d)
     return rv
 
-def runs_after_run(run, maxrun='+inf'):
+def runs_after_run(run, maxrun=None):
     conn = engine_nl.connect()
     cmd = 'SELECT * FROM pmtnoise WHERE %d < run_number' % run
-    if maxrun < '+inf':
-        cmd += ' AND run_number < %d' % maxrun
-    cmd += ' ORDER BY run_number DESC;'
-    rows = conn.execute(cmd)
+    if maxrun:
+        rows = conn.execute('SELECT * FROM pmtnoise'
+                            ' WHERE %s < run_number AND run_number < %s'
+                            ' ORDER BY run_number DESC;', 
+                            (int(run), int(maxrun)))
+    else:
+        rows = conn.execute('SELECT * FROM pmtnoise' 
+                            ' WHERE %s < run_number'
+                            ' ORDER BY run_number DESC;', 
+                            (int(run)))
     return dictify(rows)
 
 def get_run_by_number(run):
     conn = engine_nl.connect()
-    cmd = 'SELECT * FROM pmtnoise WHERE %d = run_number;' % int(run)
-    rows = conn.execute(cmd)
+    rows = conn.execute('SELECT * FROM pmtnoise WHERE %s = run_number;', \
+                        (int(run)))
     return dictify(rows)
