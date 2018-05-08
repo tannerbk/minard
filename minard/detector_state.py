@@ -306,6 +306,10 @@ def get_detector_state_check(run=0):
     else:
         tubii = get_tubii_state(tubii_key)
 
+        clock_status = tubii['clock_status']
+        if clock_status == 1:
+            messages.append("TUBII running on backup clock")
+
         control_reg = tubii['control_reg']
         if control_reg is not None and (control_reg & (1<<2)):
             messages.append("TUBII ECAL bit set")
