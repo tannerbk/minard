@@ -25,7 +25,7 @@
             </div>
             <div class="col-md-2 text-right">
                 <select id="step-menu">
-                    {% for i, text in [(1,"15 min"), (3, "1 hour"), (9, "3 hours"), (29, "9 hours"), (90, "1 day"), (280, "3 days"), (867, "1 week"), (2677, "1 month"), (8267, "3 months"), (25531, "1 year"), (255310, "10 years")] %}
+                    {% for i, text in [(1,"15 min"), (4, "1 hour"), (8, "3 hours"), (32, "9 hours"), (128, "1 day"), (256, "3 days"), (1024, "1 week"), (2048, "1 month"), (8192, "3 months"), (32768, "1 year"), (262144, "10 years")] %}
                         <option {% if step == i %}selected="selected" {% endif %}value="{{ i }}">{{ text }}</option>
                     {% endfor %}
                 </select>

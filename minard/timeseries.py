@@ -19,7 +19,7 @@ redis = Redis()
 # For our case, I chose Y = 315360000 (10 years), P = 4,000 (pixels)
 # The optimal number of intervals N is actually somewhere around 20,
 # but you get diminishing returns after 10, so this is easier.
-INTERVALS = [2**i for i in range(16+1)]
+INTERVALS = [2**i for i in range(18+1)]
 EXPIRE = 2*1200
 
 # intervals to store info per channel in a redis hash
