@@ -32,6 +32,7 @@ import occupancy
 import channelflagsdb
 import dropout
 import pmtnoisedb
+import gain_monitor
 from run_list import golden_run_list
 from .polling import polling_runs, polling_info, polling_info_card, polling_check, polling_history, polling_summary
 from .channeldb import ChannelStatusForm, upload_channel_status, get_channels, get_channel_status, get_channel_status_form, get_channel_history, get_pmt_info, get_nominal_settings, get_most_recent_polling_info, get_discriminator_threshold, get_all_thresholds, get_maxed_thresholds, get_gtvalid_lengths, get_pmt_types, pmt_type_description, get_fec_db_history
@@ -1295,7 +1296,7 @@ def nearline_monitoring_summary():
     runTypes, runs = nearline_monitor.get_run_types(limit, selected_run, run_range_low, run_range_high, gold_runs)
 
     # Get the data for each of the nearline tools
-    clock_jumps, ping_crates, channel_flags, occupancy, muons = \
+    clock_jumps, ping_crates, channel_flags, occupancy, muons, crate_gain = \
         nearline_monitor.get_run_list(limit, selected_run, run_range_low, run_range_high, runs, gold_runs)
 
     # Allow sorting by run type
@@ -1322,7 +1323,7 @@ def nearline_monitoring_summary():
             if run in run_list:
                 displayed_runs.append(run)
 
-    return render_template('nearline_monitoring_summary.html', runs=displayed_runs, selected_run=selected_run, limit=limit, clock_jumps=clock_jumps, ping_crates=ping_crates, channel_flags=channel_flags, occupancy=occupancy, muons=muons, runTypes=runTypes, run_range_low=run_range_low, run_range_high=run_range_high, allrunTypes=allrunTypes, selectedType=selectedType, gold=gold)
+    return render_template('nearline_monitoring_summary.html', runs=displayed_runs, selected_run=selected_run, limit=limit, clock_jumps=clock_jumps, ping_crates=ping_crates, channel_flags=channel_flags, occupancy=occupancy, muons=muons, crate_gain=crate_gain, runTypes=runTypes, run_range_low=run_range_low, run_range_high=run_range_high, allrunTypes=allrunTypes, selectedType=selectedType, gold=gold)
 
 @app.route('/physicsdq')
 def physicsdq():
@@ -1440,7 +1441,55 @@ def trigger_clock_jump():
 def trigger_clock_jump_run(run_number):
     data10, data50 = triggerclockjumpsdb.get_clock_jumps_by_run(run_number)
     return render_template('trigger_clock_jump_run.html', run_number=run_number, data10=data10, data50=data50)
- 
+
+@app.route('/crate_gain_monitor')
+def crate_gain_monitor():
+    limit = request.args.get("limit", 25, type=int)
+    selected_run = request.args.get("run", 0, type=int)
+    run_range_low = request.args.get("run_range_low", 0, type=int)
+    run_range_high = request.args.get("run_range_high", 0, type=int)
+    gold = request.args.get("gold_runs", 0, type=int)
+
+    gold_runs = 0
+    if gold:
+        gold_runs = golden_run_list()
+
+    runs, crate_qhs = gain_monitor.crate_gain_monitor(limit, selected_run, run_range_low, run_range_high, gold_runs)
+
+    lower_limit = 100
+    if selected_run:
+        run = selected_run
+    elif run_range_high:
+        run = run_range_high
+        if(run_range_low < run_range_high - lower_limit):
+            lower_limit = run_range_low
+    else:
+        run = detector_state.get_latest_run()
+
+    qhs_change = gain_monitor.crate_average(run, lower_limit)
+
+    return render_template('crate_gain_monitor.html', runs=runs, limit=limit, selected_run=selected_run, run_range_low=run_range_low, run_range_high=run_range_high, gold=gold, crate_qhs=crate_qhs, qhs_change=qhs_change)
+
+@app.route('/crate_gain_monitor_by_run/<run_number>')
+def crate_gain_monitor_by_run(run_number):
+    return render_template('crate_gain_monitor_by_run.html', run_number=run_number)
+
+@app.route('/crate_gain_history')
+def crate_gain_history():
+    crate = request.args.get('crate',0,type=int)
+    starting_run = request.args.get('starting_run',0,type=int)
+    ending_run = request.args.get('ending_run',0,type=int)
+
+    # Default to hard-coded first processed run
+    if starting_run == 0:
+        starting_run = 112621
+    # Default to current run
+    if ending_run == 0:
+        ending_run = detector_state.get_latest_run()
+
+    data = gain_monitor.crate_gain_history(starting_run, ending_run, crate)
+    return render_template('crate_gain_history.html', crate=crate, data=data, starting_run=starting_run, ending_run=ending_run)
+
 @app.route('/physicsdq/<run_number>')
 def physicsdq_run_number(run_number):
     ratdb_dict = HLDQTools.import_HLDQ_ratdb(int(run_number))
