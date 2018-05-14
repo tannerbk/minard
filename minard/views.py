@@ -1296,7 +1296,7 @@ def nearline_monitoring_summary():
     runTypes, runs = nearline_monitor.get_run_types(limit, selected_run, run_range_low, run_range_high, gold_runs)
 
     # Get the data for each of the nearline tools
-    clock_jumps, ping_crates, channel_flags, occupancy, muons = \
+    clock_jumps, ping_crates, channel_flags, occupancy, muons, crate_gain = \
         nearline_monitor.get_run_list(limit, selected_run, run_range_low, run_range_high, runs, gold_runs)
 
     # Allow sorting by run type
@@ -1323,7 +1323,7 @@ def nearline_monitoring_summary():
             if run in run_list:
                 displayed_runs.append(run)
 
-    return render_template('nearline_monitoring_summary.html', runs=displayed_runs, selected_run=selected_run, limit=limit, clock_jumps=clock_jumps, ping_crates=ping_crates, channel_flags=channel_flags, occupancy=occupancy, muons=muons, runTypes=runTypes, run_range_low=run_range_low, run_range_high=run_range_high, allrunTypes=allrunTypes, selectedType=selectedType, gold=gold)
+    return render_template('nearline_monitoring_summary.html', runs=displayed_runs, selected_run=selected_run, limit=limit, clock_jumps=clock_jumps, ping_crates=ping_crates, channel_flags=channel_flags, occupancy=occupancy, muons=muons, crate_gain=crate_gain, runTypes=runTypes, run_range_low=run_range_low, run_range_high=run_range_high, allrunTypes=allrunTypes, selectedType=selectedType, gold=gold)
 
 @app.route('/physicsdq')
 def physicsdq():

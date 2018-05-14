@@ -47,11 +47,12 @@ tr:nth-child(even) {
 <div class="container">
   <div class="col-md-12">
     <table class="table table-bordered">
-      <tr> <th> Ping crates checks whether the N100/N20 trigger signals are working properly for each crate. </th> </tr>
+      <tr> <th> Ping crates checks whether the N100/N20 trigger signals are working properly for each crate. Runs only on physics runs. </th> </tr>
       <tr> <th> The clock jump check counts the number of bad clock ticks on the 10 and 50MHz clocks. </tr>
       <tr> <th> The channel flags check finds out-of-sync channels or channels dropping data.  </th> </tr>
-      <tr> <th> The occupancy check finds offline slots or crates missing ESUMH trigger signals. </th> </tr>
+      <tr> <th> The occupancy check finds offline slots or crates missing ESUMH trigger signals. Runs only on physics runs longer than 30 minutes.</th> </tr>
       <tr> <th> The muon check determines if a reasonable number of muons were flagged in the run. </th> </tr>
+      <tr> <th> The crate gain check monitors the gains of the PMTs for each crate. Runs only on physics or calibration runs longer than 10 minutes. </th> </tr>
     </table>
   </div>
   <div class="col-md-12">
@@ -105,7 +106,8 @@ tr:nth-child(even) {
           <th> <a href="{{url_for('trigger_clock_jump')}}">Clock Jumps</a> </th>
           <th> <a href="{{url_for('channelflags')}}">Channel Flags</a> </th>
           <th> <a href="{{url_for('occupancy_by_trigger')}}">Occupancy</a> </th>
-          <th> <a href="{{url_for('muon_list')}}">Muons</a></th>
+          <th> <a href="{{url_for('muon_list')}}">Muons</a> </th>
+          <th> <a href="{{url_for('crate_gain_monitor')}}">Crate Gain</a> </th>
         </tr>
       </thead>
       {% for run in runs %}
@@ -155,7 +157,15 @@ tr:nth-child(even) {
           {% elif muons[run] == 0 %}
             <th class="success"><a href="{{ url_for("muons_by_run", run_number=run) }}">Pass</a></th>
           {% else %}
-            <th class="info">Not Run</th> 
+            <th class="info">Not Run</th>
+          {% endif %}
+
+          {% if crate_gain[run] == 1 %}
+            <th class="danger"><a href="{{ url_for("crate_gain_monitor_by_run", run_number=run) }}">Fail</a></th>
+          {% elif crate_gain[run] == 0 %}
+            <th class="success"><a href="{{ url_for("crate_gain_monitor_by_run", run_number=run) }}">Pass</a></th>
+          {% else %}
+            <th class="info">Not Run</th>
           {% endif %}
         <tr>
       {% endfor %}
