@@ -7,10 +7,10 @@ def occupancy_by_trigger_limit(limit, selected_run, run_range_low, run_range_hig
     """
     conn = engine_nl.connect()
 
-    latest_run = get_latest_run()
 
     try:
         if not selected_run and not run_range_high:
+            latest_run = get_latest_run()
             result = conn.execute("SELECT DISTINCT ON (run, crate, slot) "
                                   "run, status, crate, slot "
                                   "FROM esumh_occupancy_fail WHERE run > %s "
