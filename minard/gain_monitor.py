@@ -83,7 +83,6 @@ def crate_gain_history(run_range_low, run_range_high, crate):
     Return a list of [run, qhs peak] for a specific crate
     and run range
     """
-
     conn = engine_nl.connect()
 
     result = conn.execute("SELECT DISTINCT ON (run, crate) "
