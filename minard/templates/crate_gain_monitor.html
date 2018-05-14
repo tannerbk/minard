@@ -31,7 +31,7 @@
       <tr> <th> Monitor of the PMT gains by crate. The PMT QHS distribtions are created for events with greater than 15 NHit and don't trigger ESUMH (to skip flashers and shark fins). Only hits that pass the PMTCal selector are included in the distributions. The QHS distributions are separated by crate and the peak is fit with a Gaussian. The mean of that fit is taken as the peak of the distribution and is displayed below for each run and crate. The QHS histograms for each crate are available by clicking on the associated run number. <th> <tr>
       <tr class="success"> <th> The peak of the QHS distribution falls within 15 - 30 ADC Counts. Note the uncertainties for an hour long physics run are typically around 0.5 ADC counts. </th> </tr>
       <tr class="danger"> <th> The peak of the QHS distribution falls outside 15 - 30 ADC Counts. </th> </tr>
-      <tr bgcolor="#FFFF66"> <th> The peak of the QHS distribution falls 3 sigma outside the mean of the QHS distributions from the last 100 runs. </th>
+      <tr class="warning"> <th> The peak of the QHS distribution falls 3 sigma outside the mean of the QHS distributions from the last 100 runs. </th>
   </table>
 </div>
 
@@ -95,7 +95,7 @@
               {% if crate_qhs[(run,crate)][0] < 15 or crate_qhs[(run,crate)][0] > 30 %}
                 <th class="danger"> {{ crate_qhs[(run,crate)][0] }} </th>
               {% elif qhs_change[(run, crate)] == 1 %}
-                <th bgcolor="#FFFF66"> {{ crate_qhs[(run,crate)][0] }} </th>
+                <th class="warning"> {{ crate_qhs[(run,crate)][0] }} </th>
               {% else %} 
                 <th class="success"> {{ crate_qhs[(run,crate)][0] }} </th>
               {% endif %}
