@@ -6,6 +6,7 @@ from .triggerclockjumpsdb import get_clock_jumps, get_clock_jumps_by_run
 from .nlrat import RUN_TYPES
 from .occupancy import run_list, occupancy_by_trigger, occupancy_by_trigger_limit
 from .muonsdb import get_muons
+from .gain_monitor import crate_gain_monitor
 
 # Limits for failing channel flags check
 OUT_OF_SYNC_1 = 32
@@ -17,9 +18,13 @@ MISSED_COUNT_2 = 256
 CLOCK_JUMP_1 = 10
 CLOCK_JUMP_2 = 20
 
-#Limit for muons failing check
+# Limits for muons failing check
 MUONS = 20
 MISSED_MUONS = 1000
+
+# Limits for crate gain failing
+QHS_MAX = 30
+QHS_MIN = 15
 
 def get_run_list(limit, selected_run, run_range_low, run_range_high, all_runs, gold):
     '''
@@ -29,6 +34,7 @@ def get_run_list(limit, selected_run, run_range_low, run_range_high, all_runs, g
 
     occupancy_status = occupancy(limit, selected_run, run_range_low, run_range_high, all_runs, gold)
     muon_status = muons(limit, selected_run, run_range_low, run_range_high, all_runs, gold)
+    gain_status = gain_monitor(limit, selected_run, run_range_low, run_range_high, all_runs, gold)
     if not selected_run:
         ping_crates_status = ping_crates(limit, run_range_low, run_range_high, all_runs, gold)
         channel_flags_status = channel_flags(limit, run_range_low, run_range_high, all_runs, True, gold) 
@@ -38,8 +44,23 @@ def get_run_list(limit, selected_run, run_range_low, run_range_high, all_runs, g
         channel_flags_status = channel_flags_run(selected_run)
         clock_jumps_status = clock_jumps_run(selected_run)
 
-    return clock_jumps_status, ping_crates_status, channel_flags_status, occupancy_status, muon_status
+    return clock_jumps_status, ping_crates_status, channel_flags_status, occupancy_status, muon_status, gain_status
 
+def gain_monitor(limit, selected_run, run_range_low, run_range_high, all_runs, gold):
+
+    gain_fail = {}
+    runs, qhs_array = crate_gain_monitor(limit, selected_run, run_range_low, run_range_high, gold)
+    for run in all_runs:
+        try:
+            gain_fail[run] = 0
+            for crate in range(19):
+                if qhs_array[(run, crate)][0] > QHS_MAX or \
+                   qhs_array[(run, crate)][0] < QHS_MIN:
+                    gain_fail[run] = 1
+        except KeyError:
+            gain_fail[run] = -1
+
+    return gain_fail
 
 def muons(limit, selected_run, run_range_low, run_range_high, all_runs, gold):
 
@@ -54,9 +75,8 @@ def muons(limit, selected_run, run_range_low, run_range_high, all_runs, gold):
                 muon_fail[run] = 1
             else:
                 muon_fail[run] = 0
-        except Exception as e:
+        except KeyError:
             muon_fail[run] = -1
-            continue
 
     return muon_fail
 
@@ -74,7 +94,7 @@ def occupancy(limit, selected_run, run_range_low, run_range_high, all_runs, gold
                 occupancy_fail[run] = 1
             elif status[run] == 0:
                 occupancy_fail[run] = 0
-        except Exception as e:
+        except KeyError:
             occupancy_fail[run] = -1
             continue
 
@@ -93,7 +113,7 @@ def clock_jumps_run(run):
     # This should be the best way to check if the job ran for the given run
     try:
         result.fetchone()[0]
-    except Exception as e:
+    except KeyError:
         clock_jumps_status[run] = -1
         return clock_jumps_status
 
@@ -127,7 +147,7 @@ def clock_jumps(limit, run_range_low, run_range_high, all_runs, gold):
                 clock_jumps_fail[run] = 1
             else:
                 clock_jumps_fail[run] = 0
-        except Exception as e:
+        except KeyError:
             clock_jumps_fail[run] = -1
             continue
 
@@ -146,7 +166,7 @@ def channel_flags_run(run):
     # This should be the best way to check if the job ran for the given run
     try:
         result.fetchone()[0]
-    except Exception as e:
+    except KeyError:
         channel_flags_status[run] = -1
         return channel_flags_status
 
@@ -183,7 +203,7 @@ def channel_flags(limit, run_range_low, run_range_high, all_runs, summary, gold)
                 channel_flags_fail[run] = 1
             else:
                 channel_flags_fail[run] = 0
-        except Exception as e:
+        except KeyError:
             channel_flags_fail[run] = -1
             continue
 
@@ -207,7 +227,7 @@ def ping_crates_run(run):
             ping_crates_status[run] = 1
         elif row == 2:
             ping_crates_status[run] = 2
-    except Exception as e:
+    except KeyError:
         ping_crates_status[run] = -1
 
     return ping_crates_status
