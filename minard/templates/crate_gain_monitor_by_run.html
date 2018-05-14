@@ -11,7 +11,7 @@
 
   <div class="row">
     {% for crate in range(19) %}
-      <img src="{{ url_for('static', filename='gain_monitor/run'+run_number+'/crate'+run_number+'.png') }}"
+      <img src="{{ url_for('static', filename='gain_monitor/run'+run_number+'/crate'+crate+'.png') }}"
            alt="Crate {{crate}} QHS" class="img-responsive col-md-6"></img>
     {% endfor %}
   </div>
