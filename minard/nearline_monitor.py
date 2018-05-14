@@ -113,7 +113,7 @@ def clock_jumps_run(run):
     # This should be the best way to check if the job ran for the given run
     try:
         result.fetchone()[0]
-    except KeyError:
+    except Exception:
         clock_jumps_status[run] = -1
         return clock_jumps_status
 
@@ -166,7 +166,7 @@ def channel_flags_run(run):
     # This should be the best way to check if the job ran for the given run
     try:
         result.fetchone()[0]
-    except KeyError:
+    except Exception:
         channel_flags_status[run] = -1
         return channel_flags_status
 
@@ -227,7 +227,7 @@ def ping_crates_run(run):
             ping_crates_status[run] = 1
         elif row == 2:
             ping_crates_status[run] = 2
-    except KeyError:
+    except Exception:
         ping_crates_status[run] = -1
 
     return ping_crates_status
