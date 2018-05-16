@@ -7,37 +7,38 @@ function my_si_format(d) {
         return si_format(d);
 }
 
-
+/* Update the plot with the input paramters */
 function history() {
     var params = {}
     params['crate'] = document.getElementById("crate-sel").value;
     params['starting_run'] = document.getElementById("starting_run").value;
     params['ending_run'] = document.getElementById("ending_run").value;
+    params['qhs_low'] = document.getElementById("qhs_low").value;
+    params['qhs_high'] = document.getElementById("qhs_high").value;
     window.location.replace($SCRIPT_ROOT + "/crate_gain_history?" + $.param(params));
 }
 
+/* Draw the scatter plot with the default paramters */
 function draw_scatter_plot_gains(){
+
     var data = window.data;
     var start = document.getElementById("starting_run").value;
     var end = document.getElementById("ending_run").value;
+    var qhs_low = document.getElementById("qhs_low").value;
+    var qhs_high = document.getElementById("qhs_high").value;
+
     if( data != undefined && data != "" ){
 
         var margin = {top: 10, right: 80, bottom: 80, left: 120}
             ,width = $("#main").width() - margin.left - margin.right
             ,height = 400;
 
-        // Xrange starts when the we started storing cmos data
         var x = d3.scale.linear()
             .domain([start, end])
             .range([ 0, width ]);
 
-        var ymin = d3.max([0, d3.min(data, function(d) { return d[1]; })]);
-        var ypad = ymin*0.1;
-        var ymax = d3.max(data, function(d) { return d[1]; });
-        var yppad = ymax*0.1;
-
         var y = d3.scale.linear()
-                 .domain([ymin-ypad, ymax+ypad])
+                 .domain([qhs_low, qhs_high])
                  .range([height, 0]);
 
         var chart = d3.select('#main')
@@ -45,10 +46,6 @@ function draw_scatter_plot_gains(){
             .attr('width', width + margin.right + margin.left)
             .attr('height', height + margin.top + margin.bottom)
             .attr('class', 'chart');
-
-        var valueline = d3.svg.line()
-            .x(function(d) { return x(d[0]); })
-            .y(function(d) { return y(d[1]); });
 
         var main = chart.append('g')
             .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
@@ -60,7 +57,6 @@ function draw_scatter_plot_gains(){
             .attr("class", "tooltip")
             .style("opacity", 0);
 
-        // draw the x axis
         var xAxis = d3.svg.axis()
             .scale(x)
             .orient('bottom')
@@ -75,7 +71,6 @@ function draw_scatter_plot_gains(){
               .attr("x", 6)
               .attr("dy", "1.2em");
 
-        // draw the y axis
         var yAxis = d3.svg.axis()
             .scale(y)
             .orient('left')
@@ -92,11 +87,6 @@ function draw_scatter_plot_gains(){
 
         var g = main.append("svg:g");
 
-        g.append("path")
-            .data([data])
-            .attr("class", "line")
-            .attr("d", valueline);
-
         g.selectAll("scatter-dots")
             .data(data)
             .enter().append("svg:circle")
@@ -107,7 +97,7 @@ function draw_scatter_plot_gains(){
                     div.transition()        
                         .duration(200) 
                         .style("opacity", .9);      
-                    div .html("(" + (d[0]) + ","  + my_si_format(d[1]) + ")")  
+                    div.html("(" + (d[0]) + ","  + my_si_format(d[1]) + ")")  
                         .style("left", (d3.event.pageX) + "px")
                         .style("top", (d3.event.pageY - 28) + "px");
                     })                  
@@ -120,9 +110,9 @@ function draw_scatter_plot_gains(){
         chart.append("g")
             .attr("class", "x axis")
             .attr("transform", "translate(0," + height + ")")
-        .append("text")
+          .append("text")
             .attr("class", "label")
-            .attr("x", width )
+            .attr("x", width+100 )
             .attr("y", 80)
             .style("text-anchor", "end")
             .text("Run Number")

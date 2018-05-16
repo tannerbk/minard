@@ -1479,6 +1479,8 @@ def crate_gain_history():
     crate = request.args.get('crate',0,type=int)
     starting_run = request.args.get('starting_run',0,type=int)
     ending_run = request.args.get('ending_run',0,type=int)
+    qhs_low = request.args.get('qhs_low',15.0,type=float)
+    qhs_high = request.args.get('qhs_high',30.0,type=float)
 
     # Default to hard-coded first processed run
     if starting_run == 0:
@@ -1487,8 +1489,8 @@ def crate_gain_history():
     if ending_run == 0:
         ending_run = detector_state.get_latest_run()
 
-    data = gain_monitor.crate_gain_history(starting_run, ending_run, crate)
-    return render_template('crate_gain_history.html', crate=crate, data=data, starting_run=starting_run, ending_run=ending_run)
+    data = gain_monitor.crate_gain_history(starting_run, ending_run, crate, qhs_low, qhs_high)
+    return render_template('crate_gain_history.html', crate=crate, data=data, starting_run=starting_run, ending_run=ending_run, qhs_low=qhs_low, qhs_high=qhs_high)
 
 @app.route('/physicsdq/<run_number>')
 def physicsdq_run_number(run_number):

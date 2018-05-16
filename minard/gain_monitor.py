@@ -1,6 +1,9 @@
 from .db import engine_nl
 from .detector_state import get_latest_run
 
+QHS_MAX = 30
+QHS_MIN = 15
+
 def crate_gain_monitor(limit, selected_run, run_range_low, run_range_high, gold):
     """
     Returns a list of runs and the QHS peak by crate for a given set of runs
@@ -78,7 +81,7 @@ def crate_average(selected_run, run_limit):
 
     return qhs_change
 
-def crate_gain_history(run_range_low, run_range_high, crate):
+def crate_gain_history(run_range_low, run_range_high, crate, qhs_low, qhs_max):
     """
     Return a list of [run, qhs peak] for a specific crate
     and run range
@@ -95,6 +98,8 @@ def crate_gain_history(run_range_low, run_range_high, crate):
 
     data = []
     for run, qhs_peak in rows:
+        if qhs_peak > qhs_max or qhs_peak < qhs_low:
+            continue
         data.append([int(run), qhs_peak])
  
     return data
