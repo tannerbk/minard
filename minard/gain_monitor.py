@@ -1,9 +1,6 @@
 from .db import engine_nl
 from .detector_state import get_latest_run
 
-QHS_MAX = 30
-QHS_MIN = 15
-
 def crate_gain_monitor(limit, selected_run, run_range_low, run_range_high, gold):
     """
     Returns a list of runs and the QHS peak by crate for a given set of runs
