@@ -104,7 +104,13 @@
                                 {{ nav_link('calibdq_tellie', 'TELLIE  DQ') }}
                                 {{ nav_link('calibdq_smellie', 'SMELLIE DQ') }}
                           </ul>
-                        {{ nav_link('orca_session_logs', 'Orca') }}
+                        <!-- Remote Control Rooms -->
+                        <li class='dropdown'>
+                            <a href='#' class='dropdown-toggle' data-toggle='dropdown'>Control Rooms <b class='caret'></b></a>
+                            <ul class='dropdown-menu'>
+                                {{ nav_link('orca_session_logs', 'Orca') }}
+                                {{ nav_link('remote_network_monitor', 'Network') }}
+                          </ul>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
                         <li><a href="{{ url_for('docs') }}">Docs</a></li>

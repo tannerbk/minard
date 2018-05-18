@@ -723,6 +723,14 @@ def cavity_temp():
     height = request.args.get('height',40,type=int)
     return render_template('cavity_temp.html',step=step,height=height)
 
+@app.route('/remote-network-monitor')
+def remote_network_monitor():
+    if len(request.args) == 0:
+        return redirect(url_for('remote_network_monitor',step=4,height=20,_external=True))
+    step = request.args.get('step',1,type=int)
+    height = request.args.get('height',40,type=int)
+    return render_template('remote-network-monitor.html',step=step,height=height)
+
 @app.route('/snostream')
 def snostream():
     if len(request.args) == 0:
@@ -1029,7 +1037,9 @@ def get_metric(expr, start, stop, step):
         values = get_timeseries(expr, start, stop, step)
     elif expr in ('gtid', 'run', 'subrun'):
         values = get_timeseries_field('trig', expr, start, stop, step)
-    elif expr in ('heartbeat','l2-heartbeat'):
+    elif 'heartbeat' in expr:
+        values = get_timeseries(expr,start,stop,step)
+    elif 'packets' in expr:
         values = get_timeseries(expr,start,stop,step)
     elif expr == u"0\u03bd\u03b2\u03b2":
         import random
