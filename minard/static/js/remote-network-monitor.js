@@ -51,7 +51,7 @@ function add_remote_control_room(name) {
 
     var horizon = context.horizon()
         .height(Number(url_params.height))
-        .extent([0,100]);
+        .extent([0,5]);
 
     d3.select('#main').selectAll('.horizon')
         .data([(metric(name + '-packets-lost').divide(metric(name + '-packets-sent'))).multiply(100)],String)
