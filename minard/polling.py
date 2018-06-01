@@ -13,6 +13,29 @@ PMT_TYPES = {
     'NORMAL' : 0x3,
 }
 
+voltages_str_dict = {
+    'vref0_8p': ['+0.8V', 0.8], 
+    'vref1m': ['-1V', -1.0], 
+    'vref1p': ['+1V', 1.0], 
+    'vref2m': ['-2V', -2.0],
+    'vref4p': ['+4V', 4.0], 
+    'vref5p': ['+5V', 5.0],
+    'vcc': ['+5V (Vcc)', 5.0], 
+    'vee': ['-5V', -5.0], 
+    'vsup15m': ['-15V', -15.0], 
+    'vsup15p': ['+15V', 15.0], 
+    'vsup24m': ['-24V', -24.0], 
+    'vsup24p': ['+24V', 24.0], 
+    'vsup2m': ['-2V', -2.0],
+    'vsup3_3m': ['-3.3V', -3.3], 
+    'vsup3_3p': ['+3.3V', 3.3],
+    'vsup4p': ['+4V', 4.0], 
+    'vsup6_5p': ['+6.5V', 6.5], 
+    'vsup8p': ['+8V', 8.0]
+}
+
+# Fractional threshold for a bad voltage
+VMON_THRESH = 0.15
 
 def polling_runs(limit=100):
     """
@@ -488,14 +511,12 @@ def polling_info_card(data_type, run_number, crate):
 
     if data_type == "cmos":
         result = conn.execute("SELECT DISTINCT ON (run, crate, slot, channel) "
-                              "slot, channel, cmos_rate FROM cmos WHERE run = %s "
-                              "AND crate = %s ORDER by run, slot, channel",
-                              (run_number, crate))
+            "slot, channel, cmos_rate FROM cmos WHERE run = %s "
+            "AND crate = %s ORDER by run, slot, channel", (run_number, crate))
     elif data_type == "base":
         result = conn.execute("SELECT DISTINCT ON (run, crate, slot, channel) "
-                              "slot, channel, base_current FROM base WHERE run = %s "
-                              "AND crate = %s ORDER by run, slot, channel",
-                              (run_number, crate))
+            "slot, channel, base_current FROM base WHERE run = %s "
+            "AND crate = %s ORDER by run, slot, channel", (run_number, crate))
     else:
         return None
 
@@ -507,3 +528,36 @@ def polling_info_card(data_type, run_number, crate):
         data[card*32+channel] = cmos_rate
 
     return data
+
+def get_vmon(crate, slot):
+    """
+    Get the vmon data for a given crate/slot
+    """
+    conn = engine.connect()
+
+    voltages = str(voltages_str_dict.keys())[1:-1]
+    voltages = voltages.replace("'","")
+
+    result = conn.execute("SELECT %s FROM current_vmon WHERE crate = %s "
+        "AND slot = %s" % (voltages, crate, slot))
+
+    keys = result.keys()
+    rows = result.fetchone()
+
+    if rows is None:
+        return None
+
+    bad_voltages = {}
+    result = dict(zip(keys,rows))
+    for key in result.keys():
+        value = result[key]
+        nominal_value = voltages_str_dict[key][1]
+        new_key = voltages_str_dict[key][0] 
+        result[new_key] = result.pop(key)
+        if abs(value) < abs(nominal_value)*(1 - VMON_THRESH) or \
+           abs(value) > abs(nominal_value)*(1 + VMON_THRESH):
+            bad_voltages[new_key] = 1
+        else:
+            bad_voltages[new_key] = 0 
+
+    return result, bad_voltages

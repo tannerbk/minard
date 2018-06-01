@@ -92,13 +92,17 @@
             <th> </th>
             <th> QHS Peak </th>
             {% for crate in range(19) %}
-              {% if crate_qhs[(run,crate)][0] < 15 or crate_qhs[(run,crate)][0] > 30 %}
-                <th class="danger"> {{ crate_qhs[(run,crate)][0] }} </th>
-              {% elif qhs_change[(run, crate)] == 1 %}
-                <th class="warning"> {{ crate_qhs[(run,crate)][0] }} </th>
+              {% if crate in crate_array[run] %} 
+                {% if crate_qhs[(run,crate)][0] < 15 or crate_qhs[(run,crate)][0] > 30 %}
+                  <th class="danger"> {{ crate_qhs[(run,crate)][0] }} </th>
+                {% elif qhs_change[(run, crate)] == 1 %}
+                  <th class="warning"> {{ crate_qhs[(run,crate)][0] }} </th>
+                {% else %} 
+                  <th class="success"> {{ crate_qhs[(run,crate)][0] }} </th>
+                {% endif %}
               {% else %} 
-                <th class="success"> {{ crate_qhs[(run,crate)][0] }} </th>
-              {% endif %}
+                <th> - </th>
+              {% endif%}
             {% endfor %}
           </tr>
         {% endfor %}

@@ -208,28 +208,28 @@
 	    </div>
 	    <div class="col-md-2">
                 <h3>Check Rates</h3>
-                {% if polling_info %}
                 <table class="table table-bordered">
-                    <tr>
-                        <th>CMOS Rate</th>
-                        {% if polling_info['cmos_rate'] %}
-                          <td><a href="{{ url_for("check_rates_history", crate=crate, slot=slot, channel=channel, yscale="Log") }}">{{ polling_info['cmos_rate'] | format_cmos_rate }}</a></td>
-                        {% else %}
-                          <td> None </td>
-                        {% endif %}
-                    </tr>
-                    <tr>
-                        <th>Base Current</th>
-                        {% if polling_info['base_current'] %}
-                          <td>{{ polling_info['base_current'] }}</td>
-                        {% else %}
-                          <td> None </td>
-                        {% endif %}
-                    </tr>
+                    {% if polling_info %}
+                        <tr>
+                            <th>CMOS Rate</th>
+                            {% if polling_info['cmos_rate'] %}
+                              <td><a href="{{ url_for("check_rates_history", crate=crate, slot=slot, channel=channel, yscale="Log") }}">{{ polling_info['cmos_rate'] | format_cmos_rate }}</a></td>
+                            {% else %}
+                              <td> None </td>
+                            {% endif %}
+                        </tr>
+                        <tr>
+                            <th>Base Current</th>
+                            {% if polling_info['base_current'] %}
+                              <td>{{ polling_info['base_current'] }}</td>
+                            {% else %}
+                              <td> None </td>
+                            {% endif %}
+                        </tr>
+                    {% else %}
+                       <td> No data </td>
+                    {% endif %}
                 </table>
-                {% endif %}
-	    </div>
-	    <div class="col-md-2">
                 <h3>Discriminator</h3>
                 {% if discriminator_threshold %}
                 <table class="table table-bordered">
@@ -237,23 +237,50 @@
                         <th>Vthr</th>
                         <td>{{ discriminator_threshold['vthr'][channel] - discriminator_threshold['zero_disc'][channel]}}</td>
                     </tr>
+                    <tr>
+                        <th>Zero Thr</th>
+                        <td> {{ discriminator_threshold['zero_disc'][channel] }} </td>
+                    </tr>
+                    <tr>
+                        <th>Manual Offset</th>
+                        <td> {{ discriminator_threshold['vthr'][channel] - discriminator_threshold['ecal_vthr'][channel] }} </td>
+                    </tr>
                 </table>
                 {% endif %}
-            </div>
-	    <div class="col-md-2">
                 <h3>GTValid</h3>
-                {% if gtvalid_lengths %}
                 <table class="table table-bordered">
-                    <tr>
-                        <th>GTValid 0 </th>
-                        <td>{{ gtvalid_lengths['gtvalid0_length'][channel] }}</td>
-                    </tr>
-                    <tr>
-                        <th>GTValid 1 </th>
-                        <td>{{ gtvalid_lengths['gtvalid1_length'][channel] }}</td>
-                    </tr>
+                    {% if gtvalid_lengths %}
+                        <tr>
+                            <th>GTValid 0 </th>
+                            <td>{{ gtvalid_lengths['gtvalid0_length'][channel] }}</td>
+                        </tr>
+                        <tr>
+                            <th>GTValid 1 </th>
+                            <td>{{ gtvalid_lengths['gtvalid1_length'][channel] }}</td>
+                        </tr>
+                    {% else %}
+                        <td> No data </td>
+                    {% endif %}
+                 </table>
+	    </div>
+	    <div class="col-md-2">
+                <h3>Vmon</h3>
+                <table class="table table-bordered">
+                    {% if vmon %}
+                        {% for v in vmon.keys() %}
+                            <tr>
+                                <th> {{ v }} </th>
+                            {% if bad_vmon[v] %}
+                                <td class="danger"> {{ vmon[v] }} </td>
+                            {% else %}
+                                <td> {{ vmon[v] }} </td>
+                            </tr>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <td> No data </td>
+                    {% endif %}
                 </table>
-                {% endif %}
 	    </div>
         </div>
         <div class="row">
