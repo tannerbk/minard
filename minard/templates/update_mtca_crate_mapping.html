@@ -106,6 +106,21 @@
                 <p> The ordering of the MTCA+s in the timing rack is shown below.
 
                 <img src="{{ url_for("static", filename="images/mtca-back.png") }}" class="img-responsive">
+                <h4> Relay Status </h4>
+                <table class = "table table-hover">
+                    {% if relay_status %}
+                        {% for crate, value in relay_status %}
+                            <tr>
+                                <th> Crate {{ crate }} </th>
+                                {% if value %}
+                                    <th class="success"> Working </th>
+                                {% else %}
+                                    <th class="danger"> Stuck Closed </th>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
+                </table>
             </div>
         </div>
     </div>

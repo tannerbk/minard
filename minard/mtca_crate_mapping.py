@@ -185,3 +185,33 @@ def upload_mtca_crate_mapping(form):
         crate_to_cable,
         reg,
         form.data['dev']))
+
+def mtca_relay_status(mtca):
+    """
+    Return a list of MTC/A+ relay status of the form
+    [[0, True], [1, False], ...] where the first index
+    if the crate number and the second is whether or
+    not the relay is stuck closed (False is stuck closed).
+    Currently there is no automated way to distinguish between
+    the relay being broken (or stuck open) and the channel on
+    the MTC/A+ (or the CTC) being broken, so that information
+    is not in the mtca_relay_status table.
+    """
+    conn = engine.connect()
+
+    result = conn.execute("SELECT * FROM mtca_relay_status WHERE mtca = %s "
+                          "ORDER BY timestamp DESC LIMIT 1" % (mtca,))
+
+    keys = result.keys()
+    rows = result.fetchone()
+
+    if rows is None:
+        return rows
+
+    values = dict(zip(keys, rows))
+    relay_working = []
+    for crate in range(20):
+        crate_str = 'crate'+str(crate)
+        relay_working.append((crate, values[crate_str]))
+
+    return relay_working
