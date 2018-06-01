@@ -34,9 +34,9 @@ import dropout
 import pmtnoisedb
 import gain_monitor
 from run_list import golden_run_list
-from .polling import polling_runs, polling_info, polling_info_card, polling_check, polling_history, polling_summary
+from .polling import polling_runs, polling_info, polling_info_card, polling_check, polling_history, polling_summary, get_vmon
 from .channeldb import ChannelStatusForm, upload_channel_status, get_channels, get_channel_status, get_channel_status_form, get_channel_history, get_pmt_info, get_nominal_settings, get_most_recent_polling_info, get_discriminator_threshold, get_all_thresholds, get_maxed_thresholds, get_gtvalid_lengths, get_pmt_types, pmt_type_description, get_fec_db_history
-from .mtca_crate_mapping import MTCACrateMappingForm, OWLCrateMappingForm, upload_mtca_crate_mapping, get_mtca_crate_mapping, get_mtca_crate_mapping_form
+from .mtca_crate_mapping import MTCACrateMappingForm, OWLCrateMappingForm, upload_mtca_crate_mapping, get_mtca_crate_mapping, get_mtca_crate_mapping_form, mtca_relay_status
 import re
 from .resistor import get_resistors, ResistorValuesForm, get_resistor_values_form, update_resistor_values
 from datetime import datetime
@@ -323,10 +323,12 @@ def channel_status():
     discriminator_threshold = get_discriminator_threshold(crate, slot)
     gtvalid_lengths = get_gtvalid_lengths(crate, slot)
     fec_db_history = get_fec_db_history(crate, slot, channel)
-    return render_template('channel_status.html', crate=crate, slot=slot, channel=channel, results=results, pmt_info=pmt_info, nominal_settings=nominal_settings, polling_info=polling_info, discriminator_threshold=discriminator_threshold, gtvalid_lengths=gtvalid_lengths, fec_db_history=fec_db_history)
+    vmon = get_vmon(crate, slot) 
+    return render_template('channel_status.html', crate=crate, slot=slot, channel=channel, results=results, pmt_info=pmt_info, nominal_settings=nominal_settings, polling_info=polling_info, discriminator_threshold=discriminator_threshold, gtvalid_lengths=gtvalid_lengths, fec_db_history=fec_db_history, vmon=vmon)
 
 @app.route('/update-mtca-crate-mapping', methods=["GET", "POST"])
 def update_mtca_crate_mapping():
+    relay_status = None
     if request.form:
         if int(request.form['mtca']) < 4:
             form = MTCACrateMappingForm(request.form)
@@ -335,6 +337,7 @@ def update_mtca_crate_mapping():
         mtca = form.mtca.data
     else:
         mtca = request.args.get("mtca", 0, type=int)
+        relay_status = mtca_relay_status(mtca)
         form = get_mtca_crate_mapping_form(mtca)
 
     if request.method == "POST" and form.validate():
@@ -345,7 +348,8 @@ def update_mtca_crate_mapping():
             return render_template('update_mtca_crate_mapping.html', form=form)
         flash("Successfully submitted", 'success')
         return redirect(url_for('update_mtca_crate_mapping', mtca=form.mtca.data))
-    return render_template('update_mtca_crate_mapping.html', form=form)
+    print (form)
+    return render_template('update_mtca_crate_mapping.html', form=form, relay_status=relay_status)
 
 @app.route('/update-channel-status', methods=["GET", "POST"])
 def update_channel_status():
