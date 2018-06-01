@@ -338,6 +338,17 @@ def get_discriminator_threshold(crate, slot):
     threshold = zthr.copy()
     threshold.update(vthr)
 
+    result = conn.execute("SELECT vthr FROM fecdoc WHERE crate = %s AND slot = %s "
+                          "ORDER BY timestamp DESC LIMIT 1", (crate, slot))
+
+    rows = result.fetchone()
+
+    if rows is None:
+        threshold['ecal_vthr'] = [0]*32
+        return threshold
+
+    threshold['ecal_vthr'] = rows[0]
+
     return threshold
 
 def get_gtvalid_lengths(crate, slot):

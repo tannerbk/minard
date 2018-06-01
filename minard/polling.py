@@ -507,3 +507,24 @@ def polling_info_card(data_type, run_number, crate):
         data[card*32+channel] = cmos_rate
 
     return data
+
+def get_vmon(crate, slot):
+    """
+    Get the vmon data for a given crate/slot
+    """
+    conn = engine.connect()
+
+    voltages_str = ("vref0_8p, vref1m, vref1p, vref2m, vref4p, vref5p, "
+                    "vcc, vee, vsup15m, vsup15p, vsup24m, vsup24p, vsup2m, "
+                    "vsup3_3m, vsup3_3p, vsup4p, vsup6_5p, vsup8p")
+
+    result = conn.execute("SELECT %s FROM current_vmon WHERE crate = %s "
+                          "AND slot = %s" % (voltages_str, crate, slot))
+
+    keys = result.keys()
+    rows = result.fetchone()
+
+    if rows is None:
+        return None
+
+    return dict(zip(keys, rows))
