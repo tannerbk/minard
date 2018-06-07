@@ -14,3 +14,9 @@ engine_nl = sqlalchemy.create_engine('postgresql://%s:%s@%s:%i/%s' %
                                      app.config['DB_NAME_NEARLINE']),
                                      pool_recycle=3600)
 
+engine_test = sqlalchemy.create_engine('postgresql://%s:%s@%s:%i/%s' %
+                                 ('snoplus', 'dontestopmenow',
+                                  'minard', 5432,
+                                  'test'),
+                                  pool_recycle=3600)
+

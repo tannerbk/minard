@@ -137,6 +137,7 @@
 			    <th>Date</th>
 			    <th>MBID</th>
 			    <th>DBID</th>
+                            <th>ECAL Tests Failed </th>
 			</tr>
 		    </thead>
 		    {% for row in fec_db_history | reverse %}
@@ -145,6 +146,11 @@
 			<td>{{ row['timestamp'].strftime("%Y-%m-%d") }}</td>
 			<td><a href="http://snopl.us/debugdb/board/{{ '%04x' % row['mbid'] }}">{{ '0x%04x' % row['mbid'] }}</a></td>
 			<td><a href="http://snopl.us/debugdb/board/{{ '%04x' % row['dbid'] }}">{{ '0x%04x' % row['dbid'] }}</a></td>
+                        {% if test_failed and loop.first %}
+                            <td> {{ test_failed }} </td>
+                        {% else %}
+                            <td> </td>
+                        {% endif %}
 		    </tr>
 		    {% endfor %}
 		</table>
