@@ -10,20 +10,24 @@ def crate_gain_monitor(limit, selected_run, run_range_low, run_range_high, gold)
     if not selected_run and not run_range_high:
         latest_run = get_latest_run()
         run = latest_run - limit
-        result = conn.execute("SELECT DISTINCT ON (run, crate) run, crate, qhs_peak, qhs_peak_error "
-                              "FROM gain_monitor WHERE run > %s ORDER BY run DESC", (run,))
+        result = conn.execute("SELECT DISTINCT ON (run, crate) "
+            "run, crate, qhs_peak, qhs_peak_error FROM gain_monitor "
+            "WHERE run > %s ORDER BY run DESC", (run,))
     elif run_range_high:
-        result = conn.execute("SELECT DISTINCT ON (run, crate) run, crate, qhs_peak, qhs_peak_error "
-                              "FROM gain_monitor WHERE run >= %s AND run <=%s ORDER BY run DESC", \
-                              (run_range_low, run_range_high))
+        result = conn.execute("SELECT DISTINCT ON (run, crate) "
+            "run, crate, qhs_peak, qhs_peak_error FROM gain_monitor "
+            "WHERE run >= %s AND run <=%s ORDER BY run DESC", \
+            (run_range_low, run_range_high))
     else:
-        result = conn.execute("SELECT DISTINCT ON (run, crate) run, crate, qhs_peak, qhs_peak_error "
-                              "FROM gain_monitor WHERE run = %s", (selected_run,))
+        result = conn.execute("SELECT DISTINCT ON (run, crate) "
+            "run, crate, qhs_peak, qhs_peak_error "
+            "FROM gain_monitor WHERE run = %s", (selected_run,))
 
     rows = result.fetchall()
 
     runs = []
     qhs_array = {}
+    crate_array = {}
     for run, crate, qhs_peak, qhs_peak_error in rows:
         if gold != 0 and run not in gold:
             continue
@@ -32,8 +36,14 @@ def crate_gain_monitor(limit, selected_run, run_range_low, run_range_high, gold)
         qhs_peak = round(qhs_peak, 1)
         qhs_peak_error = round(qhs_peak_error, 1)
         qhs_array[(run, crate)] = [qhs_peak, qhs_peak_error]
+        # Keep track of which crates have data for which runs
+        # This deals with offline crates.
+        try:
+            crate_array[run].append(crate)
+        except Exception:
+            crate_array[run] = [crate]
 
-    return runs, qhs_array
+    return runs, qhs_array, crate_array
 
 def crate_average(selected_run, run_limit):
     """
@@ -47,8 +57,8 @@ def crate_average(selected_run, run_limit):
     SIGMA = 3
     run = selected_run - run_limit
     result = conn.execute("SELECT DISTINCT ON (run, crate) "
-                          "run, crate, qhs_peak, qhs_peak_error FROM gain_monitor "
-                          "WHERE run >= %s ORDER BY run DESC LIMIT 19*100", (run,))
+        "run, crate, qhs_peak, qhs_peak_error FROM gain_monitor "
+        "WHERE run >= %s ORDER BY run DESC LIMIT 19*100", (run,))
 
     rows = result.fetchall()
 
@@ -70,11 +80,15 @@ def crate_average(selected_run, run_limit):
 
     for run in runs:
         for crate in range(19):
-            qhs_average = qhs_sum[crate]/count[crate]
-            qhs_average_error = qhs_error_sum[crate]/count[crate]
-            qhs_diff = abs(qhs_run[(run, crate)] - qhs_average)
-            if qhs_diff > SIGMA*qhs_average_error:
-                qhs_change[(run, crate)] = 1
+            try:
+                qhs_average = qhs_sum[crate]/count[crate]
+                qhs_average_error = qhs_error_sum[crate]/count[crate]
+                qhs_diff = abs(qhs_run[(run, crate)] - qhs_average)
+                if qhs_diff > SIGMA*qhs_average_error:
+                    qhs_change[(run, crate)] = 1
+            # Crate had no hits
+            except KeyError:
+                continue
 
     return qhs_change
 
@@ -86,10 +100,9 @@ def crate_gain_history(run_range_low, run_range_high, crate, qhs_low, qhs_max):
     conn = engine_nl.connect()
 
     result = conn.execute("SELECT DISTINCT ON (run, crate) "
-                          "run, qhs_peak FROM gain_monitor "
-                          "WHERE run >= %s AND run <= %s AND "
-                          "crate = %s ORDER BY run DESC ", \
-                          (run_range_low, run_range_high, crate))
+        "run, qhs_peak FROM gain_monitor WHERE run >= %s AND "
+        "run <= %s AND crate = %s ORDER BY run DESC ", \
+        (run_range_low, run_range_high, crate))
 
     rows = result.fetchall()
 
