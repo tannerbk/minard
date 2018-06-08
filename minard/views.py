@@ -1479,7 +1479,7 @@ def crate_gain_monitor():
     if gold:
         gold_runs = golden_run_list()
 
-    runs, crate_qhs = gain_monitor.crate_gain_monitor(limit, selected_run, run_range_low, run_range_high, gold_runs)
+    runs, crate_qhs, crate_array = gain_monitor.crate_gain_monitor(limit, selected_run, run_range_low, run_range_high, gold_runs)
 
     lower_limit = 100
     if selected_run:
@@ -1493,7 +1493,7 @@ def crate_gain_monitor():
 
     qhs_change = gain_monitor.crate_average(run, lower_limit)
 
-    return render_template('crate_gain_monitor.html', runs=runs, limit=limit, selected_run=selected_run, run_range_low=run_range_low, run_range_high=run_range_high, gold=gold, crate_qhs=crate_qhs, qhs_change=qhs_change)
+    return render_template('crate_gain_monitor.html', runs=runs, limit=limit, selected_run=selected_run, run_range_low=run_range_low, run_range_high=run_range_high, gold=gold, crate_qhs=crate_qhs, qhs_change=qhs_change, crate_array=crate_array)
 
 @app.route('/crate_gain_monitor_by_run/<run_number>')
 def crate_gain_monitor_by_run(run_number):
