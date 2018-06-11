@@ -15,7 +15,7 @@ engine_nl = sqlalchemy.create_engine('postgresql://%s:%s@%s:%i/%s' %
                                      pool_recycle=3600)
 
 engine_test = sqlalchemy.create_engine('postgresql://%s:%s@%s:%i/%s' %
-                                 ('snoplus', 'dontestopmenow',
+                                 ('snotdaq', 'V4le6*00',
                                   'minard', 5432,
                                   'test'),
                                   pool_recycle=3600)

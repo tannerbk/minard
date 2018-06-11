@@ -333,10 +333,13 @@ def ecal_status():
     crate = request.args.get("crate", 0, type=int)
     slot = request.args.get("slot", 0, type=int)
     channel = request.args.get("channel", 0, type=int)
-    test = request.args.get("test", -1, type=int)
+    test = request.args.get("test", "All", type=str)
+    crate2 = request.args.get("crate2", 0, type=int)
+    slot2 = request.args.get("slot2", 0, type=int)
+    channel2 = request.args.get("channel2", 0, type=int)
     ecal_data = ecal_state(crate, slot, channel) 
-    ccc = penn_daq_ccc_by_test(test)
-    return render_template('ecal_status.html', crate=crate, slot=slot, channel=channel, test=test, ecal_data=ecal_data, ccc=ccc)
+    ccc = penn_daq_ccc_by_test(test, crate2, slot2, channel2)
+    return render_template('ecal_status.html', crate=crate, slot=slot, channel=channel, crate2=crate2, slot2=slot2, channel2=channel2, test=test, ecal_data=ecal_data, ccc=ccc)
 
 @app.route('/update-mtca-crate-mapping', methods=["GET", "POST"])
 def update_mtca_crate_mapping():
