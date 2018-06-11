@@ -230,6 +230,8 @@
                        <td> No data </td>
                     {% endif %}
                 </table>
+	    </div>
+	    <div class="col-md-2 col-md-offset-2">
                 <h3>Discriminator</h3>
                 {% if discriminator_threshold %}
                 <table class="table table-bordered">
@@ -271,9 +273,9 @@
                             <tr>
                                 <th> {{ v }} </th>
                             {% if bad_vmon[v] %}
-                                <td class="danger"> {{ vmon[v] }} </td>
+                                <td class="danger"> {{ "%.1f" % vmon[v] }} </td>
                             {% else %}
-                                <td> {{ vmon[v] }} </td>
+                                <td> {{ "%.1f" % vmon[v] }} </td>
                             </tr>
                             {% endif %}
                         {% endfor %}
