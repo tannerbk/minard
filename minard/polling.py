@@ -13,45 +13,29 @@ PMT_TYPES = {
     'NORMAL' : 0x3,
 }
 
-def get_most_recent_polling_info(crate, slot, channel):
-    """
-    Returns a dictionary of the cmos and base currents check rates polling 
-    info for a single channel in the detector, for the most recent check rates.
-    """
-    polls = {}
+voltages_str_dict = {
+    'vref0_8p': ['+0.8V', 0.8], 
+    'vref1m': ['-1V', -1.0], 
+    'vref1p': ['+1V', 1.0], 
+    'vref2m': ['-2V', -2.0],
+    'vref4p': ['+4V', 4.0], 
+    'vref5p': ['+5V', 5.0],
+    'vcc': ['+5V (Vcc)', 5.0], 
+    'vee': ['-5V', -5.0], 
+    'vsup15m': ['-15V', -15.0], 
+    'vsup15p': ['+15V', 15.0], 
+    'vsup24m': ['-24V', -24.0], 
+    'vsup24p': ['+24V', 24.0], 
+    'vsup2m': ['-2V', -2.0],
+    'vsup3_3m': ['-3.3V', -3.3], 
+    'vsup3_3p': ['+3.3V', 3.3],
+    'vsup4p': ['+4V', 4.0], 
+    'vsup6_5p': ['+6.5V', 6.5], 
+    'vsup8p': ['+8V', 8.0]
+}
 
-    conn = engine.connect()
-
-    # Get the latest cmos rates
-    result = conn.execute("SELECT * FROM current_cmos WHERE crate = %s "
-        "AND slot = %s AND channel = %s", (crate, slot, channel))
-
-    if result is None:
-        return None, None
-
-    keys = result.keys()
-    row = result.fetchone()
-
-    if row:
-        cmos = dict(zip(keys,row))
-        polls.update(cmos)
-
-    # Get the latest base currents
-    result = conn.execute("SELECT * FROM current_base WHERE crate = %s "
-        "AND slot = %s AND channel = %s", (crate, slot, channel))
-
-    if result is None:
-        return None, None
-
-    keys = result.keys()
-    row = result.fetchone()
-
-    if row:
-        base = dict(zip(keys,row))
-        polls.update(base)
-
-    return polls
-
+# Fractional threshold for a bad voltage
+VMON_THRESH = 0.15
 
 def polling_runs(limit=100):
     """
@@ -77,6 +61,48 @@ def polling_runs(limit=100):
         base_runs = [dict(zip(keys,row)) for row in rows]
 
     return cmos_runs, base_runs
+
+
+def get_most_recent_polling_info(crate, slot, channel):
+    """
+    Returns a dictionary of the cmos and base currents check rates polling 
+    info for a single channel in the detector, for the most recent check rates.
+    """
+    polls = {}
+
+    conn = engine.connect()
+
+    # Get the latest cmos rates
+    result = conn.execute("SELECT * FROM cmos WHERE crate = %s "
+        "AND slot = %s AND channel = %s ORDER BY run DESC LIMIT 1",
+        (crate, slot, channel))
+
+    if result is None:
+        return None, None
+
+    keys = result.keys()
+    row = result.fetchone()
+
+    if row:
+        cmos = dict(zip(keys,row))
+        polls.update(cmos)
+
+    # Get the latest base currents
+    result = conn.execute("SELECT * FROM base WHERE crate = %s "
+        "AND slot = %s AND channel = %s ORDER BY run DESC LIMIT 1",
+        (crate, slot, channel))
+
+    if result is None:
+        return None, None
+
+    keys = result.keys()
+    row = result.fetchone()
+
+    if row:
+        base = dict(zip(keys,row))
+        polls.update(base)
+
+    return polls
 
 
 def polling_history(crate, slot, channel, min_run):
@@ -523,13 +549,11 @@ def polling_info_card(data_type, run_number, crate):
     if data_type == "cmos":
         result = conn.execute("SELECT DISTINCT ON (run, crate, slot, channel) "
             "slot, channel, cmos_rate FROM cmos WHERE run = %s "
-            "AND crate = %s ORDER by run, slot, channel",
-            (run_number, crate))
+            "AND crate = %s ORDER by run, slot, channel", (run_number, crate))
     elif data_type == "base":
         result = conn.execute("SELECT DISTINCT ON (run, crate, slot, channel) "
             "slot, channel, base_current FROM base WHERE run = %s "
-            "AND crate = %s ORDER by run, slot, channel",
-            (run_number, crate))
+            "AND crate = %s ORDER by run, slot, channel", (run_number, crate))
     else:
         return None
 
@@ -548,17 +572,29 @@ def get_vmon(crate, slot):
     """
     conn = engine.connect()
 
-    voltages_str = ("vref0_8p, vref1m, vref1p, vref2m, vref4p, vref5p, "
-                    "vcc, vee, vsup15m, vsup15p, vsup24m, vsup24p, vsup2m, "
-                    "vsup3_3m, vsup3_3p, vsup4p, vsup6_5p, vsup8p")
+    voltages = str(voltages_str_dict.keys())[1:-1]
+    voltages = voltages.replace("'","")
 
     result = conn.execute("SELECT %s FROM current_vmon WHERE crate = %s "
-                          "AND slot = %s" % (voltages_str, crate, slot))
+        "AND slot = %s" % (voltages, crate, slot))
 
     keys = result.keys()
     rows = result.fetchone()
 
     if rows is None:
-        return None
+        return None, None
 
-    return dict(zip(keys, rows))
+    bad_voltages = {}
+    result = dict(zip(keys,rows))
+    for key in result.keys():
+        value = result[key]
+        nominal_value = voltages_str_dict[key][1]
+        new_key = voltages_str_dict[key][0] 
+        result[new_key] = result.pop(key)
+        if abs(value) < abs(nominal_value)*(1 - VMON_THRESH) or \
+           abs(value) > abs(nominal_value)*(1 + VMON_THRESH):
+            bad_voltages[new_key] = 1
+        else:
+            bad_voltages[new_key] = 0 
+
+    return result, bad_voltages
