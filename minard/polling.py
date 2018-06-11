@@ -61,6 +61,48 @@ def polling_runs(limit=100):
     return cmos_runs, base_runs
 
 
+def get_most_recent_polling_info(crate, slot, channel):
+    """
+    Returns a dictionary of the cmos and base currents check rates polling 
+    info for a single channel in the detector, for the most recent check rates.
+    """
+    polls = {}
+
+    conn = engine.connect()
+
+    # Get the latest cmos rates
+    result = conn.execute("SELECT * FROM cmos WHERE crate = %s "
+        "AND slot = %s AND channel = %s ORDER BY run DESC LIMIT 1",
+        (crate, slot, channel))
+
+    if result is None:
+        return None, None
+
+    keys = result.keys()
+    row = result.fetchone()
+
+    if row:
+        cmos = dict(zip(keys,row))
+        polls.update(cmos)
+
+    # Get the latest base currents
+    result = conn.execute("SELECT * FROM base WHERE crate = %s "
+        "AND slot = %s AND channel = %s ORDER BY run DESC LIMIT 1",
+        (crate, slot, channel))
+
+    if result is None:
+        return None, None
+
+    keys = result.keys()
+    row = result.fetchone()
+
+    if row:
+        base = dict(zip(keys,row))
+        polls.update(base)
+
+    return polls
+
+
 def polling_history(crate, slot, channel, min_run):
     """
     Return a list of form [[run number, cmos rate]] for all runs with cmos data
@@ -545,7 +587,7 @@ def get_vmon(crate, slot):
     rows = result.fetchone()
 
     if rows is None:
-        return None
+        return None, None
 
     bad_voltages = {}
     result = dict(zip(keys,rows))
