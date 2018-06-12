@@ -48,17 +48,16 @@ def get_penn_daq_tests(crate, slot, channel):
 
     return test_failed
 
-def penn_daq_ccc_by_test(test, crate, slot, channel):
+def penn_daq_ccc_by_test(test, crate_sel, slot_sel, channel_sel):
     """
     Get the CCCs for all the tests that failed for a specified
     test (can by "All" of them).
     """
     conn = engine_test.connect()
 
-    if test == "All":
-        test_bit = 10
-    else:
+    if test != "All":
         test_bit = penn_daq_tests[test]
+
     #result = conn.execute("SELECT DISTINCT ON (a.crate, a.slot) "
     #    "a.crate, a.slot, a.ecalid, a.mbid, a.dbid, a.problems, "
     #    "b.crate, b.slot, b.mbid, b.dbid FROM test_status AS a "
@@ -77,7 +76,13 @@ def penn_daq_ccc_by_test(test, crate, slot, channel):
 
     ccc = []
     for crate, slot, ecalid, mbid, dbid, problems in rows:
+        if crate_sel != -1 and crate != crate_sel:
+            continue
+        if slot_sel != -1 and slot != slot_sel:
+            continue
         for channel in range(len(problems)):
+            if channel_sel != -1 and channel != channel_sel:
+                continue
             db_id = dbid[channel/8]
             if test == "All" and problems[channel] != 0 or \
                test != "All" and problems[channel] & (1<<test_bit):
