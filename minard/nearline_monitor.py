@@ -49,11 +49,11 @@ def get_run_list(limit, selected_run, run_range_low, run_range_high, all_runs, g
 def gain_monitor(limit, selected_run, run_range_low, run_range_high, all_runs, gold):
 
     gain_fail = {}
-    runs, qhs_array, _ = crate_gain_monitor(limit, selected_run, run_range_low, run_range_high, gold)
+    runs, qhs_array, crate_array = crate_gain_monitor(limit, selected_run, run_range_low, run_range_high, gold)
     for run in all_runs:
         try:
             gain_fail[run] = 0
-            for crate in range(19):
+            for crate in crate_array[run]:
                 if qhs_array[(run, crate)][0] > QHS_MAX or \
                    qhs_array[(run, crate)][0] < QHS_MIN:
                     gain_fail[run] = 1
