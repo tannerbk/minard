@@ -289,17 +289,21 @@ def get_detector_state_check(run=0):
                     else:
                         messages.append("crates %s are out of the %s MTCA+ relay mask" % (str(crates)[1:-1], mtca))
 
+    # TUBII channel mapping changed at run 113782
+    if run == 0 or run > 113781:
+        nonattenuated = [0, 1, 3]
+        attenuated = [2, 4, 5, 6, 7]
     # TUBII channel mapping changed at run 110119
-    if run == 0 or run > 110119:
-        attenuated = [3, 5, 7]
-        nonattenuated = [0, 1, 2, 4, 6]
+    elif run > 110119:
+        nonattenuated = [3, 5, 7]
+        attenuated = [0, 1, 2, 4, 6]
     # TUBII channel mapping changed at run 107556
     elif run > 107556:
-        attenuated = [3, 6, 7]
-        nonattenuated = [0, 1, 2, 4, 5]
+        nonattenuated = [3, 6, 7]
+        attenuated = [0, 1, 2, 4, 5]
     else:
-        attenuated = [2, 3, 6]
-        nonattenuated = [0, 1, 4, 5, 7]
+        nonattenuated = [2, 3, 6]
+        attenuated = [0, 1, 4, 5, 7]
 
     if tubii_key is None:
         messages.append("tubii state unknown")
@@ -321,24 +325,24 @@ def get_detector_state_check(run=0):
         # Hard-coded for current TUBII cabling
         if gain_reg is not None:
             for i in range(8):
-                if i in attenuated and (tubii_gain[i] & gain_reg):
-                    attenuated_channels.append(i)
-                elif i in nonattenuated and not (tubii_gain[i] & gain_reg):
+                if i in nonattenuated and (tubii_gain[i] & gain_reg):
                     non_attenuated_channels.append(i)
-            if len(attenuated_channels):
-                if len(attenuated_channels) == 1:
-                    messages.append("Warning: TUBII channel %s is in attenuating mode"\
-                        % attenuated_channels[0])
-                else:
-                    messages.append("Warning: TUBII channels %s are in attentuating mode"\
-                        % str(attenuated_channels)[1:-1])
+                elif i in attenuated and not (tubii_gain[i] & gain_reg):
+                    attenuated_channels.append(i)
             if len(non_attenuated_channels):
                 if len(non_attenuated_channels) == 1:
-                    messages.append("Warning: TUBII channel %s is in non-attenuating mode"\
+                    messages.append("Warning: TUBII channel %s is in attenuating mode"\
                         % non_attenuated_channels[0])
                 else:
-                    messages.append("Warning: TUBII channels %s are in non-attentuating mode"\
+                    messages.append("Warning: TUBII channels %s are in attentuating mode"\
                         % str(non_attenuated_channels)[1:-1])
+            if len(attenuated_channels):
+                if len(attenuated_channels) == 1:
+                    messages.append("Warning: TUBII channel %s is in non-attenuating mode"\
+                        % attenuated_channels[0])
+                else:
+                    messages.append("Warning: TUBII channels %s are in non-attentuating mode"\
+                        % str(attenuated_channels)[1:-1])
 
     detector_state = get_detector_state(run)
 
