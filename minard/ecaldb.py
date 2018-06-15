@@ -66,7 +66,7 @@ def penn_daq_ccc_by_test(test, crate_sel, slot_sel, channel_sel):
 
     result = conn.execute("SELECT DISTINCT ON (crate, slot) "
         "crate, slot, ecalid, mbid, dbid, problems FROM test_status "
-        "ORDER BY crate, slot, timestamp DESC")
+        "WHERE crate < 19 ORDER BY crate, slot, timestamp DESC")
 
     rows = result.fetchall()
     if rows is None:
