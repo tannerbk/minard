@@ -1,5 +1,5 @@
 import sqlalchemy
-from .db import engine, engine_test
+from .db import engine
 import time
 
 penn_daq_tests = {
@@ -33,7 +33,7 @@ def get_penn_daq_tests(crate, slot, channel):
     """
     Get the ECAL tests that failed for a specified CCC
     """
-    conn = engine_test.connect()
+    conn = engine.connect()
 
     result = conn.execute("SELECT tests_failed FROM test_status WHERE "
          "crate = %s AND slot = %s AND channel = %s", (crate, slot, channel))
@@ -53,7 +53,7 @@ def penn_daq_ccc_by_test(test, crate_sel, slot_sel, channel_sel):
     Get the CCCs for all the tests that failed for a specified
     test (can by "All" of them).
     """
-    conn = engine_test.connect()
+    conn = engine.connect()
 
     if test != "All":
         test_bit = penn_daq_tests[test]
