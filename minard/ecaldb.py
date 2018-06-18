@@ -58,12 +58,6 @@ def penn_daq_ccc_by_test(test, crate_sel, slot_sel, channel_sel):
     if test != "All":
         test_bit = penn_daq_tests[test]
 
-    #result = conn.execute("SELECT DISTINCT ON (a.crate, a.slot) "
-    #    "a.crate, a.slot, a.ecalid, a.mbid, a.dbid, a.problems, "
-    #    "b.crate, b.slot, b.mbid, b.dbid FROM test_status AS a "
-    #    "INNER JOIN current_detector_state AS b ON a.crate=b.crate "
-    #    "AND a.slot=b.slot ORDER BY a.crate, a.slot, a.timestamp DESC")
-
     result = conn.execute("SELECT DISTINCT ON (crate, slot) "
         "crate, slot, ecalid, mbid, dbid, problems FROM test_status "
         "WHERE crate < 19 ORDER BY crate, slot, timestamp DESC")
