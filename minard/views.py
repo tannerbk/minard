@@ -199,11 +199,6 @@ def detector_state_check(run=None):
     messages, channels = detector_state.get_detector_state_check(run)
     alarms = detector_state.get_alarms(run)
 
-    # Warn about ping crates failures
-    pingcrates_messages = pingcratesdb.crates_failed_messages(run)
-    for message in pingcrates_messages:
-        messages.append(message)
-
     if alarms is None:
         flash("unable to get alarms for run %i" % run, 'danger')
 
