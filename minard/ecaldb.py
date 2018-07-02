@@ -35,15 +35,15 @@ def get_penn_daq_tests(crate, slot, channel):
     """
     conn = engine.connect()
 
-    result = conn.execute("SELECT tests_failed FROM test_status WHERE "
-         "crate = %s AND slot = %s AND channel = %s", (crate, slot, channel))
+    result = conn.execute("SELECT problems FROM test_status WHERE "
+         "crate = %s AND slot = %s", (crate, slot))
 
     rows = result.fetchone()
 
     if rows is None:
         return None
 
-    rows = rows[0]
+    rows = rows[0][channel]
     test_failed = test_failed_str(rows)
 
     return test_failed

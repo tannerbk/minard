@@ -7,7 +7,6 @@ def occupancy_by_trigger_limit(limit, selected_run, run_range_low, run_range_hig
     """
     conn = engine_nl.connect()
 
-
     try:
         if not selected_run and not run_range_high:
             latest_run = get_latest_run()
