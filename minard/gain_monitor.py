@@ -89,6 +89,8 @@ def crate_average(selected_run, run_limit):
             # Crate had no hits
             except KeyError:
                 continue
+            except ZeroDivisionError:
+                continue
 
     return qhs_change
 
