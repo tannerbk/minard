@@ -37,6 +37,15 @@ app = Flask(__name__)
 
 app.config.from_envvar('MINARD_SETTINGS', silent=False)
 
+if not app.debug and 'LOGFILE' in app.config:
+    import logging
+    from logging.handlers import RotatingFileHandler
+    file_handler = RotatingFileHandler(app.config['LOGFILE'], maxBytes=1e6, backupCount=100)
+    file_handler.setLevel(logging.ERROR)
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    file_handler.setFormatter(formatter)
+    app.logger.addHandler(file_handler)
+
 app.wsgi_app = ReverseProxied(app.wsgi_app)
 
 import minard.views

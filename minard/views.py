@@ -139,6 +139,10 @@ def nocache(view):
 def timefmt(timestamp):
     return time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(float(timestamp)))
 
+@app.errorhandler(500)
+def internal_error(exception):
+    return render_template('500.html'), 500
+
 @app.route('/status')
 def status():
     return render_template('status.html', programs=PROGRAMS)
