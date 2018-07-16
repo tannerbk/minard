@@ -71,7 +71,6 @@ TRIGGER_NAMES = \
  'SOFGT',
  'MISS']
 
-
 class Program(object):
     def __init__(self, name, machine=None, link=None, description=None, expire=10, display_log=True):
         self.name = name
@@ -581,7 +580,6 @@ def nearline_failures():
     # Nearline job types and ways in which the jobs fail
     jobtypes = nearlinedb.job_types()
     runTypes = nlrat.RUN_TYPES
-    runTypes[-1] = "All"
 
     # List of jobs considered "critical" for processing and nearline
     criticalJobs = nearline_settings.criticalJobs
@@ -1313,7 +1311,6 @@ def nearline_monitoring_summary():
 
     # Allow sorting by run type
     allrunTypes = nlrat.RUN_TYPES
-    allrunTypes[-1] = "All"
 
     displayed_runs = []
     if runtype == -1:
