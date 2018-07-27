@@ -39,6 +39,7 @@ from .channeldb import ChannelStatusForm, upload_channel_status, get_channels, g
 from .mtca_crate_mapping import MTCACrateMappingForm, OWLCrateMappingForm, upload_mtca_crate_mapping, get_mtca_crate_mapping, get_mtca_crate_mapping_form, mtca_relay_status
 import re
 from .resistor import get_resistors, ResistorValuesForm, get_resistor_values_form, update_resistor_values
+from .pedestalsdb import get_pedestals, bad_pedestals, qhs_by_channel
 from datetime import datetime
 from functools import wraps, update_wrapper
 
@@ -322,7 +323,8 @@ def channel_status():
     gtvalid_lengths = get_gtvalid_lengths(crate, slot)
     fec_db_history = get_fec_db_history(crate, slot, channel)
     vmon, bad_vmon = get_vmon(crate, slot)
-    return render_template('channel_status.html', crate=crate, slot=slot, channel=channel, results=results, pmt_info=pmt_info, nominal_settings=nominal_settings, polling_info=polling_info, discriminator_threshold=discriminator_threshold, gtvalid_lengths=gtvalid_lengths, fec_db_history=fec_db_history, vmon=vmon, bad_vmon=bad_vmon)
+    qhs, qhl, qlx = get_pedestals(crate, slot, channel)
+    return render_template('channel_status.html', crate=crate, slot=slot, channel=channel, results=results, pmt_info=pmt_info, nominal_settings=nominal_settings, polling_info=polling_info, discriminator_threshold=discriminator_threshold, gtvalid_lengths=gtvalid_lengths, fec_db_history=fec_db_history, vmon=vmon, bad_vmon=bad_vmon, qhs=qhs, qhl=qhl, qlx=qlx)
 
 @app.route('/update-mtca-crate-mapping', methods=["GET", "POST"])
 def update_mtca_crate_mapping():
@@ -805,6 +807,20 @@ def max_thresholds(run_number):
 
     maxed = get_maxed_thresholds(run_number)
     return render_template('max_thresholds.html', run_number=run_number, maxed=maxed)
+
+@app.route('/pedestals')
+def pedestals():
+    crate = request.args.get("crate", 0, type=int)
+    slot = request.args.get("slot", -1, type=int)
+    channel = request.args.get("channel", -1, type=int)
+    cell = request.args.get("cell", -1, type=int)
+    charge = request.args.get("charge", "qhs_avg", type=str)
+    qmin = request.args.get("qmin", 300, type=int)
+    qmax = request.args.get("qmax", 2000, type=int)
+    limit = request.args.get("limit", 50, type=int)
+    qhs = qhs_by_channel(crate, slot, channel, cell)
+    bad_ped = bad_pedestals(crate, slot, channel, cell, charge, qmax, qmin, limit)
+    return render_template('pedestals.html', crate=crate, slot=slot, channel=channel, cell=cell, qhs=qhs, bad_ped=bad_ped, qmin=qmin, qmax=qmax, charge=charge, limit=limit)
 
 @app.route('/cmos_rates_check')
 def cmos_rates_check():
