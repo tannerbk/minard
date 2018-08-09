@@ -147,6 +147,21 @@ def internal_error(exception):
 def status():
     return render_template('status.html', programs=PROGRAMS)
 
+def get_builder_log_warnings(run):
+    """
+    Returns a list of all the lines in the builder log for a given run which
+    were warnings.
+    """
+    # regular expression matching error messages
+    rerr = re.compile('error|warning|jumped|queue head|queue tail|fail|memory|NHIT > 10000|invalid|unknown|missing|collision|unexpected|garbage|sequence|skipped', re.IGNORECASE)
+
+    warnings = []
+    with open(os.path.join(app.config["BUILDER_LOG_DIR"], "SNOP_%010i.log" % run)) as f:
+        for line in f:
+            if rerr.search(line):
+                warnings.append(line)
+    return warnings
+
 def get_daq_log_warnings(run):
     """
     Returns a list of all the lines in the DAQ log for a given run which were
@@ -207,12 +222,18 @@ def detector_state_check(run=None):
         flash("unable to get alarms for run %i" % run, 'danger')
 
     try:
+        builder_warnings = get_builder_log_warnings(run)
+    except IOError:
+        flash("unable to get builder log for run %i" % run, 'danger')
+        builder_warnings = None
+
+    try:
         warnings = get_daq_log_warnings(run)
     except IOError:
         flash("unable to get daq log for run %i" % run, 'danger')
         warnings = None
 
-    return render_template('detector_state_check.html', run=run, messages=messages, channels=channels, alarms=alarms, warnings=warnings)
+    return render_template('detector_state_check.html', run=run, messages=messages, channels=channels, alarms=alarms, warnings=warnings, builder_warnings=builder_warnings)
 
 @app.route('/channel-database')
 def channel_database():
