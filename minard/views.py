@@ -153,7 +153,7 @@ def get_builder_log_warnings(run):
     were warnings.
     """
     # regular expression matching error messages
-    rerr = re.compile('error|warning|jumped|queue head|queue tail|fail|memory|NHIT > 10000|invalid|unknown|missing|collision|unexpected|garbage|sequence|skipped|FIXED|Orphan|Bad data|', re.IGNORECASE)
+    rerr = re.compile('error|warning|jumped|queue head|queue tail|fail|memory|NHIT > 10000|invalid|unknown|missing|collision|unexpected|garbage|sequence|skipped|FIXED|Orphan|Bad data', re.IGNORECASE)
 
     warnings = []
     with open(os.path.join(app.config["BUILDER_LOG_DIR"], "SNOP_%010i.log" % run)) as f:
