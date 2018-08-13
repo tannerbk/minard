@@ -96,7 +96,7 @@ def get_muon_info_by_run(selected_run):
                           "b.gtids, b.days, b.secs, b.nsecs, c.gtids, c.days, c.secs, "
                           "c.nsecs, c.followers FROM muons AS a LEFT JOIN missed_muons "
                           "AS b ON a.run=b.run LEFT JOIN atmospherics AS c ON a.run=c.run "
-                          "WHERE a.run = %s", (selected_run,))
+                          "WHERE a.run = %s ORDER BY a.run, a.timestamp DESC", (selected_run,))
 
     rows = result.fetchall()
 
