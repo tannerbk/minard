@@ -27,12 +27,14 @@ def get_muons(limit, selected_run, run_range_low, run_range_high, gold, atm):
                                   "AS a INNER JOIN muons AS b ON a.run=b.run INNER JOIN "
                                   "missed_muons AS c ON a.run=c.run WHERE array_length(a.gtids, 1) > 0 "
                                   "AND a.run >= %s ORDER BY a.run DESC", (run_range,))
+        status = conn.execute("SELECT run, muon_time_in_range, missed_muon_time_in_range, "
+                              "atmospheric_time_in_range FROM time_check WHERE run >= %s", (run_range,)) 
     elif run_range_high:
         if not atm:
             result = conn.execute("SELECT DISTINCT ON (a.run) a.run, a.gtids, a.days, a.secs, a.nsecs, "
                                   "array_length(b.gtids, 1), c.gtids FROM muons AS a LEFT JOIN missed_muons "
                                   "AS b ON a.run=b.run LEFT JOIN atmospherics AS c ON a.run=c.run "
-                                  "WHERE a.run >= %s and a.run <= %s ORDER BY run DESC", \
+                                  "WHERE a.run >= %s AND a.run <= %s ORDER BY run DESC", \
                                   (run_range_low, run_range_high))
         else:
             result = conn.execute("SELECT DISTINCT ON (a.run) a.run, b.gtids, b.days, b.secs, b.nsecs, "
@@ -41,11 +43,16 @@ def get_muons(limit, selected_run, run_range_low, run_range_high, gold, atm):
                                   "missed_muons AS c ON a.run=c.run WHERE array_length(a.gtids, 1) > 0 "
                                   "AND a.run >= %s AND a.run <= %s ORDER BY a.run DESC", \
                                   (run_range_low, run_range_high))
+        status = conn.execute("SELECT run, muon_time_in_range, missed_muon_time_in_range, "
+                              "atmospheric_time_in_range FROM time_check WHERE run >= %s AND run <= %s", \
+                              (run_range_low, run_range_high)) 
     else:
         result = conn.execute("SELECT DISTINCT ON (a.run) a.run, a.gtids, a.days, a.secs, a.nsecs, "
                               "array_length(b.gtids, 1), c.gtids FROM muons AS a LEFT JOIN missed_muons "
                               "AS b ON a.run=b.run LEFT JOIN atmospherics AS c ON a.run=c.run "
                               "WHERE a.run = %s", (selected_run,))
+        status = conn.execute("SELECT run, muon_time_in_range, missed_muon_time_in_range, "
+                              "atmospheric_time_in_range FROM time_check WHERE run = %s", (selected_run,)) 
 
     rows = result.fetchall()
 
@@ -54,6 +61,7 @@ def get_muons(limit, selected_run, run_range_low, run_range_high, gold, atm):
     atm_count = {}
     livetime_lost = {} 
     fake = {}
+    check_time = {}
 
     for run, agtids, adays, asecs, ansecs, bgtids, cgtids in rows:
 
@@ -62,6 +70,9 @@ def get_muons(limit, selected_run, run_range_low, run_range_high, gold, atm):
             continue
 
         runs.append(run)
+        # Default status is True since we haven't run
+        # the time check runs up to 117117
+        check_time[run] = True
 
         if agtids is None:
             continue
@@ -83,7 +94,11 @@ def get_muons(limit, selected_run, run_range_low, run_range_high, gold, atm):
             continue
         atm_count[run] = "Not Processed"
 
-    return runs, muon_count, mmuon_count, atm_count, livetime_lost, fake
+    check = status.fetchall()
+    for run, muon_status, mm_status, atm_status in check:
+        check_time[run] = (muon_status or mm_status or atm_status)
+
+    return runs, muon_count, mmuon_count, atm_count, livetime_lost, fake, check_time
 
 
 def get_muon_info_by_run(selected_run):
@@ -125,7 +140,7 @@ def make_info(days, secs, nsecs, gtids, followers=None):
         return array
     for t in range(len(days)):
         total_secs = TZERO + days[t]*24*3600 + secs[t] + float(nsecs[t])/1e9
-        stime = time.strftime("%a, %d %b %Y %H:%M:%S ", time.gmtime(total_secs))
+        stime = time.strftime("%Y/%m/%d %H:%M:%S ", time.localtime(total_secs))
         if followers:
             array.append((gtids[t], stime, followers[t]))
             continue
@@ -151,4 +166,5 @@ def calculate_livetime_lost(days, secs, nsecs):
             livetime_lost += int((livetime[t] - livetime[t-1]))
 
     return livetime_lost
+
 
