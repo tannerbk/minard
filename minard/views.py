@@ -34,7 +34,7 @@ import dropout
 import pmtnoisedb
 import gain_monitor
 from run_list import golden_run_list
-from .polling import polling_runs, polling_info, polling_info_card, polling_check, polling_history, polling_summary, get_most_recent_polling_info, get_vmon
+from .polling import polling_runs, polling_info, polling_info_card, polling_check, polling_history, polling_summary, get_most_recent_polling_info, get_vmon, get_base_current_history
 from .channeldb import ChannelStatusForm, upload_channel_status, get_channels, get_channel_status, get_channel_status_form, get_channel_history, get_pmt_info, get_nominal_settings, get_discriminator_threshold, get_all_thresholds, get_maxed_thresholds, get_gtvalid_lengths, get_pmt_types, pmt_type_description, get_fec_db_history
 from .mtca_crate_mapping import MTCACrateMappingForm, OWLCrateMappingForm, upload_mtca_crate_mapping, get_mtca_crate_mapping, get_mtca_crate_mapping_form, mtca_relay_status
 import re
@@ -857,6 +857,22 @@ def cmos_rates_check():
         polling_check(high_rate, low_rate, pct_change)
 
     return render_template('cmos_rates_check.html', cmos_changes=cmos_changes, cmos_high_rates=cmos_high_rates, cmos_low_rates=cmos_low_rates, high_rate=high_rate, low_rate=low_rate, run_number=run_number, pct_change=pct_change)
+
+@app.route('/base_current_history')
+def base_current_history():
+    crate = request.args.get('crate',0,type=int)
+    slot = request.args.get('slot',0,type=int)
+    channel = request.args.get('channel',0,type=int)
+    # Run when we started keeping polling data
+    starting_run = request.args.get('starting_run',103214,type=int)
+
+    data = get_base_current_history(crate, slot, channel, starting_run)
+
+    # Convert datetime objects to strings
+    for i in range(len(data)):
+        data[i]['timestamp'] = data[i]['timestamp'].isoformat()
+
+    return render_template('base_current_history.html', crate=crate, slot=slot, channel=channel, data=data)
 
 @app.route('/check_rates_history')
 def check_rates_history():

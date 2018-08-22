@@ -221,7 +221,7 @@
                         <tr>
                             <th>Base Current</th>
                             {% if polling_info['base_current'] %}
-                              <td>{{ polling_info['base_current'] }}</td>
+                              <td><a href="{{ url_for("base_current_history", crate=crate, slot=slot, channel=channel) }}">{{ polling_info['base_current'] }}</a></td>
                             {% else %}
                               <td> None </td>
                             {% endif %}
