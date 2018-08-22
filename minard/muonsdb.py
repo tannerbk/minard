@@ -28,7 +28,8 @@ def get_muons(limit, selected_run, run_range_low, run_range_high, gold, atm):
                                   "missed_muons AS c ON a.run=c.run WHERE array_length(a.gtids, 1) > 0 "
                                   "AND a.run >= %s ORDER BY a.run DESC", (run_range,))
         status = conn.execute("SELECT run, muon_time_in_range, missed_muon_time_in_range, "
-                              "atmospheric_time_in_range FROM time_check WHERE run >= %s", (run_range,)) 
+                              "atmospheric_time_in_range FROM time_check WHERE run >= %s "
+                              "ORDER BY run DESC", (run_range,)) 
     elif run_range_high:
         if not atm:
             result = conn.execute("SELECT DISTINCT ON (a.run) a.run, a.gtids, a.days, a.secs, a.nsecs, "
@@ -44,8 +45,8 @@ def get_muons(limit, selected_run, run_range_low, run_range_high, gold, atm):
                                   "AND a.run >= %s AND a.run <= %s ORDER BY a.run DESC", \
                                   (run_range_low, run_range_high))
         status = conn.execute("SELECT run, muon_time_in_range, missed_muon_time_in_range, "
-                              "atmospheric_time_in_range FROM time_check WHERE run >= %s AND run <= %s", \
-                              (run_range_low, run_range_high)) 
+                              "atmospheric_time_in_range FROM time_check WHERE run >= %s AND "
+                              "run <= %s ORDER BY run DESC", (run_range_low, run_range_high)) 
     else:
         result = conn.execute("SELECT DISTINCT ON (a.run) a.run, a.gtids, a.days, a.secs, a.nsecs, "
                               "array_length(b.gtids, 1), c.gtids FROM muons AS a LEFT JOIN missed_muons "
