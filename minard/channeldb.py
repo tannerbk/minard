@@ -392,6 +392,10 @@ def get_all_thresholds(run):
     lower_disc_average = 0
     online_channels = 0
     count_max_thresholds = 0
+    crate_average = [0.0]*19
+    slot_average = [0.0]*16
+    count_channels_crate = [0.0]*19
+    count_channels_slot = [0.0]*16
 
     for crate in range(19):
         for slot in range(16):
@@ -405,12 +409,27 @@ def get_all_thresholds(run):
                         disc_average += int(threshold) 
                         # Only count online, non-maxed channels
                         online_channels += 1
+                        crate_average[crate] += threshold
+                        slot_average[slot] += threshold
+                        count_channels_crate[crate] +=1
+                        count_channels_slot[slot] += 1
                     else: 
                         count_max_thresholds += 1
+    cr_avg = []
+    for crate in range(19):
+        crate_average[crate] /= count_channels_crate[crate]
+        cr_avg.append([crate, crate_average[crate]])
+    sl_avg = []
+    for slot in range(16):
+        slot_average[slot] /= count_channels_slot[slot]
+        sl_avg.append([slot, slot_average[slot]])
+ 
+    cr_range = [max(crate_average), min(crate_average)]
+    sl_range = [max(slot_average), min(slot_average)]
 
     disc_average = round(float(disc_average) / online_channels, 3)
 
-    return disc, disc_average, count_max_thresholds, message
+    return disc, disc_average, count_max_thresholds, message, cr_avg, sl_avg, cr_range, sl_range
 
 def get_maxed_thresholds(run):
     """

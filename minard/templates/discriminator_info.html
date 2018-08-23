@@ -55,11 +55,22 @@ h4 {display:inline;}
         </div>
     </div>
 </div>
+<div class="container">
+    <div class="row">
+        <div class="col-xs-6 col-xs-offset-0" id="main3"> </div>
+        <div class="col-xs-6 col-xs-offset-0" id="main4"> </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-6 col-xs-offset-0" id="main5"> </div>
+        <div class="col-xs-6 col-xs-offset-0" id="main6"> </div>
+    </div>
+</div>
 {% endblock %}
 {% block script %}
     <script src="{{ url_for('static', filename='js/d3.js') }}"></script>
     <script src="{{ url_for('static', filename='js/histogram.js') }}"></script>    
     <script src="{{ url_for('static', filename='js/discriminator.js') }}"></script>    
+    <script src="{{ url_for('static', filename='js/scatter_plot_disc.js') }}"></script>    
     <script>
 
         function get_run(run1, run2){
@@ -80,6 +91,11 @@ h4 {display:inline;}
               .datum({{ values2 }})
             .call(discriminator_chart2);
         }
+
+        draw_scatter_plot_disc({{ crateavg1 }}, 18, "#main3", "Crate", {{ crrange1[1] }}, {{ crrange1[0] }}); 
+        draw_scatter_plot_disc({{ crateavg2 }}, 18, "#main4", "Crate", {{ crrange2[1] }}, {{ crrange2[0] }}); 
+        draw_scatter_plot_disc({{ slotavg1 }}, 16, "#main5", "Slot", {{ slrange1[1] }}, {{ slrange1[0] }}); 
+        draw_scatter_plot_disc({{ slotavg2 }}, 16, "#main6", "Slot", {{ slrange2[1] }}, {{ slrange2[0] }}); 
 
     </script>
 {% endblock %}

@@ -823,9 +823,9 @@ def discriminator_info():
     run1 = request.args.get('run1', run_default, type=int)
     run2 = request.args.get('run2', 0, type=int)
 
-    values1, average1, nmax1, message1 = get_all_thresholds(run1)
-    values2, average2, nmax2, message2 = get_all_thresholds(run2)
-    return render_template('discriminator_info.html', run1=run1, run2=run2, values1=values1, average1=average1, nmax1=nmax1, values2=values2, average2=average2, nmax2=nmax2, message1=message1, message2=message2)
+    values1, average1, nmax1, message1, crateavg1, slotavg1, crrange1, slrange1 = get_all_thresholds(run1)
+    values2, average2, nmax2, message2, crateavg2, slotavg2, crrange2, slrange2 = get_all_thresholds(run2)
+    return render_template('discriminator_info.html', run1=run1, run2=run2, values1=values1, average1=average1, nmax1=nmax1, values2=values2, average2=average2, nmax2=nmax2, message1=message1, message2=message2, crateavg1=crateavg1, slotavg1=slotavg1, crateavg2=crateavg2, slotavg2=slotavg2, crrange1=crrange1, slrange1=slrange1, crrange2=crrange2, slrange2=slrange2)
 
 @app.route('/max_thresholds/<run_number>')
 def max_thresholds(run_number):
