@@ -417,12 +417,18 @@ def get_all_thresholds(run):
                         count_max_thresholds += 1
     cr_avg = []
     for crate in range(19):
-        crate_average[crate] /= count_channels_crate[crate]
-        cr_avg.append([crate, crate_average[crate]])
+        if count_channels_crate[crate]:
+            crate_average[crate] /= count_channels_crate[crate]
+            cr_avg.append([crate, crate_average[crate]])
+        else:
+            cr_avg.append([crate, 0])
     sl_avg = []
     for slot in range(16):
-        slot_average[slot] /= count_channels_slot[slot]
-        sl_avg.append([slot, slot_average[slot]])
+        if count_channels_slot[slot]:
+            slot_average[slot] /= count_channels_slot[slot]
+            sl_avg.append([slot, slot_average[slot]])
+        else:
+            sl_avg.append([slot, 0])
  
     cr_range = [max(crate_average), min(crate_average)]
     sl_range = [max(slot_average), min(slot_average)]
