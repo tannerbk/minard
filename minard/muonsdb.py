@@ -71,9 +71,7 @@ def get_muons(limit, selected_run, run_range_low, run_range_high, gold, atm):
             continue
 
         runs.append(run)
-        # Default status is True since we haven't run
-        # the time check runs up to 117117
-        check_time[run] = True
+        check_time[run] = "-"
 
         if agtids is None:
             continue
