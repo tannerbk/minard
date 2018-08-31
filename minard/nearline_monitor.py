@@ -127,7 +127,7 @@ def clock_jumps_run(run):
     data10, data50 = get_clock_jumps_by_run(run)
     njump10 = len(data10)
     njump50 = len(data50)
-    if((njump10 + njump50) >= CLOCK_JUMP_1 and \
+    if((njump10 + njump50) > CLOCK_JUMP_1 and \
        (njump10 + njump50) < CLOCK_JUMP_2):
         clock_jumps_status[run] = 2
     elif(njump10 + njump50 >= CLOCK_JUMP_2):
