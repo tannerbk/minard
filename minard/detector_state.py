@@ -514,7 +514,7 @@ def get_nhit_monitor_thresholds_nearline(limit=100, offset=0, sort_by="run"):
     """
     conn = engine_nl.connect()
 
-    result = conn.execute("SELECT * FROM nhit_monitor_thresholds ORDER BY %s::text DESC, timestamp DESC LIMIT %s OFFSET %s", (sort_by,limit,offset))
+    result = conn.execute("SELECT * FROM nhit_monitor_thresholds ORDER BY %s DESC, timestamp DESC LIMIT %d OFFSET %d" % (sort_by,limit,offset))
 
     if result is None:
         return None
