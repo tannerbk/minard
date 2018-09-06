@@ -20,40 +20,44 @@ def get_muons(limit, selected_run, run_range_low, run_range_high, gold, atm):
             result = conn.execute("SELECT DISTINCT ON (a.run) a.run, a.gtids, a.days, a.secs, a.nsecs, "
                                   "array_length(b.gtids, 1), c.gtids FROM muons AS a LEFT JOIN missed_muons "
                                   "AS b ON a.run=b.run LEFT JOIN atmospherics AS c ON a.run=c.run "
-                                  "WHERE a.run >= %s ORDER BY run DESC", (run_range,))
+                                  "WHERE a.run >= %s ORDER BY a.run DESC, a.timestamp DESC, b.timestamp DESC, " 
+                                  "c.timestamp DESC", (run_range,))
         else:
             result = conn.execute("SELECT DISTINCT ON (a.run) a.run, b.gtids, b.days, b.secs, b.nsecs, "
                                   "array_length(c.gtids, 1), a.gtids FROM atmospherics "
                                   "AS a INNER JOIN muons AS b ON a.run=b.run INNER JOIN "
                                   "missed_muons AS c ON a.run=c.run WHERE array_length(a.gtids, 1) > 0 "
-                                  "AND a.run >= %s ORDER BY a.run DESC", (run_range,))
-        status = conn.execute("SELECT run, muon_time_in_range, missed_muon_time_in_range, "
+                                  "AND a.run >= %s ORDER BY a.run DESC, a.timestamp DESC, b.timestamp DESC, "
+                                  "c.timestamp DESC", (run_range,))
+        status = conn.execute("SELECT DISTINCT ON (run) run, muon_time_in_range, missed_muon_time_in_range, "
                               "atmospheric_time_in_range FROM time_check WHERE run >= %s "
-                              "ORDER BY run DESC", (run_range,)) 
+                              "ORDER BY run DESC, timestamp DESC", (run_range,))
     elif run_range_high:
         if not atm:
             result = conn.execute("SELECT DISTINCT ON (a.run) a.run, a.gtids, a.days, a.secs, a.nsecs, "
                                   "array_length(b.gtids, 1), c.gtids FROM muons AS a LEFT JOIN missed_muons "
                                   "AS b ON a.run=b.run LEFT JOIN atmospherics AS c ON a.run=c.run "
-                                  "WHERE a.run >= %s AND a.run <= %s ORDER BY run DESC", \
-                                  (run_range_low, run_range_high))
+                                  "WHERE a.run >= %s AND a.run <= %s ORDER BY a.run DESC, a.timestamp DESC, "
+                                  "b.timestamp DESC, c.timestamp DESC", (run_range_low, run_range_high))
         else:
             result = conn.execute("SELECT DISTINCT ON (a.run) a.run, b.gtids, b.days, b.secs, b.nsecs, "
                                   "array_length(c.gtids, 1), a.gtids FROM atmospherics "
                                   "AS a INNER JOIN muons AS b ON a.run=b.run INNER JOIN "
                                   "missed_muons AS c ON a.run=c.run WHERE array_length(a.gtids, 1) > 0 "
-                                  "AND a.run >= %s AND a.run <= %s ORDER BY a.run DESC", \
-                                  (run_range_low, run_range_high))
-        status = conn.execute("SELECT run, muon_time_in_range, missed_muon_time_in_range, "
+                                  "AND a.run >= %s AND a.run <= %s ORDER BY a.run DESC, a.timestamp DESC, "
+                                  "b.timestamp DESC, c.timestamp DESC", (run_range_low, run_range_high))
+        status = conn.execute("SELECT DISTINCT ON (run) run, muon_time_in_range, missed_muon_time_in_range, "
                               "atmospheric_time_in_range FROM time_check WHERE run >= %s AND "
-                              "run <= %s ORDER BY run DESC", (run_range_low, run_range_high)) 
+                              "run <= %s ORDER BY run DESC, timestamp DESC", (run_range_low, run_range_high)) 
     else:
         result = conn.execute("SELECT DISTINCT ON (a.run) a.run, a.gtids, a.days, a.secs, a.nsecs, "
                               "array_length(b.gtids, 1), c.gtids FROM muons AS a LEFT JOIN missed_muons "
                               "AS b ON a.run=b.run LEFT JOIN atmospherics AS c ON a.run=c.run "
-                              "WHERE a.run = %s", (selected_run,))
-        status = conn.execute("SELECT run, muon_time_in_range, missed_muon_time_in_range, "
-                              "atmospheric_time_in_range FROM time_check WHERE run = %s", (selected_run,)) 
+                              "WHERE a.run = %s ORDER BY a.run, a.timestamp DESC, b.timestamp DESC, " 
+                              "c.timestamp DESC", (selected_run,))
+        status = conn.execute("SELECT DISTINCT ON (run) run, muon_time_in_range, missed_muon_time_in_range, "
+                              "atmospheric_time_in_range FROM time_check WHERE run = %s ORDER BY run, " 
+                              "timestamp DESC", (selected_run,)) 
 
     rows = result.fetchall()
 
@@ -110,7 +114,8 @@ def get_muon_info_by_run(selected_run):
                           "b.gtids, b.days, b.secs, b.nsecs, c.gtids, c.days, c.secs, "
                           "c.nsecs, c.followers FROM muons AS a LEFT JOIN missed_muons "
                           "AS b ON a.run=b.run LEFT JOIN atmospherics AS c ON a.run=c.run "
-                          "WHERE a.run = %s ORDER BY a.run, a.timestamp DESC", (selected_run,))
+                          "WHERE a.run = %s ORDER BY a.run, a.timestamp DESC, "
+                          "b.timestamp DESC, c.timestamp DESC",  (selected_run,))
 
     rows = result.fetchall()
 
