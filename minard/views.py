@@ -27,6 +27,7 @@ import pingcratesdb
 import triggerclockjumpsdb
 import muonsdb
 import redisdb
+import cssProc as cssproc
 import fiber_position
 import occupancy
 import channelflagsdb
@@ -1311,6 +1312,14 @@ def noise_run_detail(run_number):
         return render_template('noise_run_detail.html', run=run[0], run_number=run_number)
     else:
         return render_template('noise_run_detail.html', run=0, run_number=run_number)
+
+@app.route('/css-proc')
+def cssProc():
+    return render_template('cssProc.html',info = cssproc.Info(-1))
+
+@app.route('/cssProc/<int:run_number>')
+def cssProcIndy(run_number):
+    return render_template('cssProcIndy.html', info = cssproc.Info(run_number), run= run_number)
 
 @app.route('/occupancy_by_trigger')
 def occupancy_by_trigger():
