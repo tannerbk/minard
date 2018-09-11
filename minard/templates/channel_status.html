@@ -126,35 +126,6 @@
 		</table>
 	    </div>
 	</div>
-        <div class="row">
-	    <div class="col-md-6">
-                <h3>History of FEC and/or DB Swaps</h3>
-		<table class="table">
-		    <thead>
-			<tr>
-			    <th>Run</th>
-			    <th>Date</th>
-			    <th>MBID</th>
-			    <th>DBID</th>
-                            <th>ECAL Tests Failed </th>
-			</tr>
-		    </thead>
-		    {% for row in fec_db_history | reverse %}
-		    <tr>
-			<td>{{ row['run'] }}</td>
-			<td>{{ row['timestamp'].strftime("%Y-%m-%d") }}</td>
-			<td><a href="http://snopl.us/debugdb/board/{{ '%04x' % row['mbid'] }}">{{ '0x%04x' % row['mbid'] }}</a></td>
-			<td><a href="http://snopl.us/debugdb/board/{{ '%04x' % row['dbid'] }}">{{ '0x%04x' % row['dbid'] }}</a></td>
-                        {% if test_failed and loop.first %}
-                            <td> {{ test_failed }} </td>
-                        {% else %}
-                            <td> </td>
-                        {% endif %}
-		    </tr>
-		    {% endfor %}
-		</table>
-	    </div>
-	</div>
 	<div class="row">
 	    <div class="col-md-2">
                 <h3>PMT Info</h3>
@@ -321,8 +292,12 @@
                         {% for v in vmon.keys() %}
                             <tr>
                                 <th> {{ v }} </th>
-                                <td> {{ vmon[v] }} </td>
+                            {% if bad_vmon[v] %}
+                                <td class="danger"> {{ "%.1f" % vmon[v] }} </td>
+                            {% else %}
+                                <td> {{ "%.1f" % vmon[v] }} </td>
                             </tr>
+                            {% endif %}
                         {% endfor %}
                     {% else %}
                         <td> No data </td>
@@ -330,6 +305,35 @@
                 </table>
 	    </div>
         </div>
+        <div class="row">
+	    <div class="col-md-6">
+                <h3>History of FEC and/or DB Swaps</h3>
+		<table class="table">
+		    <thead>
+			<tr>
+			    <th>Run</th>
+			    <th>Date</th>
+			    <th>MBID</th>
+			    <th>DBID</th>
+                            <th>ECAL Tests Failed </th>
+			</tr>
+		    </thead>
+		    {% for row in fec_db_history | reverse %}
+		    <tr>
+			<td>{{ row['run'] }}</td>
+			<td>{{ row['timestamp'].strftime("%Y-%m-%d") }}</td>
+			<td><a href="http://snopl.us/debugdb/board/{{ '%04x' % row['mbid'] }}">{{ '0x%04x' % row['mbid'] }}</a></td>
+			<td><a href="http://snopl.us/debugdb/board/{{ '%04x' % row['dbid'] }}">{{ '0x%04x' % row['dbid'] }}</a></td>
+                        {% if test_failed and loop.first %}
+                            <td> {{ test_failed }} </td>
+                        {% else %}
+                            <td> </td>
+                        {% endif %}
+		    </tr>
+		    {% endfor %}
+		</table>
+	    </div>
+	</div>
     </div>
 {% endblock %}
 {% block script %}
