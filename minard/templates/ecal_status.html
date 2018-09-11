@@ -223,7 +223,11 @@
                             <td> ECAL ID </td>
                         <tr>
                     </thead>
-                    <h4> Total: {{ ccc|length }} Channels Failed {{ test }} </h4>
+                    {% if test == "All" %}
+                        <h4> Total: {{ ccc|length }} Channels Failed </h4>
+                    {% else %}
+                        <h4> Total: {{ ccc|length }} Channels Failed: {{ test }} </h4>
+                    {% endif %}
                     {% if ccc %}
                         {% for crate, slot, channel, ecalid, mbid, dbid, test in ccc %}
                             <tr>
