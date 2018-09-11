@@ -231,7 +231,7 @@
                     {% endif %}
                     {% if ccc %}
                         {% for crate, slot, channel, ecalid, mbid, dbid, test in ccc %}
-                            <tr>
+                            <tr onclick="window.document.location = '{{ "channel-status?crate=%i&slot=%i&channel=%i" % (crate, slot, channel ) }}';">
                                 <td> {{ crate }} </td>
                                 <td> {{ slot }} </td>
                                 <td> {{ channel }} </td>
