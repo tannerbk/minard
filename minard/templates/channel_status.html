@@ -249,7 +249,7 @@
                         <tr>
                             <th>Base Current</th>
                             {% if polling_info['base_current'] %}
-                              <td>{{ polling_info['base_current'] }}</td>
+                              <td><a href="{{ url_for("base_current_history", crate=crate, slot=slot, channel=channel) }}">{{ polling_info['base_current'] }}</a></td>
                             {% else %}
                               <td> None </td>
                             {% endif %}
@@ -258,8 +258,6 @@
                        <td> No data </td>
                     {% endif %}
                 </table>
-	    </div>
-	    <div class="col-md-2 col-md-offset-2">
                 <h3>Discriminator</h3>
                 {% if discriminator_threshold %}
                 <table class="table table-bordered">
@@ -292,6 +290,29 @@
                         <td> No data </td>
                     {% endif %}
                  </table>
+	    </div>
+	    <div class="col-md-4">
+                <h3>Pedestals</h3>
+                <table class="table table-bordered">
+                    {% if qhs and qhl and qlx %}
+                        <tr>
+                            <th> Cell </th>
+                            <th> QHS </th>
+                            <th> QHL </th>
+                            <th> QLX </th>
+                        </tr>
+                        {% for cell in range(16) %}
+                            <tr>
+                                <th> {{ cell }} </th>
+                                <td> {{ qhs[cell] }} </td>
+                                <td> {{ qhl[cell] }} </td>
+                                <td> {{ qlx[cell] }} </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                       <th> No data </th>
+                    {% endif %}
+                </table>
 	    </div>
 	    <div class="col-md-2">
                 <h3>Vmon</h3>

@@ -9,3 +9,12 @@ var discriminator_chart2 = histogram()
     .min_bin_width(1)
     .color_scale(d3.scale.linear().domain([0,1]).range(['darkgreen','darkgreen']))
 
+var pedestal_chart_log = histogram()
+    .xlabel('QHS Pedestal (ADC Counts)')
+    .bins(100)
+    .min_bin_width(1)
+    .log(true)
+
+var pedestal_chart = histogram()
+    .xlabel('QHS Pedestal (ADC Counts)')
+    .min_bin_width(1)

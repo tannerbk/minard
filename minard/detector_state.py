@@ -289,17 +289,23 @@ def get_detector_state_check(run=0):
                     else:
                         messages.append("crates %s are out of the %s MTCA+ relay mask" % (str(crates)[1:-1], mtca))
 
-    # TUBII channel mapping changed at run 110119
-    if run == 0 or run > 110119:
-        attenuated = [3, 5, 7]
-        nonattenuated = [0, 1, 2, 4, 6]
-    # TUBII channel mapping changed at run 107556
+    # Keep track of which channels on TUBII we've plugged 
+    # the MTC/A+ analog signals in. We want to put those 
+    # channels in non-attenuated mode, and keep the others
+    # in attenuated mode. The TUBII channel mapping has 
+    # changed several times and the run-numbers are hard-coded.
+    if run == 0 or run > 113781:
+        nonattenuated = [0, 1, 3]
+        attenuated = [2, 4, 5, 6, 7]
+    elif run > 110119:
+        nonattenuated = [3, 5, 7]
+        attenuated = [0, 1, 2, 4, 6]
     elif run > 107556:
-        attenuated = [3, 6, 7]
-        nonattenuated = [0, 1, 2, 4, 5]
+        nonattenuated = [3, 6, 7]
+        attenuated = [0, 1, 2, 4, 5]
     else:
-        attenuated = [2, 3, 6]
-        nonattenuated = [0, 1, 4, 5, 7]
+        nonattenuated = [2, 3, 6]
+        attenuated = [0, 1, 4, 5, 7]
 
     if tubii_key is None:
         messages.append("tubii state unknown")
@@ -318,27 +324,28 @@ def get_detector_state_check(run=0):
         gain_reg = tubii['caen_gain_reg']
         attenuated_channels = []
         non_attenuated_channels = []
-        # Hard-coded for current TUBII cabling
         if gain_reg is not None:
+            # Loop over the eight TUBII channels and check the correct
+            # channels are in non-attenuating mode
             for i in range(8):
-                if i in attenuated and (tubii_gain[i] & gain_reg):
-                    attenuated_channels.append(i)
-                elif i in nonattenuated and not (tubii_gain[i] & gain_reg):
+                if i in nonattenuated and (tubii_gain[i] & gain_reg):
                     non_attenuated_channels.append(i)
-            if len(attenuated_channels):
-                if len(attenuated_channels) == 1:
-                    messages.append("Warning: TUBII channel %s is in attenuating mode"\
-                        % attenuated_channels[0])
-                else:
-                    messages.append("Warning: TUBII channels %s are in attentuating mode"\
-                        % str(attenuated_channels)[1:-1])
+                elif i in attenuated and not (tubii_gain[i] & gain_reg):
+                    attenuated_channels.append(i)
             if len(non_attenuated_channels):
                 if len(non_attenuated_channels) == 1:
-                    messages.append("Warning: TUBII channel %s is in non-attenuating mode"\
+                    messages.append("Warning: TUBII channel %s is in attenuating mode"\
                         % non_attenuated_channels[0])
                 else:
-                    messages.append("Warning: TUBII channels %s are in non-attentuating mode"\
+                    messages.append("Warning: TUBII channels %s are in attentuating mode"\
                         % str(non_attenuated_channels)[1:-1])
+            if len(attenuated_channels):
+                if len(attenuated_channels) == 1:
+                    messages.append("Warning: TUBII channel %s is in non-attenuating mode"\
+                        % attenuated_channels[0])
+                else:
+                    messages.append("Warning: TUBII channels %s are in non-attentuating mode"\
+                        % str(attenuated_channels)[1:-1])
 
     detector_state = get_detector_state(run)
 
@@ -507,7 +514,10 @@ def get_nhit_monitor_thresholds_nearline(limit=100, offset=0, sort_by="run"):
     """
     conn = engine_nl.connect()
 
-    result = conn.execute("SELECT * FROM nhit_monitor_thresholds ORDER BY %s::text DESC, timestamp DESC LIMIT %s OFFSET %s", (sort_by,limit,offset))
+    if sort_by == "run":
+        result = conn.execute("SELECT * FROM nhit_monitor_thresholds ORDER BY run DESC, timestamp DESC LIMIT %s OFFSET %s", (limit,offset))
+    if sort_by == "key":
+        result = conn.execute("SELECT * FROM nhit_monitor_thresholds ORDER BY key DESC, timestamp DESC LIMIT %s OFFSET %s", (limit,offset))
 
     if result is None:
         return None

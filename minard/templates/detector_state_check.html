@@ -75,15 +75,32 @@
         </div>
         <div class="row">
             {% if run != 0 %}
-                <div class="col-md-4">
+                <div class="col-md-12">
                     <h2>DAQ Log Warnings</h2>
                     {% if warnings is none %}
                     {% elif warnings | length == 0 %}
                         <p>No warnings!
                     {% else %}
-                        {% for line in warnings %}
-                            <p>{{ line }}
-                        {% endfor %}
+                        <pre>
+                        {%- for line in warnings -%}
+                            {{ line }}
+                        {%- endfor -%}
+                        </pre>
+                    {% endif %}
+                </div>
+        </div>
+        <div class="row">
+                <div class="col-md-12">
+                    <h2>Builder Log Warnings</h2>
+                    {% if builder_warnings is none %}
+                    {% elif builder_warnings | length == 0 %}
+                        <p>No warnings!
+                    {% else %}
+                        <pre>
+                        {%- for line in builder_warnings -%}
+                            {{ line }}
+                        {%- endfor -%}
+                        </pre>
                     {% endif %}
                 </div>
             {% endif %}

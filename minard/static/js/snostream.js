@@ -111,9 +111,9 @@ add_horizon(["heartbeat"],format_int,null,[0,4]);
  * trigger signal is 38 mV/hit, and we measured the conversion between CTC
  * voltage drop and baseline correction voltage in this shift report:
  * http://snopl.us/shift/view/daf725f9b1014a17a1d22c14083f747c?index_start=245. */
-add_baseline_horizon(["100L-Baseline"],format_rate,null,[-10,10], 1.53, 15.0);
-add_baseline_horizon(["100M-Baseline"],format_rate,null,[-10,10], 1.795, 4.17);
-add_baseline_horizon(["100H-Baseline"],format_rate,null,[-10,10], 1.837, 1.50);
+add_baseline_horizon(["100L-Baseline"],format_rate,null,[-10,10], 0.82, 15.0);
+add_baseline_horizon(["100M-Baseline"],format_rate,null,[-10,10], 0.96, 4.17);
+add_baseline_horizon(["100H-Baseline"],format_rate,null,[-10,10], 1.835, 1.50);
 add_baseline_horizon(["20LB-Baseline"],format_rate,null,[-10,10], 1.795, 15.0);
 add_baseline_horizon(["20-Baseline"],format_rate,null,[-10,10], 1.83, 1.50);
 /* for the esum triggers, we just divide by the baseline correction voltage to

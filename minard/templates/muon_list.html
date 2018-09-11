@@ -97,10 +97,11 @@
           <th> Number of Atmospherics </th>
           <th> Number of Missed Muons </th>
           <th> Livetime lost to Muons (s) </th>
+          <th> Event Times OK </th>
         </tr>
       {% if mruns %}
         {% for mrun in mruns %}
-          {% if mcount[mrun] > 20 or mmcount[mrun] > 1000 %}
+          {% if mcount[mrun] > 20 or mmcount[mrun] > 1000 or time_check[mrun] == False %}
             <tr class="danger">
           {% else %}
             <tr class="success">
@@ -115,6 +116,7 @@
             <th> {{atmcount[mrun]}} </th>
             <th> {{mmcount[mrun]}} </th>
             <th> {{livetime[mrun]}} </th>
+            <th> {{time_check[mrun]}} </th>
           </tr>
         {% endfor %}
       {% else %}

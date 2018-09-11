@@ -31,7 +31,6 @@ def get_run_list(limit, selected_run, run_range_low, run_range_high, all_runs, g
     Returns dictionaries keeping track of a list
     of failures for each nearline job
     '''
-
     occupancy_status = occupancy(limit, selected_run, run_range_low, run_range_high, all_runs, gold)
     muon_status = muons(limit, selected_run, run_range_low, run_range_high, all_runs, gold)
     gain_status = gain_monitor(limit, selected_run, run_range_low, run_range_high, all_runs, gold)
@@ -47,7 +46,9 @@ def get_run_list(limit, selected_run, run_range_low, run_range_high, all_runs, g
     return clock_jumps_status, ping_crates_status, channel_flags_status, occupancy_status, muon_status, gain_status
 
 def gain_monitor(limit, selected_run, run_range_low, run_range_high, all_runs, gold):
-
+    """
+    Check that the QHS peaks for each crate is within an acceptable range
+    """
     gain_fail = {}
     runs, qhs_array, crate_array = crate_gain_monitor(limit, selected_run, run_range_low, run_range_high, gold)
     for run in all_runs:
@@ -63,13 +64,19 @@ def gain_monitor(limit, selected_run, run_range_low, run_range_high, all_runs, g
     return gain_fail
 
 def muons(limit, selected_run, run_range_low, run_range_high, all_runs, gold):
-
+    """
+    Checks the numbers of muons and missed muons and fails run if they exceed
+    a hard-coded limit. Also checks the times of the muons, atmospherics, and
+    missed muons are within an acceptable range of time.
+    """
     muon_fail = {}
-    _, mcount, mmcount, _, _, _ = get_muons(limit, selected_run, run_range_low, run_range_high, gold, 0)
+    _, mcount, mmcount, _, _, _, time_check = get_muons(limit, selected_run, run_range_low, run_range_high, gold, 0)
 
     for run in all_runs:
         try:
-            if mcount[run] > MUONS:
+            if not time_check[run]:
+                muon_fail[run] = 1
+            elif mcount[run] > MUONS:
                 muon_fail[run] = 1
             elif mmcount[run] > MISSED_MUONS:
                 muon_fail[run] = 1
@@ -120,7 +127,7 @@ def clock_jumps_run(run):
     data10, data50 = get_clock_jumps_by_run(run)
     njump10 = len(data10)
     njump50 = len(data50)
-    if((njump10 + njump50) >= CLOCK_JUMP_1 and \
+    if((njump10 + njump50) > CLOCK_JUMP_1 and \
        (njump10 + njump50) < CLOCK_JUMP_2):
         clock_jumps_status[run] = 2
     elif(njump10 + njump50 >= CLOCK_JUMP_2):

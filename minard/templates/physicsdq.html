@@ -8,11 +8,15 @@
 <div class="container">
     <h1>Physics Data Quality</h1>
     {% if offset == 0 %}
-    <button class="btn btn-outline-primary btn-lg" disabled>Next</button>
+    <button class="btn btn-outline-primary btn-lg" disabled>Back</button>
     <a class="btn btn-outline-primary btn-lg" href="{{ url_for("physicsdq", limit=limit, offset=offset+limit) }}">Next</a>
     {% else %}
-    <a class="btn btn-outline-primary btn-lg" href="{{ url_for("physicsdq", limit=limit, offset=offset-limit) }}">Back</a>
-    <a class="btn btn-outline-primary btn-lg" href="{{ url_for("physicsdq", limit=limit, offset=offset+limit) }}">Next</a>
+        {% if limit > offset %}
+        <a class="btn btn-outline-primary btn-lg" href="{{ url_for("physicsdq", limit=limit, offset=0) }}">Back</a>
+        {% else %}
+        <a class="btn btn-outline-primary btn-lg" href="{{ url_for("physicsdq", limit=limit, offset=offset-limit) }}">Back</a>
+        {% endif %}
+        <a class="btn btn-outline-primary btn-lg" href="{{ url_for("physicsdq", limit=limit, offset=offset+limit) }}">Next</a>
     {% endif %}
     <div class="container">
         <table class="table table-hover">

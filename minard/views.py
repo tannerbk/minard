@@ -27,6 +27,7 @@ import pingcratesdb
 import triggerclockjumpsdb
 import muonsdb
 import redisdb
+import cssProc as cssproc
 import fiber_position
 import occupancy
 import channelflagsdb
@@ -34,12 +35,13 @@ import dropout
 import pmtnoisedb
 import gain_monitor
 from run_list import golden_run_list
-from .polling import polling_runs, polling_info, polling_info_card, polling_check, polling_history, polling_summary, get_most_recent_polling_info, get_vmon
+from .polling import polling_runs, polling_info, polling_info_card, polling_check, polling_history, polling_summary, get_most_recent_polling_info, get_vmon, get_base_current_history
 from .channeldb import ChannelStatusForm, upload_channel_status, get_channels, get_channel_status, get_channel_status_form, get_channel_history, get_pmt_info, get_nominal_settings, get_discriminator_threshold, get_all_thresholds, get_maxed_thresholds, get_gtvalid_lengths, get_pmt_types, pmt_type_description, get_fec_db_history
 from .ecaldb import ecal_state, penn_daq_ccc_by_test, get_penn_daq_tests
 from .mtca_crate_mapping import MTCACrateMappingForm, OWLCrateMappingForm, upload_mtca_crate_mapping, get_mtca_crate_mapping, get_mtca_crate_mapping_form, mtca_relay_status
 import re
 from .resistor import get_resistors, ResistorValuesForm, get_resistor_values_form, update_resistor_values
+from .pedestalsdb import get_pedestals, bad_pedestals, qhs_by_channel
 from datetime import datetime
 from functools import wraps, update_wrapper
 
@@ -71,7 +73,6 @@ TRIGGER_NAMES = \
  'NCD',
  'SOFGT',
  'MISS']
-
 
 class Program(object):
     def __init__(self, name, machine=None, link=None, description=None, expire=10, display_log=True):
@@ -140,9 +141,28 @@ def nocache(view):
 def timefmt(timestamp):
     return time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(float(timestamp)))
 
+@app.errorhandler(500)
+def internal_error(exception):
+    return render_template('500.html'), 500
+
 @app.route('/status')
 def status():
     return render_template('status.html', programs=PROGRAMS)
+
+def get_builder_log_warnings(run):
+    """
+    Returns a list of all the lines in the builder log for a given run which
+    were warnings.
+    """
+    # regular expression matching error messages
+    rerr = re.compile('error|warning|jumped|queue head|queue tail|fail|memory|NHIT > 10000|invalid|unknown|missing|collision|unexpected|garbage|sequence|skipped|FIXED|Orphan|Bad data', re.IGNORECASE)
+
+    warnings = []
+    with open(os.path.join(app.config["BUILDER_LOG_DIR"], "SNOP_%010i.log" % run)) as f:
+        for line in f:
+            if rerr.search(line):
+                warnings.append(line)
+    return warnings
 
 def get_daq_log_warnings(run):
     """
@@ -200,21 +220,26 @@ def detector_state_check(run=None):
     messages, channels = detector_state.get_detector_state_check(run)
     alarms = detector_state.get_alarms(run)
 
-    # Warn about ping crates failures
-    pingcrates_messages = pingcratesdb.crates_failed_messages(run)
-    for message in pingcrates_messages:
-        messages.append(message)
-
     if alarms is None:
         flash("unable to get alarms for run %i" % run, 'danger')
 
-    try:
-        warnings = get_daq_log_warnings(run)
-    except IOError:
-        flash("unable to get daq log for run %i" % run, 'danger')
+    if run == 0:
+        builder_warnings = None
         warnings = None
+    else:
+        try:
+            builder_warnings = get_builder_log_warnings(run)
+        except IOError:
+            flash("unable to get builder log for run %i" % run, 'danger')
+            builder_warnings = None
 
-    return render_template('detector_state_check.html', run=run, messages=messages, channels=channels, alarms=alarms, warnings=warnings)
+        try:
+            warnings = get_daq_log_warnings(run)
+        except IOError:
+            flash("unable to get daq log for run %i" % run, 'danger')
+            warnings = None
+
+    return render_template('detector_state_check.html', run=run, messages=messages, channels=channels, alarms=alarms, warnings=warnings, builder_warnings=builder_warnings)
 
 @app.route('/channel-database')
 def channel_database():
@@ -326,7 +351,8 @@ def channel_status():
     fec_db_history = get_fec_db_history(crate, slot, channel)
     vmon, bad_vmon = get_vmon(crate, slot)
     test_failed = get_penn_daq_tests(crate, slot, channel)
-    return render_template('channel_status.html', crate=crate, slot=slot, channel=channel, results=results, pmt_info=pmt_info, nominal_settings=nominal_settings, polling_info=polling_info, discriminator_threshold=discriminator_threshold, gtvalid_lengths=gtvalid_lengths, fec_db_history=fec_db_history, vmon=vmon, bad_vmon=bad_vmon, test_failed=test_failed)
+    qhs, qhl, qlx = get_pedestals(crate, slot, channel)
+    return render_template('channel_status.html', crate=crate, slot=slot, channel=channel, results=results, pmt_info=pmt_info, nominal_settings=nominal_settings, polling_info=polling_info, discriminator_threshold=discriminator_threshold, gtvalid_lengths=gtvalid_lengths, fec_db_history=fec_db_history, vmon=vmon, bad_vmon=bad_vmon, qhs=qhs, qhl=qhl, qlx=qlx, test_failed=test_failed)
 
 @app.route('/ecal-status')
 def ecal_status():
@@ -597,7 +623,6 @@ def nearline_failures():
     # Nearline job types and ways in which the jobs fail
     jobtypes = nearlinedb.job_types()
     runTypes = nlrat.RUN_TYPES
-    runTypes[-1] = "All"
 
     # List of jobs considered "critical" for processing and nearline
     criticalJobs = nearline_settings.criticalJobs
@@ -814,15 +839,29 @@ def discriminator_info():
     run1 = request.args.get('run1', run_default, type=int)
     run2 = request.args.get('run2', 0, type=int)
 
-    values1, average1, nmax1, message1 = get_all_thresholds(run1)
-    values2, average2, nmax2, message2 = get_all_thresholds(run2)
-    return render_template('discriminator_info.html', run1=run1, run2=run2, values1=values1, average1=average1, nmax1=nmax1, values2=values2, average2=average2, nmax2=nmax2, message1=message1, message2=message2)
+    values1, average1, nmax1, message1, crateavg1, slotavg1, crrange1, slrange1 = get_all_thresholds(run1)
+    values2, average2, nmax2, message2, crateavg2, slotavg2, crrange2, slrange2 = get_all_thresholds(run2)
+    return render_template('discriminator_info.html', run1=run1, run2=run2, values1=values1, average1=average1, nmax1=nmax1, values2=values2, average2=average2, nmax2=nmax2, message1=message1, message2=message2, crateavg1=crateavg1, slotavg1=slotavg1, crateavg2=crateavg2, slotavg2=slotavg2, crrange1=crrange1, slrange1=slrange1, crrange2=crrange2, slrange2=slrange2)
 
 @app.route('/max_thresholds/<run_number>')
 def max_thresholds(run_number):
 
     maxed = get_maxed_thresholds(run_number)
     return render_template('max_thresholds.html', run_number=run_number, maxed=maxed)
+
+@app.route('/pedestals')
+def pedestals():
+    crate = request.args.get("crate", 0, type=int)
+    slot = request.args.get("slot", -1, type=int)
+    channel = request.args.get("channel", -1, type=int)
+    cell = request.args.get("cell", -1, type=int)
+    charge = request.args.get("charge", "qhs_avg", type=str)
+    qmin = request.args.get("qmin", 300, type=int)
+    qmax = request.args.get("qmax", 2000, type=int)
+    limit = request.args.get("limit", 50, type=int)
+    qhs = qhs_by_channel(crate, slot, channel, cell)
+    bad_ped = bad_pedestals(crate, slot, channel, cell, charge, qmax, qmin, limit)
+    return render_template('pedestals.html', crate=crate, slot=slot, channel=channel, cell=cell, qhs=qhs, bad_ped=bad_ped, qmin=qmin, qmax=qmax, charge=charge, limit=limit)
 
 @app.route('/cmos_rates_check')
 def cmos_rates_check():
@@ -834,6 +873,22 @@ def cmos_rates_check():
         polling_check(high_rate, low_rate, pct_change)
 
     return render_template('cmos_rates_check.html', cmos_changes=cmos_changes, cmos_high_rates=cmos_high_rates, cmos_low_rates=cmos_low_rates, high_rate=high_rate, low_rate=low_rate, run_number=run_number, pct_change=pct_change)
+
+@app.route('/base_current_history')
+def base_current_history():
+    crate = request.args.get('crate',0,type=int)
+    slot = request.args.get('slot',0,type=int)
+    channel = request.args.get('channel',0,type=int)
+    # Run when we started keeping polling data
+    starting_run = request.args.get('starting_run',103214,type=int)
+
+    data = get_base_current_history(crate, slot, channel, starting_run)
+
+    # Convert datetime objects to strings
+    for i in range(len(data)):
+        data[i]['timestamp'] = data[i]['timestamp'].isoformat()
+
+    return render_template('base_current_history.html', crate=crate, slot=slot, channel=channel, data=data)
 
 @app.route('/check_rates_history')
 def check_rates_history():
@@ -1273,6 +1328,14 @@ def noise_run_detail(run_number):
     else:
         return render_template('noise_run_detail.html', run=0, run_number=run_number)
 
+@app.route('/css-proc')
+def cssProc():
+    return render_template('cssProc.html',info = cssproc.Info(-1))
+
+@app.route('/cssProc/<int:run_number>')
+def cssProcIndy(run_number):
+    return render_template('cssProcIndy.html', info = cssproc.Info(run_number), run= run_number)
+
 @app.route('/occupancy_by_trigger')
 def occupancy_by_trigger():
     limit = request.args.get("limit", 25, type=int)
@@ -1329,7 +1392,6 @@ def nearline_monitoring_summary():
 
     # Allow sorting by run type
     allrunTypes = nlrat.RUN_TYPES
-    allrunTypes[-1] = "All"
 
     displayed_runs = []
     if runtype == -1:
@@ -1355,18 +1417,12 @@ def nearline_monitoring_summary():
 
 @app.route('/physicsdq')
 def physicsdq():
-    limit = request.args.get("limit", 10, type=int)
+    limit = request.args.get("limit", 100, type=int)
     offset = request.args.get("offset", 0, type=int)
-    runNumbers = HLDQTools.import_HLDQ_runnumbers(limit=limit,offset=offset)
-    run_info = []
-    proc_results = []
-    for i in range(len(runNumbers)):
-        run_info.append(HLDQTools.import_HLDQ_ratdb(int(runNumbers[i])))
-        if run_info[i] == -1:
-            proc_results.append(-1)
-        else:
-            proc_results.append(HLDQTools.generateHLDQProcStatus(run_info[i]))
-    return render_template('physicsdq.html', physics_run_numbers=runNumbers, proc_results=proc_results, run_info=run_info, limit=limit, offset=offset)
+    runs = HLDQTools.import_HLDQ_runnumbers(limit=limit,offset=offset)
+    run_info = HLDQTools.import_HLDQ_ratdb(runs)
+    proc_results = [HLDQTools.generateHLDQProcStatus(x) if x != -1 else -1 for x in run_info]
+    return render_template('physicsdq.html', physics_run_numbers=runs, proc_results=proc_results, run_info=run_info, limit=limit, offset=offset)
 
 @app.route('/pingcrates')
 def pingcrates():
@@ -1438,9 +1494,9 @@ def muon_list():
     if gold:
         gold_runs = golden_run_list()
 
-    mruns, mcount, mmcount, atmcount, livetime, mfake = muonsdb.get_muons(limit, selected_run, run_range_low, run_range_high, gold_runs, atm)
+    mruns, mcount, mmcount, atmcount, livetime, mfake, time_check = muonsdb.get_muons(limit, selected_run, run_range_low, run_range_high, gold_runs, atm)
 
-    return render_template('muon_list.html', mruns=mruns, limit=limit, selected_run=selected_run, run_range_low=run_range_low, run_range_high=run_range_high, gold=gold, mcount=mcount, mmcount=mmcount, mfake=mfake, atmcount=atmcount, livetime=livetime, atm=atm)
+    return render_template('muon_list.html', mruns=mruns, limit=limit, selected_run=selected_run, run_range_low=run_range_low, run_range_high=run_range_high, gold=gold, mcount=mcount, mmcount=mmcount, mfake=mfake, atmcount=atmcount, livetime=livetime, atm=atm, time_check=time_check)
 
 @app.route('/muons_by_run/<run_number>')
 def muons_by_run(run_number):
@@ -1520,9 +1576,9 @@ def crate_gain_history():
     data = gain_monitor.crate_gain_history(starting_run, ending_run, crate, qhs_low, qhs_high)
     return render_template('crate_gain_history.html', crate=crate, data=data, starting_run=starting_run, ending_run=ending_run, qhs_low=qhs_low, qhs_high=qhs_high)
 
-@app.route('/physicsdq/<run_number>')
+@app.route('/physicsdq/<int:run_number>')
 def physicsdq_run_number(run_number):
-    ratdb_dict = HLDQTools.import_HLDQ_ratdb(int(run_number))
+    ratdb_dict = HLDQTools.import_HLDQ_ratdb([run_number])[0]
     return render_template('physicsdq_run_number.html', run_number=run_number, ratdb_dict=ratdb_dict)
 
 @app.route('/calibdq_smellie')

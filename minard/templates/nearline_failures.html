@@ -18,35 +18,46 @@
         </tr>
         <tr> 
 
-          <th> <select id="job" onchange="get_limit(limit.value, this.value, low.value, high.value, rtype.value);">
-            <option selected value="{{jobs}}">{{jobs}}</option>
-            {% for job_type in jobtypes %}
-              {% if job_type != jobs %}
-                <option value="{{job_type}}">{{job_type}}</option>
-              {% endif %}
-            {% endfor %}
-          </select> </th>
+          <th>
+            <select id="job" onchange="get_limit(limit.value, this.value, low.value, high.value, rtype.value);">
+              <option selected value="{{jobs}}">{{jobs}}</option>
+              {% for job_type in jobtypes %}
+                {% if job_type != jobs %}
+                  <option value="{{job_type}}">{{job_type}}</option>
+                {% endif %}
+              {% endfor %}
+            </select>
+          </th>
 
-          <th> <select id="limit" onchange="get_limit(this.value, job.value, 0, 0, rtype.value);">
-            <option selected value="{{limit}}">{{limit}}</option>
-            {% for n in [10, 25, 50, 100, 500] %}
-              {% if n != limit %}
-                <option value="{{n}}">{{n}}</option>
-              {% endif %}
-            {% endfor %}
-            </select> </th>
+          <th>
+            <select id="limit" onchange="get_limit(this.value, job.value, 0, 0, rtype.value);">
+              <option selected value="{{limit}}">{{limit}}</option>
+              {% for n in [10, 25, 50, 100, 500] %}
+                {% if n != limit %}
+                  <option value="{{n}}">{{n}}</option>
+                {% endif %}
+              {% endfor %}
+            </select> 
+          </th>
 
-           <th> <input style="margin-bottom: 30px; width: 80px;" type="text" id="low" value={{run_range_low}} onKeyDown="if(event.keyCode==13) get_limit(limit.value, job.value, this.value, high.value, rtype.value);"></input>
-             - <input style="margin-bottom: 30px; width: 80px;" type="text" id="high" value={{run_range_high}} onKeyDown="if(event.keyCode==13) get_limit(limit.value, job.value, low.value, this.value, rtype.value);"></input> </th>
+          <th>
+            <input style="margin-bottom: 30px; width: 80px;" type="text" id="low" value={{run_range_low}} onKeyDown="if(event.keyCode==13) get_limit(limit.value, job.value, this.value, high.value, rtype.value);"></input> - <input style="margin-bottom: 30px; width: 80px;" type="text" id="high" value={{run_range_high}} onKeyDown="if(event.keyCode==13) get_limit(limit.value, job.value, low.value, this.value, rtype.value);"></input> 
+          </th>
 
-          <th> <select id="rtype" onchange="get_limit(limit.value, job.value, low.value, high.value, this.value);">
-            <option selected value="{{runtype}}">{{selectedType}}</option>
-            {% for i in runTypes %}
-              {% if runTypes[i] != selectedType %}
-                <option value="{{i}}">{{runTypes[i]}}</option>
+          <th> 
+            <select id="rtype" onchange="get_limit(limit.value, job.value, low.value, high.value, this.value);">
+              <option selected value="{{runtype}}">{{selectedType}}</option>
+              {% if selectedType != "All" %}
+                <option value="-1">All</option>
               {% endif %}
-            {% endfor %}
-          </select> </th>
+              {% for i in runTypes %}
+                {% if runTypes[i] != selectedType %}
+                  <option value="{{i}}">{{runTypes[i]}}</option>
+                {% endif %}
+              {% endfor %}
+            </select> 
+          </th>
+
         </tr>
       </table>
     </div> 

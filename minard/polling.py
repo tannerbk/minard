@@ -104,6 +104,28 @@ def get_most_recent_polling_info(crate, slot, channel):
 
     return polls
 
+def get_base_current_history(crate, slot, channel, min_run):
+    """
+    Returns a list of form
+
+        [{'timestamp': datetime, 'base_current': base current},...]
+
+    for all runs with base current data.
+    """
+    conn = engine.connect()
+
+    result = conn.execute("SELECT timestamp, base_current FROM base "
+                          "WHERE crate = %s AND slot = %s AND channel = %s "
+                          "AND run > %s ORDER BY timestamp DESC",
+                          (crate, slot, channel, min_run))
+
+    if result is None:
+        return None
+
+    keys = map(str,result.keys())
+    rows = result.fetchall()
+
+    return [dict(zip(keys,row)) for row in rows]
 
 def polling_history(crate, slot, channel, min_run):
     """
