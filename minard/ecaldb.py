@@ -1,8 +1,7 @@
 import sqlalchemy
 from .db import engine
-import time
 
-penn_daq_tests = {
+PENN_DAQ_TESTS = {
     "Crate CBal": 0,
     "ZDisc": 1,
     "Set TTot": 2,
@@ -20,8 +19,8 @@ def test_failed_str(tests):
     to a string listing the failed ECAL tests.
     """
     test_failed = ""
-    for test in penn_daq_tests.keys():
-        bit = penn_daq_tests[test]
+    for test in PENN_DAQ_TESTS.keys():
+        bit = PENN_DAQ_TESTS[test]
         if not tests & (1<<bit):
             continue
         test_failed += str(test) + ", "
@@ -56,7 +55,7 @@ def penn_daq_ccc_by_test(test, crate_sel, slot_sel, channel_sel):
     conn = engine.connect()
 
     if test != "All":
-        test_bit = penn_daq_tests[test]
+        test_bit = PENN_DAQ_TESTS[test]
 
     result = conn.execute("SELECT DISTINCT ON (crate, slot) "
         "crate, slot, ecalid, mbid, dbid, problems FROM test_status "
@@ -93,7 +92,7 @@ def ecal_state(crate, slot, channel):
 
     result = conn.execute("SELECT vthr, tcmos_isetm, vbal_0, vbal_1, "
         "mbid, dbid, tdisc_rmp FROM fecdoc WHERE crate = %s AND slot = %s "
-        "ORDER BY timestamp DESC", (crate, slot))
+        "ORDER BY timestamp DESC LIMIT 1", (crate, slot))
 
     keys = result.keys()
     rows = result.fetchone()
@@ -103,13 +102,13 @@ def ecal_state(crate, slot, channel):
 
     data = dict(zip(keys, rows))
     data['mbid'] = hex(int(data['mbid']))
-    data['dbid'] = hex(int(data['dbid'][channel/8]))
-    data['vbal_0'] = int(data['vbal_0'][channel])
-    data['vbal_1'] = int(data['vbal_1'][channel])
-    data['vthr'] = int(data['vthr'][channel])
-    data['isetm0'] = int(data['tcmos_isetm'][0])
-    data['isetm1'] = int(data['tcmos_isetm'][1])
-    data['rmp'] = int(data['tdisc_rmp'][channel/4])
+    data['dbid'] = hex(int(data['dbid'][channel//8]))
+    data['vbal_0'] = data['vbal_0'][channel]
+    data['vbal_1'] = data['vbal_1'][channel]
+    data['vthr'] = data['vthr'][channel]
+    data['isetm0'] = data['tcmos_isetm'][0]
+    data['isetm1'] = data['tcmos_isetm'][1]
+    data['rmp'] = data['tdisc_rmp'][channel//4]
 
     return data
 
