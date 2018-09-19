@@ -10,11 +10,11 @@ def get_channel_flags(limit, run_range_low, run_range_high, summary, gold):
     """
     conn = engine_nl.connect()
 
-    current_run = get_latest_run()
 
     if not run_range_high:
-        result = conn.execute("SELECT DISTINCT ON (run) run, sync16, sync24, resync, timestamp "
-                              "FROM channel_flags WHERE run > %s "
+        current_run = get_latest_run()
+        result = conn.execute("SELECT DISTINCT ON (run) run, sync16, sync24, resync, timestamp, "
+                              "missed_count_burst FROM channel_flags WHERE run > %s "
                               "ORDER BY run DESC, timestamp DESC", \
                               (current_run - limit))
         result_all = conn.execute("SELECT DISTINCT ON (crate, slot, channel, run) run, "
@@ -24,8 +24,8 @@ def get_channel_flags(limit, run_range_low, run_range_high, summary, gold):
                               "run DESC, timestamp DESC", \
                               (current_run - limit))
     else:
-        result = conn.execute("SELECT DISTINCT ON (run) run, sync16, sync24, resync, timestamp "
-                              "FROM channel_flags WHERE run >= %s AND run <= %s "
+        result = conn.execute("SELECT DISTINCT ON (run) run, sync16, sync24, resync, timestamp, "
+                              "missed_count_burst FROM channel_flags WHERE run >= %s AND run <= %s "
                               "ORDER BY run DESC, timestamp DESC", \
                               (run_range_low, run_range_high))
         result_all = conn.execute("SELECT DISTINCT ON (crate, slot, channel, run) run, "
@@ -46,6 +46,7 @@ def get_channel_flags(limit, run_range_low, run_range_high, summary, gold):
     nresyncs = {}
     count_sync16 = {}
     count_sync24 = {}
+    missed_count_burst = {}
     count_missed = {}
     count_sync16_pr = {}
     count_sync24_pr = {}
@@ -54,7 +55,7 @@ def get_channel_flags(limit, run_range_low, run_range_high, summary, gold):
     count_other = {}
     timestamp = {}
 
-    for run, sync16, sync24, resync, time in rows:
+    for run, sync16, sync24, resync, time, burst in rows:
         # Gold run selection
         if gold != 0 and run not in gold:
             continue
@@ -63,6 +64,7 @@ def get_channel_flags(limit, run_range_low, run_range_high, summary, gold):
         nsync24[run] = sync24
         timestamp[run] = time
         nresyncs[run] = resync
+        missed_count_burst[run] = burst
 
         # Start with 0 counts of each type
         count_sync16[run] = 0
@@ -111,7 +113,7 @@ def get_channel_flags(limit, run_range_low, run_range_high, summary, gold):
         if cgt_sync24_pr != 0 and cgt_sync24_pr is not None:
             count_sync24_pr[run] += 1
 
-    return runs, nsync16, nsync24, nresyncs, count_sync16, count_sync24, count_missed, count_sync16_pr, count_sync24_pr, count_normal, count_owl, count_other
+    return runs, nsync16, nsync24, nresyncs, count_sync16, count_sync24, count_missed, missed_count_burst, count_sync16_pr, count_sync24_pr, count_normal, count_owl, count_other
 
 def get_channel_flags_by_run(run):
     """
@@ -124,7 +126,7 @@ def get_channel_flags_by_run(run):
     # Find all of the out-of-sync and missed-count channels for the run selected
     result = conn.execute("SELECT DISTINCT ON (crate, slot, channel) crate, slot, channel, "
                           "cmos_sync16, cgt_sync24, missed_count, cmos_sync16_pr, "
-                          "cgt_sync24_pr FROM channel_flags "
+                          "cgt_sync24_pr, missed_count_burst FROM channel_flags "
                           "WHERE run = %s ORDER BY crate, slot, channel, run DESC, timestamp DESC", \
                           int(run))
 
@@ -135,6 +137,7 @@ def get_channel_flags_by_run(run):
     list_missed = []
     list_sync16_pr = []
     list_sync24_pr = []
+    missed_counts_burst = []
     count_normal = {}
     count_owl = {}
     count_other = {}
@@ -144,7 +147,7 @@ def get_channel_flags_by_run(run):
 
     types = pmt_type(detector_conn)
 
-    for crate, slot, channel, sync16, sync24, missed, sync16_pr, sync24_pr in rows:
+    for crate, slot, channel, sync16, sync24, missed, sync16_pr, sync24_pr, missed_burst in rows:
         if crate is not None:
             lcn = crate*512+slot*32+channel
             if types[lcn] in (PMT_TYPES['LOWG'], PMT_TYPES['FECD'], \
@@ -164,8 +167,9 @@ def get_channel_flags_by_run(run):
             list_sync16_pr.append((crate, slot, channel, sync16_pr))
         if sync24_pr != 0 and sync24_pr is not None:
             list_sync24_pr.append((crate, slot, channel, sync24_pr))
+        missed_counts_burst = missed_burst
 
-    return list_missed, list_sync16, list_sync24, list_sync16_pr, list_sync24_pr, count_normal, count_owl, count_other
+    return list_missed, list_sync16, list_sync24, list_sync16_pr, list_sync24_pr, missed_counts_burst, count_normal, count_owl, count_other
 
 
 def get_number_of_syncs(run):
