@@ -76,7 +76,7 @@
         <div class="row">
             {% if run != 0 %}
                 <div class="col-md-12">
-                    <h2>DAQ Log Warnings</h2>
+                    <h2><a href="{{ "/monitoring/logs/daq_%08i.log" % run }}">DAQ Log Warnings</a></h2>
                     {% if warnings is none %}
                     {% elif warnings | length == 0 %}
                         <p>No warnings!
