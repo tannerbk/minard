@@ -226,6 +226,8 @@ def pull(host, num_workers, worker):
             cache['DISPATCH_ORPHANS'] += nhit
             continue
 
+        polling = pev.TriggerCardData.Unused1
+
         cache_nhit['all'].append(nhit)
 
         cache['trig']['TOTAL'] += 1
@@ -234,6 +236,7 @@ def pull(host, num_workers, worker):
         cache_set['trig']['run'] = run
         cache_set['trig']['subrun'] = subrun
         cache_set['trig']['gtid'] = gtid
+        cache_set['trig']['polling'] = polling
 
         for i, name in enumerate(TRIGGER_NAMES):
             if trig & (1 << i):
