@@ -96,7 +96,7 @@ function add_baseline_horizon(expressions, format, colors, extent, baseline, mv_
 }
 
 add_horizon(TRIGGER_NAMES,format_rate);
-add_horizon(["Polling"],format_int,[],[0,1]);
+add_horizon(["polling"],format_int,[],[0,1]);
 if (url_params.display == 'fecd') {
     add_horizon(TRIGGER_NAMES.slice(1,6).map(function(x) { return "FECD/" + x }),format_rate);
     add_horizon(["FECD/N16"],format_rate);
