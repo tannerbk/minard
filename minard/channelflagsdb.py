@@ -64,7 +64,7 @@ def get_channel_flags(limit, run_range_low, run_range_high, summary, gold):
         nsync24[run] = sync24
         timestamp[run] = time
         nresyncs[run] = resync
-        missed_count_burst[run] = burst
+        missed_count_burst[run] = len(burst)
 
         # Start with 0 counts of each type
         count_sync16[run] = 0

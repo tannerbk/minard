@@ -31,8 +31,8 @@
     <table class="table table-hover">
       <tr> <th> The channel flags processor looks for channels out-of-sync or dropping data. These channels will be thrown away in analysis, so we want to make sure there aren't too many of these channels being flagged during data taking. The processor also keeps track of the number of sync16 and sync24s that occur during the run. The number of out-of-sync channels for previous runs shows any channel identified in the run that will be thrown away for previvous runs up to the most recent run with a sync16 (usually just the previous run). Click the run number to see a list of the channels with these error flags. </th> </tr>
       <tr class="success"> <th> There aren't too many channels out-of-sync or dropping data, the run status is "Pass". Click the run number to see the list of channels. </th> </tr>
-      <tr class="danger"> <th>  If over 64 channels are out of sync or more than 256 channels with missed counts, the run status is "Fail"  </th> </tr>
-      <tr class="warning"> <th> If more than 32 channels are out-of-sync or there are more than 64 channels with missed counts or there was a burst of many channels with missed counts over a short period of time, the run status is "Notice" </th> </tr>
+      <tr class="danger"> <th>  If over 64 channels are out of sync, more than 256 channels with missed counts, or there were more than 3 bursts of missed counts, then the run status is "Fail"  </th> </tr>
+      <tr class="warning"> <th> If more than 32 channels are out-of-sync or there are more than 64 channels with missed counts or there were 3 or less bursts of many channels with missed counts over a short period of time, then the run status is "Notice" </th> </tr>
   </table>
 
 </div>
@@ -95,10 +95,10 @@
       </thead>
       {% for run in runs %}
           {% if nsync16[run] != -1 and nsync24[run] != -1 %}
-              {% if (missed[run] >= 64 and missed[run] < 256) or (sync16s[run] >= 32 and sync16s[run] < 64 and sync16s_pr[run] < 64) or (missed_burst[run]) %}
-                  <tr class="warning">
-              {% elif sync16s[run] >= 64 or missed[run] >= 256 or sync16s_pr[run] >= 64 %}
+              {% if sync16s[run] >= 64 or missed[run] >= 256 or sync16s_pr[run] >= 64 or missed_burst[run] > 3%}
                   <tr class="danger">
+              {% elif (missed[run] >= 64 and missed[run] < 256) or (sync16s[run] >= 32 and sync16s[run] < 64 and sync16s_pr[run] < 64) or (missed_burst[run] > 0 and missed_burst[run] <= 3) %}
+                  <tr class="warning">
               {% else %}
                   <tr class="success">
               {% endif %}
@@ -116,7 +116,7 @@
               <th> {{sync16s_pr[run] + sync24s_pr[run]}} </th>
               <th> {{missed[run]}}</th>
               {% if missed_burst[run] != None %}
-                <th> {{missed_burst[run]|length}}</th>
+                <th> {{missed_burst[run]}}</th>
               {% else %}
                 <th> - </th>
               {% endif %}

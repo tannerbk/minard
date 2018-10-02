@@ -13,6 +13,7 @@ OUT_OF_SYNC_1 = 32
 OUT_OF_SYNC_2 = 64
 MISSED_COUNT_1 = 64
 MISSED_COUNT_2 = 256
+MISSED_BURST = 3
 
 # Limits for failing clock jump check
 CLOCK_JUMP_1 = 10
@@ -181,13 +182,13 @@ def channel_flags_run(run):
     missed = len(missed)
     sync16 = len(sync16)
     sync24 = len(sync24)
-    burst = len(burst)
-    if((sync16 >= OUT_OF_SYNC_1 and sync16 < OUT_OF_SYNC_2) or \
-       (missed >= MISSED_COUNT_1 and missed < MISSED_COUNT_2) or \
-        burst[run]):
-        channel_flags_status[run] = 2
-    elif(sync16 >= OUT_OF_SYNC_2 or missed >= MISSED_COUNT_2 or burst):
+    if(sync16 >= OUT_OF_SYNC_2 or missed >= MISSED_COUNT_2 or \
+       burst[run] > MISSED_BURST):
         channel_flags_status[run] = 1
+    elif((sync16 >= OUT_OF_SYNC_1 and sync16 < OUT_OF_SYNC_2) or \
+         (missed >= MISSED_COUNT_1 and missed < MISSED_COUNT_2) or \
+         (burst[run] > 0 and burst[run] <= MISSED_BURST)):
+        channel_flags_status[run] = 2
     else:
         channel_flags_status[run] = 0
 
@@ -204,13 +205,13 @@ def channel_flags(limit, run_range_low, run_range_high, all_runs, summary, gold)
     for run in all_runs:
         run = int(run)
         try:
-            if((count_sync16[run] >= OUT_OF_SYNC_1 and count_sync16[run] < OUT_OF_SYNC_2) or \
-               (count_missed[run] >= MISSED_COUNT_1 and count_missed[run] < MISSED_COUNT_2) or \
-                burst[run]):
-                channel_flags_fail[run] = 2
-            elif(count_sync16[run] >= OUT_OF_SYNC_2 or count_missed[run] >= MISSED_COUNT_2 or \
-                 count_sync16_pr[run] >= OUT_OF_SYNC_2):
+            if(count_sync16[run] >= OUT_OF_SYNC_2 or count_missed[run] >= MISSED_COUNT_2 or \
+               count_sync16_pr[run] >= OUT_OF_SYNC_2 or burst[run] > MISSED_BURST):
                 channel_flags_fail[run] = 1
+            elif((count_sync16[run] >= OUT_OF_SYNC_1 and count_sync16[run] < OUT_OF_SYNC_2) or \
+                 (count_missed[run] >= MISSED_COUNT_1 and count_missed[run] < MISSED_COUNT_2) or \
+                 (burst[run] > 0 and burst[run] <= MISSED_BURST)):
+                channel_flags_fail[run] = 2
             else:
                 channel_flags_fail[run] = 0
         except KeyError:
