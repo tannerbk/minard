@@ -1147,11 +1147,13 @@ def get_metric(expr, start, stop, step):
             values = get_timeseries_field('trig',field,start,stop,step)
         elif expr == 'TOTAL':
             values = get_timeseries_field('trig','TOTAL',start,stop,step)
+        elif expr == 'polling':
+            values = get_timeseries_field('trig','polling',start,stop,step)
         else:
             values = get_timeseries(expr,start,stop,step)
 
         interval = get_interval(step)
-        if expr in TRIGGER_NAMES or expr in ('TOTAL','L1','L2','ORPHANS','BURSTS'):
+        if expr in TRIGGER_NAMES or expr in ('TOTAL','L1','L2','ORPHANS','BURSTS', 'polling'):
             # trigger counts are zero by default
             values = map(lambda x: int(x)/interval if x else 0, values)
         else:
