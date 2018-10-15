@@ -1123,12 +1123,12 @@ def get_metric(expr, start, stop, step):
         # this is not a rate, so we divide by the # of PULGT triggers for
         # the interval instead of the interval length
         trig, value = expr.split('-')
-        if trig in TRIGGER_NAMES + ['TOTAL']:
+        if trig in TRIGGER_NAMES + ['TOTAL', 'polling']:
             if value == 'Baseline':
                 values = get_timeseries(expr,start,stop,step)
                 counts = get_timeseries('baseline-count',start,stop,step)
             else:
-                field = trig if trig == 'TOTAL' else TRIGGER_NAMES.index(trig)
+                field = trig if trig in ['TOTAL', 'polling'] else TRIGGER_NAMES.index(trig)
                 values = get_timeseries_field('trig:%s' % value,field,start,stop,step)
                 counts = get_timeseries_field('trig',field,start,stop,step)
             values = [float(a)/int(b) if a and b else None for a, b in zip(values,counts)]
