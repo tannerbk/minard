@@ -99,7 +99,7 @@ def get_muons(limit, selected_run, run_range_low, run_range_high, gold, atm):
 
     check = status.fetchall()
     for run, muon_status, mm_status, atm_status in check:
-        check_time[run] = (muon_status or mm_status or atm_status)
+        check_time[run] = (muon_status and mm_status and atm_status)
 
     return runs, muon_count, mmuon_count, atm_count, livetime_lost, fake, check_time
 
