@@ -294,7 +294,10 @@ def get_detector_state_check(run=0):
     # channels in non-attenuated mode, and keep the others
     # in attenuated mode. The TUBII channel mapping has 
     # changed several times and the run-numbers are hard-coded.
-    if run == 0 or run > 113781:
+    if run == 0 or run > 200386:
+        nonattenuated = [1, 6, 7]
+        attenuated = [0, 2, 3, 4, 5]
+    elif run > 113781:
         nonattenuated = [0, 1, 3]
         attenuated = [2, 4, 5, 6, 7]
     elif run > 110119:
