@@ -155,9 +155,9 @@ def get_alarms(run=0):
         # the run and whose end time (cleared or acknowledged, whichever is
         # greater) is after the start of the run.
         result = conn.execute("SELECT * FROM alarms, alarm_descriptions "
-            "WHERE time < %s AND GREATEST(cleared, acknowledged) > %s AND "
+            "WHERE (%s,COALESCE(%s,now())) OVERLAPS (time,GREATEST(COALESCE(cleared,now()), COALESCE(acknowledged,now()))) AND "
             "alarms.alarm_id = alarm_descriptions.id",
-            (end_timestamp, timestamp))
+            (timestamp, end_timestamp))
 
     if result is None:
         return None
