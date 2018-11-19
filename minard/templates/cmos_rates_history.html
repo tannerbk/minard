@@ -127,8 +127,9 @@ div.tooltip {
                 <option value="Linear">Linear</option>
                 <option value="Log">Log</option>
             </select>
-            <h4> Starting Run: </h4>
-            <input type="text" id="starting_run" value=103214 style="width:80px;">
+            <h4> Run Range: </h4>
+            <input type="text" id="starting_run" value={{starting_run}} style="width:80px;"> - 
+            <input type="text" id="ending_run" value={{ending_run}} style="width:80px;"> 
             <button type=button onclick="history();">Update Plot</button>
         </div>
     </div>
@@ -180,6 +181,9 @@ div.tooltip {
         }
         if (url_params.starting_run) {
             document.getElementById("starting_run").value = url_params.starting_run;
+        }
+        if (url_params.ending_run) {
+            document.getElementById("ending_run").value = url_params.ending_run;
         }
 
         draw_scatter_plot();

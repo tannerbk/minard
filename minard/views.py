@@ -880,7 +880,7 @@ def base_current_history():
     slot = request.args.get('slot',0,type=int)
     channel = request.args.get('channel',0,type=int)
     # Run when we started keeping polling data
-    starting_run = request.args.get('starting_run',103214,type=int)
+    starting_run = request.args.get('starting_run',200000,type=int)
 
     data = get_base_current_history(crate, slot, channel, starting_run)
 
@@ -890,17 +890,21 @@ def base_current_history():
 
     return render_template('base_current_history.html', crate=crate, slot=slot, channel=channel, data=data)
 
-@app.route('/check_rates_history')
-def check_rates_history():
+@app.route('/cmos_rates_history')
+def cmos_rates_history():
     crate = request.args.get('crate',0,type=int)
     slot = request.args.get('slot',0,type=int)
     channel = request.args.get('channel',0,type=int)
     # Run when we started keeping polling data
-    starting_run = request.args.get('starting_run',103214,type=int)
+    starting_run = request.args.get('starting_run',200000,type=int)
+    ending_run = request.args.get('ending_run',0,type=int)
 
     data, stats = polling_history(crate, slot, channel, starting_run)
+    if ending_run == 0:
+        # The latest run
+        ending_run = data[0][0]
     discriminator_threshold = get_discriminator_threshold(crate, slot)
-    return render_template('check_rates_history.html', crate=crate, slot=slot, channel=channel, data=data, stats=stats, discriminator_threshold=discriminator_threshold)
+    return render_template('cmos_rates_history.html', crate=crate, slot=slot, channel=channel, data=data, stats=stats, discriminator_threshold=discriminator_threshold, starting_run=starting_run, ending_run=ending_run)
 
 @app.route('/daq')
 def daq():

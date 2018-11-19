@@ -213,7 +213,7 @@
                         <tr>
                             <th>CMOS Rate</th>
                             {% if polling_info['cmos_rate'] %}
-                              <td><a href="{{ url_for("check_rates_history", crate=crate, slot=slot, channel=channel, yscale="Log") }}">{{ polling_info['cmos_rate'] | format_cmos_rate }}</a></td>
+                              <td><a href="{{ url_for("cmos_rates_history", crate=crate, slot=slot, channel=channel, yscale="Log") }}">{{ polling_info['cmos_rate'] | format_cmos_rate }}</a></td>
                             {% else %}
                               <td> None </td>
                             {% endif %}
