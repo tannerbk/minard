@@ -35,7 +35,7 @@ import dropout
 import pmtnoisedb
 import gain_monitor
 from run_list import golden_run_list
-from .polling import polling_runs, polling_info, polling_info_card, polling_check, polling_history, polling_summary, get_most_recent_polling_info, get_vmon, get_base_current_history
+from .polling import polling_runs, polling_info, polling_info_card, polling_check, get_cmos_rate_history, polling_summary, get_most_recent_polling_info, get_vmon, get_base_current_history
 from .channeldb import ChannelStatusForm, upload_channel_status, get_channels, get_channel_status, get_channel_status_form, get_channel_history, get_pmt_info, get_nominal_settings, get_discriminator_threshold, get_all_thresholds, get_maxed_thresholds, get_gtvalid_lengths, get_pmt_types, pmt_type_description, get_fec_db_history
 from .ecaldb import ecal_state, penn_daq_ccc_by_test, get_penn_daq_tests
 from .mtca_crate_mapping import MTCACrateMappingForm, OWLCrateMappingForm, upload_mtca_crate_mapping, get_mtca_crate_mapping, get_mtca_crate_mapping_form, mtca_relay_status
@@ -874,37 +874,34 @@ def cmos_rates_check():
 
     return render_template('cmos_rates_check.html', cmos_changes=cmos_changes, cmos_high_rates=cmos_high_rates, cmos_low_rates=cmos_low_rates, high_rate=high_rate, low_rate=low_rate, run_number=run_number, pct_change=pct_change)
 
-@app.route('/base_current_history')
-def base_current_history():
-    crate = request.args.get('crate',0,type=int)
-    slot = request.args.get('slot',0,type=int)
-    channel = request.args.get('channel',0,type=int)
-    # Run when we started keeping polling data
-    starting_run = request.args.get('starting_run',200000,type=int)
-
-    data = get_base_current_history(crate, slot, channel, starting_run)
-
+def convert_timestamp(data):
+    
     # Convert datetime objects to strings
     for i in range(len(data)):
         data[i]['timestamp'] = data[i]['timestamp'].isoformat()
 
-    return render_template('base_current_history.html', crate=crate, slot=slot, channel=channel, data=data)
+    return data
 
-@app.route('/cmos_rates_history')
-def cmos_rates_history():
+@app.route('/polling_history')
+def polling_history():
     crate = request.args.get('crate',0,type=int)
     slot = request.args.get('slot',0,type=int)
     channel = request.args.get('channel',0,type=int)
     # Run when we started keeping polling data
-    starting_run = request.args.get('starting_run',200000,type=int)
+    starting_run = request.args.get('starting_run',0,type=int)
     ending_run = request.args.get('ending_run',0,type=int)
-
-    data, stats = polling_history(crate, slot, channel, starting_run)
     if ending_run == 0:
-        # The latest run
-        ending_run = data[0][0]
-    discriminator_threshold = get_discriminator_threshold(crate, slot)
-    return render_template('cmos_rates_history.html', crate=crate, slot=slot, channel=channel, data=data, stats=stats, discriminator_threshold=discriminator_threshold, starting_run=starting_run, ending_run=ending_run)
+        ending_run = detector_state.get_latest_run() + 1
+    if starting_run == 0:
+        starting_run = ending_run - 1000
+
+    cdata = get_cmos_rate_history(crate, slot, channel, starting_run, ending_run)
+    cdata = convert_timestamp(cdata)
+
+    bdata = get_base_current_history(crate, slot, channel, starting_run, ending_run)
+    bdata = convert_timestamp(bdata)
+
+    return render_template('polling_history.html', crate=crate, slot=slot, channel=channel, cdata=cdata, bdata=bdata, starting_run=starting_run, ending_run=ending_run)
 
 @app.route('/daq')
 def daq():

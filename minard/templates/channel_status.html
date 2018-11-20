@@ -213,7 +213,7 @@
                         <tr>
                             <th>CMOS Rate</th>
                             {% if polling_info['cmos_rate'] %}
-                              <td><a href="{{ url_for("cmos_rates_history", crate=crate, slot=slot, channel=channel, yscale="Log") }}">{{ polling_info['cmos_rate'] | format_cmos_rate }}</a></td>
+                              <td><a href="{{ url_for("polling_history", crate=crate, slot=slot, channel=channel, yscale="Linear") }}">{{ polling_info['cmos_rate'] | format_cmos_rate }}</a></td>
                             {% else %}
                               <td> None </td>
                             {% endif %}
@@ -221,7 +221,7 @@
                         <tr>
                             <th>Base Current</th>
                             {% if polling_info['base_current'] %}
-                              <td><a href="{{ url_for("base_current_history", crate=crate, slot=slot, channel=channel) }}">{{ polling_info['base_current'] }}</a></td>
+                              <td><a href="{{ url_for("polling_history", crate=crate, slot=slot, channel=channel) }}">{{ polling_info['base_current'] }}</a></td>
                             {% else %}
                               <td> None </td>
                             {% endif %}

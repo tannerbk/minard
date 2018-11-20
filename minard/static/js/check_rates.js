@@ -37,11 +37,11 @@ function click(d, i) {
     params['crate'] = document.getElementById("crate_sel").value;
     params['slot'] = Math.floor(d/32);
     params['channel'] = d % 32;
-    window.location.href = $SCRIPT_ROOT + "/cmos_rates_history?" + $.param(params);
+    window.location.href = $SCRIPT_ROOT + "/polling_history?" + $.param(params);
 }
 
 var card_cmos = card_view().scale(color_scale_cmos).format(my_si_format).click(click);
-var card_base = card_view().scale(color_scale_base).format(base_format);
+var card_base = card_view().scale(color_scale_base).format(base_format).click(click);
 
 function setup() {
 

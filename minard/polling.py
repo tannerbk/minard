@@ -104,7 +104,7 @@ def get_most_recent_polling_info(crate, slot, channel):
 
     return polls
 
-def get_base_current_history(crate, slot, channel, min_run):
+def get_base_current_history(crate, slot, channel, min_run, max_run):
     """
     Returns a list of form
 
@@ -116,8 +116,8 @@ def get_base_current_history(crate, slot, channel, min_run):
 
     result = conn.execute("SELECT timestamp, base_current FROM base "
                           "WHERE crate = %s AND slot = %s AND channel = %s "
-                          "AND run > %s ORDER BY timestamp DESC",
-                          (crate, slot, channel, min_run))
+                          "AND run > %s AND run < %s ORDER BY timestamp DESC",
+                          (crate, slot, channel, min_run, max_run))
 
     if result is None:
         return None
@@ -127,43 +127,28 @@ def get_base_current_history(crate, slot, channel, min_run):
 
     return [dict(zip(keys,row)) for row in rows]
 
-def polling_history(crate, slot, channel, min_run):
+def get_cmos_rate_history(crate, slot, channel, min_run, max_run):
     """
-    Return a list of form [[run number, cmos rate]] for all runs with cmos data
-    polling. Also returns a list which included statistics on the cmos data.
+    Returns a list of form
+
+        [{'timestamp': datetime, 'cmos_rate': cmos rate},...]
+
+    for all runs with cmos rate data.
     """
     conn = engine.connect()
 
-    result = conn.execute("SELECT run, cmos_rate FROM cmos WHERE crate = %s "
-        "AND slot = %s AND channel = %s AND run > %s ORDER BY run DESC",
-        (crate, slot, channel, min_run))
+    result = conn.execute("SELECT timestamp, cmos_rate FROM cmos "
+                          "WHERE crate = %s AND slot = %s AND channel = %s "
+                          "AND run > %s AND run < %s ORDER BY timestamp DESC",
+                          (crate, slot, channel, min_run, max_run))
 
     if result is None:
-        return None, None
+        return None
 
-    keys = result.keys()
+    keys = map(str,result.keys())
     rows = result.fetchall()
 
-    data = []
-    for run, rate in rows:
-        data.append([int(run),rate])
-
-    data_stats = []
-    if data:
-        z = zip(*data)
-        data_max = max(z[1])
-        data_min = min(z[1])
-        data_average = sum(z[1])/(len(z[1]))
-
-        data_std = 0
-        for i in range(len(z[1])):
-            data_std += (z[1][i] - data_average)**2
-        data_std = (data_std/len(z[1]))**(0.5)
-
-        data_stats = [int(data_max), int(data_min), int(data_average), int(data_std)]
-
-    return data, data_stats
-
+    return [dict(zip(keys,row)) for row in rows]
 
 def polling_info(data_type, run_number):
     """
