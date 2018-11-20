@@ -116,8 +116,8 @@ def get_base_current_history(crate, slot, channel, min_run, max_run):
 
     result = conn.execute("SELECT timestamp, base_current FROM base "
                           "WHERE crate = %s AND slot = %s AND channel = %s "
-                          "AND run > %s AND run < %s ORDER BY timestamp DESC",
-                          (crate, slot, channel, min_run, max_run))
+                          "AND run > %s AND run < %s ORDER BY timestamp DESC, "
+                          "run DESC", (crate, slot, channel, min_run, max_run))
 
     if result is None:
         return None
@@ -139,8 +139,8 @@ def get_cmos_rate_history(crate, slot, channel, min_run, max_run):
 
     result = conn.execute("SELECT timestamp, cmos_rate FROM cmos "
                           "WHERE crate = %s AND slot = %s AND channel = %s "
-                          "AND run > %s AND run < %s ORDER BY timestamp DESC",
-                          (crate, slot, channel, min_run, max_run))
+                          "AND run > %s AND run < %s ORDER BY timestamp DESC, "
+                          "run DESC", (crate, slot, channel, min_run, max_run))
 
     if result is None:
         return None
