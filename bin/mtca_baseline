@@ -3,10 +3,12 @@
 The objective here is to retrieve and store baseline values into a redis db.
 """
 import time, os, sys
+import threading
 from minard.timeseries import INTERVALS, EXPIRE
 from redis import Redis
 from snotdaq import MTC, Logger
 from functools import wraps
+import psycopg2
 
 log = Logger()
 
@@ -33,6 +35,45 @@ def PutBaselinesInDatabase(mtc):
             p.incrbyfloat(key,baseline)
             p.expire(key,interval*EXPIRE)
         p.execute()
+
+def get_database_pool(db_host, db_name, db_user, db_pass):
+    """
+    Return the database connection pool.
+    """
+    pool = None
+    try:
+        if db_pass is None:
+            pool = ThreadedConnectionPool(1, 5, host=db_host, database=db_name, \
+                                          user=db_user)
+        else:
+            pool = ThreadedConnectionPool(1, 5, host=db_host, database=db_name, \
+                                          user=db_user, password=db_pass)
+    except Exception as e:
+        log.warn("error connecting to the database: %s" % str(e))
+
+    return pool
+
+def post_heartbeat(pool):
+    """
+    Post the baseline monitor heartbeat
+    """
+    conn = None
+    try:
+        conn = pool.getconn()
+        cursor = conn.cursor()
+        cursor.execute("SELECT post_heartbeat('baseline_monitor')")
+        cursor.close()
+        conn.commit()
+    except Exception as e:
+        warning = "Could not post heartbeat to database. Reason: %s." % str(e)
+        log.warn(warning)
+    finally:
+        pool.putconn(conn) if conn else None
+
+    # Post heartbeat every 8 seconds
+    t = threading.Timer(8.0, post_heartbeat,[pool])
+    t.daemon = True
+    t.start()
 
 def daemonize():
     pid = os.fork()
@@ -70,6 +111,15 @@ if __name__ == '__main__':
                         action="store_true")
     parser.add_argument("-d", "--daemonize", help="Runs in background",
                         action="store_true")
+    parser.add_argument('--db-user', help='database username',
+                        default='operator')
+    parser.add_argument('--db-pass', help='database password',
+                        default=None)
+    parser.add_argument('--db-host', help='database hostname',
+                        default='dbug.sp.snolab.ca')
+    parser.add_argument('--db-name', help='database name',
+                        default='detector')
+
 
     args = parser.parse_args()
 
@@ -93,6 +143,10 @@ if __name__ == '__main__':
             sys.stderr.flush()
 
     log.notice("connecting to mtc server at %s..." % args.host)
+
+    pool = get_database_pool(args.db_host, args.db_name, 
+                             args.db_user, args.db_pass)
+    post_heartbeat(pool)
 
     while True:
         try:
