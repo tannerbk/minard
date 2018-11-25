@@ -66,8 +66,7 @@ def post_heartbeat(pool):
         cursor.close()
         conn.commit()
     except Exception as e:
-        warning = "Could not post heartbeat to database. Reason: %s." % str(e)
-        log.warn(warning)
+        log.warn( "Could not post heartbeat to database. Reason: %s." % str(e))
     finally:
         pool.putconn(conn) if conn else None
 
