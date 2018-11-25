@@ -1,6 +1,7 @@
 import sqlalchemy
 from .db import engine
 
+# Test map defined in Penn DAQ
 PENN_DAQ_TESTS = {
     "Crate CBal": 0,
     "ZDisc": 1,
@@ -10,7 +11,8 @@ PENN_DAQ_TESTS = {
     "CGT": 5,
     "Get TTot": 6,
     "FEC Test": 7, 
-    "Disc Check": 8
+    "Disc Check": 8,
+    "Ped Run By Channel": 9
 }
 
 def test_failed_str(tests):
