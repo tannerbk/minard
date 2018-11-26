@@ -100,6 +100,10 @@ if __name__ == '__main__':
         except socket.timeout as e:
             time.sleep(10)
             continue
+        except Exception as e:
+            log.warn("error connecting to mtc server: %s" % str(e))
+            time.sleep(10)
+            continue
         log.notice("connected")
         break
 
