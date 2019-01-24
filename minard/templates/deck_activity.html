@@ -35,16 +35,22 @@
       <th> Comment </th>
     </tr>
     {% for a in act %}
-      {% if a['direction'] and a['location'] %}
+      <!-- Going into the DCR is dispayed red --!>
+      {% if a['direction'] == 1 and a['location'] %}
         <tr class="danger">
-      {% elif a['direction'] and not a['location'] %}
+      <!-- Going onto deck is dispayed yellow --!>
+      {% elif a['direction'] == 1 and not a['location'] %}
         <tr class="warning">
+      <!-- Otherwise displayed green --!>
       {% else %}
         <tr class="success">
       {% endif %}
         <th> {{ a['timestamp'].strftime("%m/%d/%Y %H:%M:%S") }} </th>
         <th> {{ a['run'] }} </th>
-        {% if a['direction'] %}
+        <!-- Clearing the deck is a different 'direction' --!>
+        {% if a['direction'] == 2 %}
+          <th> Clearing Deck </th>
+        {% elif a['direction'] == 1 %}
           <th> ON </th>
         {% else %}
           <th> OFF </th>
