@@ -1,0 +1,56 @@
+{% from "_formhelpers.html" import render_field %}
+{% extends "layout.html" %}
+{% block title %} Shifter Information  {% endblock %}
+{% block head %}
+  {{ super() }}
+{% endblock %}
+{% block body %}
+  {{ super() }}
+
+<div class="container">
+  <div class="row">
+    <h1 align="center">Shifter Information</h1> <br>
+    <table class="table">
+      <tr> 
+        <td> <h3> <font color='green'> {{ shifter }} </font> </h3> </td>
+        <td> <h3> <font color='green'> {{ updates }} </font> </h3> </td>
+        <td> <h3> <font color='green'> {{ expert }} </font> </h3> <br> </td>
+      </tr>
+    </table>
+    <div class="alert alert-info"> If you are the current shifter, please fill out the below information at the start of your shift. If you are not the current shifter, do not fill in this form. After hitting Submit, make sure the current shifter and expert information about update properly. If multiple people are on shift, the shift leader should fill this out. This information will only be used for email and text alarm alerts. 
+    </div>
+    <form action="shifter_information" method="POST" role="form">
+      <table class="table table-hover">
+         <tr> 
+           <td> {{ render_field(form.firstname) }} </td>
+           <td> Required </td>
+         </tr>
+         <tr>
+           <td> {{ render_field(form.lastname) }} </td>
+           <td> Required </td>
+         </tr>
+         <tr>
+           <td> {{ render_field(form.expert) }} </td>
+           <td> Required, current on-call expert. </td> 
+         </tr>
+         <tr>
+           <td> {{ render_field(form.email) }} </td>
+           <td> Optional, leave empty to not receive email alerts.<br>
+                Use full address (eg, username@aol.com) </td>
+         </tr>
+         <tr>
+           <td> {{ render_field(form.phone) }} </td>
+           <td> Optional, leave empty to not receive phone alerts. <br> 
+                Don't use spaces and include the international code (eg, 15559998888) </td>
+         </tr>
+         <tr>
+           <td> {{ render_field(form.country) }} </td>
+           <td> Optional, leave empty to not receive phone alerts. <br>
+                This is the country associated with your phone number. </td> 
+         </tr>
+      </table>
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

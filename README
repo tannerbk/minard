@@ -33,6 +33,11 @@ If you are testing the detector state check page you will also need to add:
     DAQ_LOG_DIR=[path to log files]
     BUILDER_LOG_DIR=[path to builder files]
 
+If you are testing the shifter information page you will also need to add:
+
+    DB_OPERATOR = 'operator'
+    DB_OPERATOR_PASS =[password]
+
 And if you are testing anything that requires CouchDB access you will need to
 add:
 
