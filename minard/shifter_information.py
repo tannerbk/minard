@@ -6,18 +6,17 @@ from wtforms.fields.html5 import EmailField
 from wtforms.validators import ValidationError
 
 VALID_COUNTRIES = [
-('',''), # Optional empty choice
-('usa', 'USA'), 
-('canada', 'Canada'),
-('portugal', 'Portugal'),
-('uk', 'UK'),
-('germany', 'Germany'),
-('mexico', 'Mexico')
+    ('',''), # Optional empty choice
+    ('usa', 'USA'),
+    ('canada', 'Canada'),
+    ('portugal', 'Portugal'),
+    ('uk', 'UK'),
+    ('germany', 'Germany'),
+    ('mexico', 'Mexico')
 ]
 FORM_KEYS = ['firstname', 'lastname', 'expert', 'email', 'phone', 'country']
 
 class ShifterInfoForm(Form):
-
     def validate_phone(form, field):
         if len(field.data) != 11:
             raise ValidationError("Phone number wrong length")
@@ -29,19 +28,12 @@ class ShifterInfoForm(Form):
     expert = SelectField('Expert', choices=[])
     email = EmailField('Email', [validators.Optional(), validators.Email()])
     phone = StringField('Phone', [validators.Optional()])
-    country = SelectField('Country', choices=[])
-
-def clear_form():
-    '''
-    Return an empty form after submitting
-    '''
-    empty = dict.fromkeys(FORM_KEYS, '')
-    return ShifterInfoForm(**empty)
+    country = SelectField('Country', choices=VALID_COUNTRIES)
 
 def get_experts():
-    '''
-    Get a list of the names of all on-call experts
-    '''
+    """
+    Returns a list of the names of all on-call experts.
+    """
     conn = engine.connect()
     result = conn.execute("SELECT firstname FROM experts")
     row = result.fetchall()
@@ -52,11 +44,12 @@ def get_experts():
     return names
 
 def get_shifter_information():
-    '''
+    """
     Get some of the information about the current shifter.
-    Returns the first/last name of the current shifter
-    and the first name of the on-call expert.
-    '''
+
+    Returns the first/last name of the current shifter and the first name of
+    the on-call expert.
+    """
     conn = engine.connect()
 
     result = conn.execute("SELECT firstname, lastname, email, phonenumber, expert "
@@ -84,9 +77,9 @@ def get_shifter_information():
     return shifter, expert, updates
 
 def set_shifter_information(form):
-    '''
-    Update the database with the current shift information
-    '''
+    """
+    Update the database with the current shift information.
+    """
     conn = psycopg2.connect(dbname=app.config['DB_NAME'],
                             user=app.config['DB_OPERATOR'],
                             host=app.config['DB_HOST'],
@@ -99,4 +92,3 @@ def set_shifter_information(form):
                  "lastname, phonenumber, email, country, expert) " 
                  "VALUES (%(firstname)s, %(lastname)s, %(phone)s, " 
                  "%(email)s, %(country)s, %(expert)s)", form.data)
-

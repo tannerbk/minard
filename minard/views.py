@@ -35,7 +35,7 @@ import dropout
 import pmtnoisedb
 import gain_monitor
 import activity
-from shifter_information import get_shifter_information, set_shifter_information, ShifterInfoForm, clear_form, get_experts, VALID_COUNTRIES
+from shifter_information import get_shifter_information, set_shifter_information, ShifterInfoForm, get_experts
 from run_list import golden_run_list
 from .polling import polling_runs, polling_info, polling_info_card, polling_check, get_cmos_rate_history, polling_summary, get_most_recent_polling_info, get_vmon, get_base_current_history
 from .channeldb import ChannelStatusForm, upload_channel_status, get_channels, get_channel_status, get_channel_status_form, get_channel_history, get_pmt_info, get_nominal_settings, get_discriminator_threshold, get_all_thresholds, get_maxed_thresholds, get_gtvalid_lengths, get_pmt_types, pmt_type_description, get_fec_db_history
@@ -1587,10 +1587,9 @@ def shifter_information():
     if request.form:
         form = ShifterInfoForm(request.form)
     else:
-        form = clear_form()
+        form = ShifterInfoForm()
 
     form.expert.choices = get_experts()
-    form.country.choices = VALID_COUNTRIES
 
     if request.method == "POST" and form.validate():
         try:
@@ -1599,9 +1598,7 @@ def shifter_information():
             flash(str(e), 'danger')
             return render_template('shifter_information.html', form=form)
         flash("Successfully submitted", 'success')
-        shifter, expert, updates = get_shifter_information()
-        form = clear_form()
-        return render_template('shifter_information.html', form=form, shifter=shifter, expert=expert, updates=updates)
+        return redirect(url_for("shifter_information"))
 
     shifter, expert, updates = get_shifter_information()
     return render_template('shifter_information.html', form=form, shifter=shifter, expert=expert, updates=updates)
