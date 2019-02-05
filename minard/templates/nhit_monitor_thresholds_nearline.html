@@ -27,10 +27,10 @@
 		<table class="table">
 		    <thead>
                         <tr>
-                            <th></th>
-                            <th></th>
+                            <th> Run range: <input style=width:100px;" type="text" id="low" value={{run_range_low}} onKeyDown="if(event.keyCode==13) sorting_by(100, 0, 'run', this.value, high.value);"> </input> - <input type="text" style=width:100px;" id="high" value={{run_range_high}} onKeyDown="if(event.keyCode==13) sorting_by(100, 0, 'run', low.value, this.value);"></input> </th>
+                            <th> </th>
                             <th> Sort by:
-                                <select id="sort_by" onchange="sorting_by({{limit}}, {{offset}}, sort_by.value);">
+                                <select id="sort_by" onchange="sorting_by({{limit}}, {{offset}}, sort_by.value, 0 , 0);">
                                     <option {% if sort_by == 'key' %}selected="selected" {% endif %}value="key">Key</option>
                                     <option {% if sort_by == 'run' %}selected="selected" {% endif %}value="run">Run</option>
                                 </select>
@@ -152,11 +152,13 @@
     <script src="{{ url_for('static', filename='js/metricsgraphics.js') }}"></script>
     <script src="{{ url_for('static', filename='js/mg_line_brushing.js') }}"></script>
     <script>
-        function sorting_by(limit, offset, sort_by){
+        function sorting_by(limit, offset, sort_by, low, high){
           params = {};
           params["limit"] = limit;
           params["offset"] = offset;
           params["sort_by"] = sort_by;
+          params["run_range_low"] = low;
+          params["run_range_high"] = high;
           window.location.replace($SCRIPT_ROOT + "/nhit-monitor-thresholds-nearline?" + $.param(params));
         }
 
