@@ -71,8 +71,8 @@ def get_shifter_information():
     else:
         updates = "Receiving neither text or email alerts."
 
-    shifter = "Current shifter: %s %s" % (str(row[0]).capitalize(), str(row[1]).capitalize())
-    expert  = "Current expert: %s" % (str(row[4]).capitalize())
+    shifter = "Current shifter: %s %s" % (row[0].capitalize(), row[1].capitalize())
+    expert  = "Current expert: %s" % row[4].capitalize()
 
     return shifter, expert, updates
 
