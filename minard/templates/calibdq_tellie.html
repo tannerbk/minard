@@ -14,6 +14,13 @@
     <a class="btn btn-outline-primary btn-lg" href="{{ url_for("calibdq_tellie", limit=limit, offset=offset-limit) }}">Back</a>
     <a class="btn btn-outline-primary btn-lg" href="{{ url_for("calibdq_tellie", limit=limit, offset=offset+limit) }}">Next</a>
     {% endif %}
+    Runs per page:
+    <select onchange="location=this.options[this.selectedIndex].value;">
+        <option value="{{url_for("calibdq_tellie", limit=10, offset=offset)}}">10</option>
+        <option value="{{url_for("calibdq_tellie", limit=25, offset=offset)}}">25</option>
+        <option value="{{url_for("calibdq_tellie", limit=50, offset=offset)}}">50</option>
+        <option value="{{url_for("calibdq_tellie", limit=100, offset=offset)}}">100</option>
+    </select>
     <div class="container">
         <table class="table table-hover">
             <thead>

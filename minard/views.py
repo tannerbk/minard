@@ -1295,19 +1295,23 @@ def calibdq_tellie():
     run_dict = {}
     limit = request.args.get("limit", 10, type=int)
     offset = request.args.get("offset", 0, type=int)
-    run_numbers = HLDQTools.import_TELLIE_runnumbers(limit=limit, offset=offset)
-    for num in run_numbers:
-        run_num, check_params, runInformation = HLDQTools.import_TELLIEDQ_ratdb(num)
-        run_dict[num] = check_params
+    # run_numbers = HLDQTools.import_TELLIE_runnumbers(limit=limit, offset=offset)
+    # for num in run_numbers:
+    #     run_num, check_params, runInformation = HLDQTools.import_TELLIEDQ_ratdb(num)
+    #     run_dict[num] = check_params
+    runs = HLDQTools.import_TELLIE_runnumbers(limit=limit, offset=offset)
+    run_num, check_params, runInformation = HLDQTools.import_TELLIEDQ_ratdb(runs)
+    for num in runs:
+        run_dict[num] = check_params[num]
     run_numbers_sorted = sorted(run_dict.keys(),reverse=True)
     run_vals_sorted = []
     for runNum in run_numbers_sorted:
         run_vals_sorted.append(run_dict[runNum])
     return render_template('calibdq_tellie.html', run_numbers=run_numbers_sorted, run_info=run_vals_sorted, limit=limit, offset=offset)
 
-@app.route('/calibdq_tellie/<run_number>/')
+@app.route('/calibdq_tellie/<int:run_number>/')
 def calibdq_tellie_run_number(run_number):
-    run_num, check_params, runInfo = HLDQTools.import_TELLIEDQ_ratdb(int(run_number))
+    run_num, check_params, runInfo = HLDQTools.import_TELLIEDQ_ratdb(run_number)
     return render_template('calibdq_tellie_run.html', run_number=run_number, runInformation=runInfo)
 
 @app.route('/calibdq_tellie/<run_number>/<subrun_number>')
