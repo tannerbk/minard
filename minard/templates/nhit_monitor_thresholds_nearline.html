@@ -24,10 +24,11 @@
         </div>
 	<div class="row">
 	    <div class="col-md-12">
+                Run range: <input type="number" id="low" value={{run_range_low}} onKeyDown="if(event.keyCode==13) sorting_by({{limit}}, {{offset}}, 'run', this.value, high.value);"> </input> - <input type="number" id="high" value={{run_range_high}} onKeyDown="if(event.keyCode==13) sorting_by({{limit}}, {{offset}}, 'run', low.value, this.value);"></input>
 		<table class="table">
 		    <thead>
                         <tr>
-                            <th> Run range: <input style=width:100px;" type="text" id="low" value={{run_range_low}} onKeyDown="if(event.keyCode==13) sorting_by({{limit}}, {{offset}}, 'run', this.value, high.value);"> </input> - <input type="text" style=width:100px;" id="high" value={{run_range_high}} onKeyDown="if(event.keyCode==13) sorting_by({{limit}}, {{offset}}, 'run', low.value, this.value);"></input> </th>
+                            <th></th>
                             <th></th>
                             <th> Sort by:
                                 <select id="sort_by" onchange="sorting_by({{limit}}, {{offset}}, sort_by.value, 0 , 0);">
