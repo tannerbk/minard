@@ -520,12 +520,21 @@ def get_nhit_monitor_thresholds_nearline(limit=100, offset=0, sort_by="run", run
     conn = engine_nl.connect()
 
     if run_range_high:
-        result = conn.execute("SELECT * FROM nhit_monitor_thresholds WHERE run >= %s AND run <= %s "
-                              "ORDER BY run DESC, timestamp DESC LIMIT %s OFFSET %s", (run_range_low, run_range_high, limit, offset))
-    elif sort_by == "run":
-        result = conn.execute("SELECT * FROM nhit_monitor_thresholds ORDER BY run DESC, timestamp DESC LIMIT %s OFFSET %s", (limit,offset))
-    elif sort_by == "key":
-        result = conn.execute("SELECT * FROM nhit_monitor_thresholds ORDER BY key DESC, timestamp DESC LIMIT %s OFFSET %s", (limit,offset))
+        if sort_by == "run":
+            result = conn.execute("SELECT * FROM nhit_monitor_thresholds WHERE run >= %s AND run <= %s "
+                                  "ORDER BY run DESC, timestamp DESC LIMIT %s OFFSET %s", \
+                                  (run_range_low, run_range_high, limit, offset))
+        if sort_by == "key":
+            result = conn.execute("SELECT * FROM nhit_monitor_thresholds WHERE run >= %s AND run <= %s "
+                                  "ORDER BY key DESC, timestamp DESC LIMIT %s OFFSET %s", \
+                                  (run_range_low, run_range_high, limit, offset))
+    else:
+        if sort_by == "run":
+            result = conn.execute("SELECT * FROM nhit_monitor_thresholds ORDER BY run DESC, " 
+                                  "timestamp DESC LIMIT %s OFFSET %s", (limit,offset))
+        if sort_by == "key":
+            result = conn.execute("SELECT * FROM nhit_monitor_thresholds ORDER BY key DESC, " 
+                                  "timestamp DESC LIMIT %s OFFSET %s", (limit,offset))
 
     if result is None:
         return None

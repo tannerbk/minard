@@ -31,7 +31,7 @@
                             <th></th>
                             <th></th>
                             <th> Sort by:
-                                <select id="sort_by" onchange="sorting_by({{limit}}, {{offset}}, sort_by.value, 0 , 0);">
+                                <select id="sort_by" onchange="sorting_by({{limit}}, {{offset}}, sort_by.value, {{run_range_low}} , {{run_range_high}});">
                                     <option {% if sort_by == 'key' %}selected="selected" {% endif %}value="key">Key</option>
                                     <option {% if sort_by == 'run' %}selected="selected" {% endif %}value="run">Run</option>
                                 </select>
