@@ -1,6 +1,5 @@
 from .db import engine 
 import detector_state
-from datetime import datetime
 
 # PMT Type defines
 PMT_TYPES = {
