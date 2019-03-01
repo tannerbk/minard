@@ -579,11 +579,10 @@ def get_vmon(crate, slot):
     """
     conn = engine.connect()
 
-    voltages = str(voltages_str_dict.keys())[1:-1]
-    voltages = voltages.replace("'","")
+    voltages = ", ".join(key for key in voltages_str_dict)
 
-    result = conn.execute("SELECT %s FROM current_vmon WHERE crate = %s "
-        "AND slot = %s" % (voltages, crate, slot))
+    result = conn.execute("SELECT %s FROM current_vmon WHERE crate = %%s "
+        "AND slot = %%s" % voltages, crate, slot)
 
     keys = result.keys()
     rows = result.fetchone()
@@ -612,13 +611,12 @@ def get_vmon_history(crate, slot):
     """
     conn = engine.connect()
 
-    voltages = str(voltages_str_dict.keys())[1:-1]
-    voltages = voltages.replace("'","")
+    voltages = ", ".join(key for key in voltages_str_dict)
     query = "to_char(timestamp, 'Mon DD YYYY HH12:MI:SS'), "
     query += voltages
 
-    result = conn.execute("SELECT %s FROM vmon WHERE crate = %s "
-        "AND slot = %s ORDER BY timestamp DESC" % (query, crate, slot))
+    result = conn.execute("SELECT %s FROM vmon WHERE crate = %%s "
+        "AND slot = %%s ORDER BY timestamp DESC" % query, crate, slot)
 
     keys = result.keys()
     rows = result.fetchall()
@@ -627,8 +625,8 @@ def get_vmon_history(crate, slot):
     for key in keys:
         if key == 'to_char':
             new_keys.append('Timestamp')
-        else:
-            new_keys.append(voltages_str_dict[str(key)][0])
+            continue
+        new_keys.append(voltages_str_dict[str(key)][0])
 
     return new_keys, rows
 
