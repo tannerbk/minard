@@ -37,7 +37,7 @@ import gain_monitor
 import activity
 from shifter_information import get_shifter_information, set_shifter_information, ShifterInfoForm, get_experts
 from run_list import golden_run_list
-from .polling import polling_runs, polling_info, polling_info_card, polling_check, get_cmos_rate_history, polling_summary, get_most_recent_polling_info, get_vmon, get_base_current_history
+from .polling import polling_runs, polling_info, polling_info_card, polling_check, get_cmos_rate_history, polling_summary, get_most_recent_polling_info, get_vmon, get_base_current_history, get_vmon_history
 from .channeldb import ChannelStatusForm, upload_channel_status, get_channels, get_channel_status, get_channel_status_form, get_channel_history, get_pmt_info, get_nominal_settings, get_discriminator_threshold, get_all_thresholds, get_maxed_thresholds, get_gtvalid_lengths, get_pmt_types, pmt_type_description, get_fec_db_history
 from .ecaldb import ecal_state, penn_daq_ccc_by_test, get_penn_daq_tests
 from .mtca_crate_mapping import MTCACrateMappingForm, OWLCrateMappingForm, upload_mtca_crate_mapping, get_mtca_crate_mapping, get_mtca_crate_mapping_form, mtca_relay_status
@@ -355,6 +355,14 @@ def channel_status():
     test_failed = get_penn_daq_tests(crate, slot, channel)
     qhs, qhl, qlx = get_pedestals(crate, slot, channel)
     return render_template('channel_status.html', crate=crate, slot=slot, channel=channel, results=results, pmt_info=pmt_info, nominal_settings=nominal_settings, polling_info=polling_info, discriminator_threshold=discriminator_threshold, gtvalid_lengths=gtvalid_lengths, fec_db_history=fec_db_history, vmon=vmon, bad_vmon=bad_vmon, qhs=qhs, qhl=qhl, qlx=qlx, test_failed=test_failed)
+
+@app.route('/vmon_history')
+def vmon_history():
+    crate = request.args.get("crate", 0, type=int)
+    slot = request.args.get("slot", 0, type=int)
+    keys, data = get_vmon_history(crate, slot)
+
+    return render_template('vmon_history.html', crate=crate, slot=slot, data=data, keys=keys)
 
 @app.route('/ecal-status')
 def ecal_status():
