@@ -513,16 +513,28 @@ def get_nhit_monitor(key):
 
     return dict(zip(keys,row))
 
-def get_nhit_monitor_thresholds_nearline(limit=100, offset=0, sort_by="run"):
+def get_nhit_monitor_thresholds_nearline(limit=100, offset=0, sort_by="run", run_range_low=0, run_range_high=0):
     """
     Returns a list of the latest nhit monitor records in the nearline database.
     """
     conn = engine_nl.connect()
 
-    if sort_by == "run":
-        result = conn.execute("SELECT * FROM nhit_monitor_thresholds ORDER BY run DESC, timestamp DESC LIMIT %s OFFSET %s", (limit,offset))
-    if sort_by == "key":
-        result = conn.execute("SELECT * FROM nhit_monitor_thresholds ORDER BY key DESC, timestamp DESC LIMIT %s OFFSET %s", (limit,offset))
+    if run_range_high:
+        if sort_by == "run":
+            result = conn.execute("SELECT * FROM nhit_monitor_thresholds WHERE run >= %s AND run <= %s "
+                                  "ORDER BY run DESC, timestamp DESC LIMIT %s OFFSET %s", \
+                                  (run_range_low, run_range_high, limit, offset))
+        if sort_by == "key":
+            result = conn.execute("SELECT * FROM nhit_monitor_thresholds WHERE run >= %s AND run <= %s "
+                                  "ORDER BY key DESC, timestamp DESC LIMIT %s OFFSET %s", \
+                                  (run_range_low, run_range_high, limit, offset))
+    else:
+        if sort_by == "run":
+            result = conn.execute("SELECT * FROM nhit_monitor_thresholds ORDER BY run DESC, " 
+                                  "timestamp DESC LIMIT %s OFFSET %s", (limit,offset))
+        if sort_by == "key":
+            result = conn.execute("SELECT * FROM nhit_monitor_thresholds ORDER BY key DESC, " 
+                                  "timestamp DESC LIMIT %s OFFSET %s", (limit,offset))
 
     if result is None:
         return None
