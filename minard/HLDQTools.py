@@ -1,8 +1,6 @@
 import couchdb
 from minard import app
 from .db import engine
-import time
-import numpy
 
 def import_HLDQ_runnumbers(limit=10, offset=0):
     """
