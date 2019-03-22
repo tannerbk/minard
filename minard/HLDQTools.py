@@ -63,8 +63,7 @@ def import_TELLIE_runnumbers(limit=10, offset=0):
 def import_TELLIEDQ_ratdb(runs):
     if type(runs) == int:
         runs = [runs]
-    else:
-        pass
+
     server = couchdb.Server("http://snoplus:"+app.config["COUCHDB_PASSWORD"]+"@"+app.config["COUCHDB_HOSTNAME"])
     db = server["data-quality"]
     data = {}
@@ -77,9 +76,9 @@ def import_TELLIEDQ_ratdb(runs):
             try:
                 data[run] = dict(db.get(runDocId)["checks"]["dqtellieproc"])
             except KeyError:
-                app.logger.warning("Code returned KeyError searching for dqtellie proc information in the couchDB. Run Number: %d" % runNumber)
+                app.logger.warning("Code returned KeyError searching for dqtellie proc information in the couchDB. Run number: %d" % run)
 
-    if data == {}:
+    if len(data) == 0:
         return runs, -1, -1
 
     for run in runs:
@@ -137,53 +136,69 @@ def import_TELLIEDQ_ratdb(runs):
 def import_SMELLIE_runnumbers(limit=10,offset=0):
     #Returns the latest SMELLIE runs.
     conn = engine.connect()
-    # select all runs which have the external source and tellie bits checked
+    # select all runs which have the external source and smellie bits checked
     result = conn.execute("SELECT run FROM run_state WHERE (run_type & 4112) = 4112 ORDER BY run DESC LIMIT %s OFFSET %s", (limit,offset))
     return [row[0] for row in result.fetchall()]
 
-def import_SMELLIEDQ_ratdb(runNumber):
+def import_SMELLIEDQ_ratdb(runs):
+    if type(runs) == int:
+        runs = [runs]
+
     server = couchdb.Server("http://snoplus:"+app.config["COUCHDB_PASSWORD"]+"@"+app.config["COUCHDB_HOSTNAME"])
     dqDB = server["data-quality"]
-    data = None
+    data = {}
+    checkDict = {}
+    runInformationDict = {}
     for row in dqDB.view('_design/data-quality/_view/runs'):
-        if(int(row.key) == runNumber):
+        run = row.key
+        if run in runs:
             runDocId = row['id']
             try:
-                data = dqDB.get(runDocId)["checks"]["DQSmellieProc"]
+                data[run] = dict(dqDB.get(runDocId)["checks"]["DQSmellieProc"])
             except KeyError:
-                app.logger.warning("Code returned KeyError searching for dqsmellie proc information in the couchDB. Run Number: %d" % runNumber)
-                return runNumber, -1, -1 
-    if data==None:
-        return runNumber, -1, -1 
-    
-    checkDict = {}
-    checkDict["fibre"] = data["smellieCorrectFibre"]
-    checkDict["frequency"] = data["smellieFrequencyCheck"]
-    checkDict["intensity"] = data["smellieIntensityCheck"]
-    checkDict["number_of_events"] = data["smellieNumberOfEventsCheck"]
+                app.logger.warning("Code returned KeyError searching for dqsmellie proc information in the couchDB. Run number: %d" % run)
 
-    #Get the runinformation from the tellie dq output
-    runInformation = {}
-    runInformation["smellie_number_of_events_check_subrun"] = data["check_params"]["smellieNumberOfEventsCheckSubrun"]
-    runInformation["expected_smellie_events"] = data["check_params"]["number_events_expected_subrun"]
-    runInformation["actual_smellie_events"] = data["check_params"]["events_passing_nhit_and_trigger"]
-    
-    runInformation["smellie_fibre_bool_subrun"] = data["check_params"]["smellieFibreCheckSubrun"]
-    runInformation["smellie_calculated_fibre"] = data["check_params"]["fibre_calculated_subrun"]
-    runInformation["smellie_actual_fibre"] = data["check_params"]["fibre_expected_subrun"]
-    
-    runInformation["frequency_actual_subrun"] = data["check_params"]["frequency_actual_subrun"]
-    runInformation["frequency_expected_subrun"] = data["check_params"]["frequency_expected_subrun"]
-    runInformation["smellie_frequency_check_subrun"] = data["check_params"]["smellieFrequencyCheckSubrun"]
-   
-    runInformation["smellie_laser_type"] = data["check_params"]["laser_type"]
-    runInformation["smellie_laser_intensity"] = data["check_params"]["laser_intensities"]
-    runInformation["smellie_laser_wavelength"] = data["check_params"]["laser_wavelengths"]
-    runInformation["smellie_intensity_check_subrun"] = data["check_params"]["smellieIntensityCheckSubrun"]
-    runInformation["mean_nhit_smellie_events"] = data["check_params"]["mean_nhit_smellie_trigger_subrun"]
-    
-    runInformation["nhit_event_no_adjacent_trigger"] = data["check_params"]["nhit_event_no_adjacent_trigger"]
-    runInformation["trigger_event_no_adjacent_nhit"] = data["check_params"]["trigger_event_no_adjacent_nhit"]
-    runInformation["nhit_event_next_to_trigger_event"] = data["check_params"]["nhit_event_next_to_trigger_event"]
-    runInformation["events_failing_nhit_passing_trigger"] = data["check_params"]["events_failing_nhit_passing_trigger"]
-    return runNumber, checkDict, runInformation
+    if len(data) == 0:
+        return runs, -1, -1
+
+    for run in runs:
+        try:
+            run_dict = {}
+            run_dict["fibre"] = data[run]["smellieCorrectFibre"]
+            run_dict["frequency"] = data[run]["smellieFrequencyCheck"]
+            run_dict["intensity"] = data[run]["smellieIntensityCheck"]
+            run_dict["number_of_events"] = data[run]["smellieNumberOfEventsCheck"]
+
+            checkDict[run] = run_dict
+
+            #Get the runinformation from the smellie dq output
+            runInformation = {}
+            runInformation["smellie_number_of_events_check_subrun"] = data[run]["check_params"]["smellieNumberOfEventsCheckSubrun"]
+            runInformation["expected_smellie_events"] = data[run]["check_params"]["number_events_expected_subrun"]
+            runInformation["actual_smellie_events"] = data[run]["check_params"]["events_passing_nhit_and_trigger"]
+            
+            runInformation["smellie_fibre_bool_subrun"] = data[run]["check_params"]["smellieFibreCheckSubrun"]
+            runInformation["smellie_calculated_fibre"] = data[run]["check_params"]["fibre_calculated_subrun"]
+            runInformation["smellie_actual_fibre"] = data[run]["check_params"]["fibre_expected_subrun"]
+            
+            runInformation["frequency_actual_subrun"] = data[run]["check_params"]["frequency_actual_subrun"]
+            runInformation["frequency_expected_subrun"] = data[run]["check_params"]["frequency_expected_subrun"]
+            runInformation["smellie_frequency_check_subrun"] = data[run]["check_params"]["smellieFrequencyCheckSubrun"]
+           
+            runInformation["smellie_laser_type"] = data[run]["check_params"]["laser_type"]
+            runInformation["smellie_laser_intensity"] = data[run]["check_params"]["laser_intensities"]
+            runInformation["smellie_laser_wavelength"] = data[run]["check_params"]["laser_wavelengths"]
+            runInformation["smellie_intensity_check_subrun"] = data[run]["check_params"]["smellieIntensityCheckSubrun"]
+            runInformation["mean_nhit_smellie_events"] = data[run]["check_params"]["mean_nhit_smellie_trigger_subrun"]
+            
+            runInformation["nhit_event_no_adjacent_trigger"] = data[run]["check_params"]["nhit_event_no_adjacent_trigger"]
+            runInformation["trigger_event_no_adjacent_nhit"] = data[run]["check_params"]["trigger_event_no_adjacent_nhit"]
+            runInformation["nhit_event_next_to_trigger_event"] = data[run]["check_params"]["nhit_event_next_to_trigger_event"]
+            runInformation["events_failing_nhit_passing_trigger"] = data[run]["check_params"]["events_failing_nhit_passing_trigger"]
+
+            runInformationDict[run] = runInformation
+        except KeyError:
+            checkDict[run] = -1
+            runInformationDict[run] = -1
+
+    return runs, checkDict, runInformation

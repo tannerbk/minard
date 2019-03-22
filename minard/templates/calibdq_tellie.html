@@ -11,15 +11,19 @@
     <button class="btn btn-outline-primary btn-lg" disabled>Back</button>
     <a class="btn btn-outline-primary btn-lg" href="{{ url_for("calibdq_tellie", limit=limit, offset=offset+limit) }}">Next</a>
     {% else %}
+    {% if offset-limit < 0 %}
+    <a class="btn btn-outline-primary btn-lg" href="{{ url_for("calibdq_tellie", limit=limit, offset=0) }}">Back</a>
+    <a class="btn btn-outline-primary btn-lg" href="{{ url_for("calibdq_tellie", limit=limit, offset=offset+limit) }}">Next</a>
+    {% else %}
     <a class="btn btn-outline-primary btn-lg" href="{{ url_for("calibdq_tellie", limit=limit, offset=offset-limit) }}">Back</a>
     <a class="btn btn-outline-primary btn-lg" href="{{ url_for("calibdq_tellie", limit=limit, offset=offset+limit) }}">Next</a>
     {% endif %}
+    {% endif %}
     Runs per page:
-    <select onchange="location=this.options[this.selectedIndex].value;">
-        <option value="{{url_for("calibdq_tellie", limit=10, offset=offset)}}">10</option>
-        <option value="{{url_for("calibdq_tellie", limit=25, offset=offset)}}">25</option>
-        <option value="{{url_for("calibdq_tellie", limit=50, offset=offset)}}">50</option>
-        <option value="{{url_for("calibdq_tellie", limit=100, offset=offset)}}">100</option>
+    <select float:right onchange="location=this.options[this.selectedIndex].value;">
+        {% for i, text in [(10,"10"), (25, "25"), (50, "50"), (100, "100")] %}
+            <option {% if limit == i %}selected="selected" {% endif %}value="{{url_for("calibdq_tellie", limit=i, offset=offset)}}">{{ text }}</option>
+        {% endfor %}
     </select>
     <div class="container">
         <table class="table table-hover">
