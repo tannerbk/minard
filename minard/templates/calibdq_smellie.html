@@ -11,9 +11,20 @@
     <button class="btn btn-outline-primary btn-lg" disabled>Back</button>
     <a class="btn btn-outline-primary btn-lg" href="{{ url_for("calibdq_smellie", limit=limit, offset=offset+limit) }}">Next</a>
     {% else %}
+    {% if offset-limit < 0 %}
+    <a class="btn btn-outline-primary btn-lg" href="{{ url_for("calibdq_smellie", limit=limit, offset=0) }}">Back</a>
+    <a class="btn btn-outline-primary btn-lg" href="{{ url_for("calibdq_smellie", limit=limit, offset=offset+limit) }}">Next</a>
+    {% else %}
     <a class="btn btn-outline-primary btn-lg" href="{{ url_for("calibdq_smellie", limit=limit, offset=offset-limit) }}">Back</a>
     <a class="btn btn-outline-primary btn-lg" href="{{ url_for("calibdq_smellie", limit=limit, offset=offset+limit) }}">Next</a>
     {% endif %}
+    {% endif %}
+    Runs per page:
+    <select float:right onchange="location=this.options[this.selectedIndex].value;">
+    {% for i, text in [(10,"10"), (25, "25"), (50, "50"), (100, "100")] %}
+        <option {% if limit == i %}selected="selected" {% endif %}value="{{url_for("calibdq_smellie", limit=i, offset=offset)}}">{{ text }}</option>
+    {% endfor %}
+    </select>
     <div class="container">
         <table class="table table-hover">
             <thead>
@@ -26,7 +37,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for i in range(run_numbers|length) %}
+                {% for i in range(run_info|length) %}
                 {% if run_info[i] == -1 %}
                 <tr class="bg-danger" >
                     <td>
@@ -40,25 +51,25 @@
                 <tr>
                     <td><a href="{{ url_for('calibdq_smellie_run_number',run_number=run_numbers[i])}}">{{run_numbers[i]}}</a></td>
 
-                    {% if run_info[run_numbers[i]]["smellieCorrectFibre"] == 1 %} 
+                    {% if run_info[i]["smellieCorrectFibre"] == 1 %} 
                     <td>Pass</td>
                     {% else %}
                     <td><font color="red">Fail</font></td>
                     {% endif %}
 
-                    {% if run_info[run_numbers[i]]["smellieNumberOfEventsCheck"] == 1 %} 
+                    {% if run_info[i]["smellieNumberOfEventsCheck"] == 1 %} 
                     <td>Pass</td>
                     {% else %}
                     <td><font color="red">Fail</font></td>
                     {% endif %}
 
-                    {% if run_info[run_numbers[i]]["smellieFrequencyCheck"] == 1 %} 
+                    {% if run_info[i]["smellieFrequencyCheck"] == 1 %} 
                     <td>Pass</td>
                     {% else %}
                     <td><font color="red">Fail</font></td>
                     {% endif %}
 
-                    {% if run_info[run_numbers[i]]["smellieIntensityCheck"] == 1 %} 
+                    {% if run_info[i]["smellieIntensityCheck"] == 1 %} 
                     <td>Pass</td>
                     {% else %}
                     <td><font color="red">Fail</font></td>

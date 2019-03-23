@@ -109,7 +109,7 @@
                         <tbody>
                             <tr>
                                 <td>
-                                    Number of Events failing universal time and 10 MHz clock comparison
+                                    Number of events failing universal time and 10 MHz clock comparison
                                 </td>
                                 <td>
                                     {{ratdb_dict["checks"]["dqtimeproc"]["check_params"]["num_UT_10MhzClock_comp_fails"]}}
@@ -117,7 +117,7 @@
                             </tr>
                             <tr>
                                 <td>
-                                    Average Event rate calculated from time seperation of Events
+                                    Event rate calculated from time separation of events
                                 </td>
                                 <td>
                                     {{ratdb_dict["checks"]["dqtimeproc"]["check_params"]["delta_t_event_rate"]}} Hz
@@ -129,6 +129,14 @@
                                 </td>
                                 <td>
                                     {{ratdb_dict["checks"]["dqtimeproc"]["check_params"]["mean_event_rate"]}} Hz
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Event rate agreement
+                                </td>
+                                <td>
+                                    {{ratdb_dict["checks"]["dqtimeproc"]["check_params"]["event_rate_agreement"]}} Hz
                                 </td>
                             </tr>
                         </tbody>
@@ -263,16 +271,24 @@
                                     {{ratdb_dict["checks"]["dqrunproc"]["check_params"]["count_10_run_length"]}} s
                                 </td>
                             </tr>
+                            <tr>
+                                <td>
+                                    Run length source
+                                </td>
+                                <td>
+                                    {{ratdb_dict["checks"]["dqrunproc"]["check_params"]["run_length_source"]}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Trigger pass percentage
+                                </td>
+                                <td>
+                                    {{ratdb_dict["checks"]["dqrunproc"]["check_params"]["trigger_pass_percentage"]}} %
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
-                </div>
-            </div>
-
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3>Plots</h3>
-                </div>
-                <div class="panel panel-body">
                 </div>
             </div>
         </div>
@@ -335,22 +351,6 @@
                                 <td colspan="2" style="text-align:center;">No Missing GTID count Check Found</td>
                             </tr>
                             {% endif %}
-                            <tr>
-                                {% if "triggerProcBitFlipGTID" in ratdb_dict["checks"]["dqtriggerproc"] %}
-                                <td>
-                                    Bit flip GTID count Check 
-                                </td>
-                                {% if ratdb_dict["checks"]["dqtriggerproc"]["triggerProcBitFlipGTID"] == 1 %}
-                                <td>Pass</td>
-                                {% else %}
-                                <td><font color="red">Fail</font></td>
-                                {% endif %}
-                                {% else %}
-                                <tr class="bg-warning">
-                                    <td colspan="2" style="text-align:center;">No bit flip GTID count Check Found</td>
-                                </tr>
-                                {% endif %}
-                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -397,21 +397,6 @@
                             <tr class="bg-warning">
                                 <td colspan="2" style="text-align:center;">
                                 No Missing GTIDs found in DB table for this run</td>
-                            </tr>
-                            {% endif %}
-                            {% if 'bitflip_gtids'  in ratdb_dict["checks"]["dqtriggerproc"]["check_params"] %}
-                            <tr>
-                                <td>
-                                   Number of Bitflip GTIDs 
-                                </td>
-                                <td>
-                                {{ ratdb_dict["checks"]["dqtriggerproc"]["check_params"]["bitflip_gtids"]|length }}
-                                </td>
-                            </tr>
-                            {% else %}
-                            <tr class="bg-warning">
-                                <td colspan="2" style="text-align:center;">
-                                No Bitflip GTIDs found in DB table for this run</td>
                             </tr>
                             {% endif %}
                         </tbody>
@@ -506,6 +491,30 @@
                             </tr>
                         </thead>
                         <tbody>
+                            <tr>
+                                <td>
+                                    Overall detector coverage
+                                </td>
+                                <td>
+                                    {{ratdb_dict["checks"]["dqpmtproc"]["check_params"]["overall_detector_coverage"]}} %
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Number of crates failing coverage
+                                </td>
+                                <td>
+                                    {{ratdb_dict["checks"]["dqpmtproc"]["check_params"]["crates_failing_coverage"]}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Number of panels failing coverage
+                                </td>
+                                <td>
+                                    {{ratdb_dict["checks"]["dqpmtproc"]["check_params"]["number_of_panels_failing_coverage"]}}
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
