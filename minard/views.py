@@ -1432,7 +1432,7 @@ def nearline_monitoring_summary():
 
 @app.route('/physicsdq')
 def physicsdq():
-    limit = request.args.get("limit", 100, type=int)
+    limit = request.args.get("limit", 10, type=int)
     offset = request.args.get("offset", 0, type=int)
     runs = HLDQTools.import_HLDQ_runnumbers(limit=limit,offset=offset)
     run_info = HLDQTools.import_HLDQ_ratdb(runs)
