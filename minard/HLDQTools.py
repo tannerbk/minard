@@ -79,7 +79,10 @@ def import_TELLIEDQ_ratdb(runs):
                 app.logger.warning("Code returned KeyError searching for dqtellie proc information in the couchDB. Run number: %d" % run)
 
     if len(data) == 0:
-        return runs, -1, -1
+        for i in runs:
+            checkDict[i] = -1
+            runInformationDict[i] = -1
+        return runs, checkDict, runInformationDict
 
     for run in runs:
         try:
