@@ -160,9 +160,11 @@ def import_SMELLIEDQ_ratdb(runs):
                 data[run] = dict(dqDB.get(runDocId)["checks"]["DQSmellieProc"])
             except KeyError:
                 app.logger.warning("Code returned KeyError searching for dqsmellie proc information in the couchDB. Run number: %d" % run)
-
     if len(data) == 0:
-        return runs, -1, -1
+        for i in runs:
+            checkDict[i] = -1
+            runInformationDict[i] = -1
+        return runs, checkDict, runInformationDict
 
     for run in runs:
         try:
