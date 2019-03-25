@@ -18,7 +18,7 @@ FORM_KEYS = ['firstname', 'lastname', 'expert', 'email', 'phone', 'country']
 
 class ShifterInfoForm(Form):
     def validate_phone(form, field):
-        if len(field.data) != 11:
+        if len(field.data) != 11 and len(field.data) != 12:
             raise ValidationError("Phone number wrong length")
         if field.data and not str(field.data).isdigit():
             raise ValidationError("Phone number must contain only digits")
@@ -89,6 +89,6 @@ def set_shifter_information(form):
     cursor = conn.cursor()
 
     result = cursor.execute("INSERT INTO shifter_information (firstname,  "
-                 "lastname, phonenumber, email, country, expert) " 
-                 "VALUES (%(firstname)s, %(lastname)s, %(phone)s, " 
+                 "lastname, phonenumber, email, country, expert) "
+                 "VALUES (%(firstname)s, %(lastname)s, %(phone)s, "
                  "%(email)s, %(country)s, %(expert)s)", form.data)
