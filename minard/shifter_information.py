@@ -39,7 +39,7 @@ def get_experts():
     row = result.fetchall()
     names = []
     for first, last in row:
-        name = first.capitalize() + " " + last.capitalize()
+        name = first + " " + last
         names.append((name, name))
 
     return names
@@ -83,8 +83,8 @@ def get_shifter_information():
 
     expert_name = row[4]
     if expert_name:
-        first = expert_name.split()[0].capitalize()
-        last = expert_name.split()[1].capitalize()
+        first = expert_name.split()[0]
+        last = expert_name.split()[1]
         expert  = "Current expert: %s %s" % (first, last)
 
     return shifter, expert, updates
