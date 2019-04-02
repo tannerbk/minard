@@ -11,10 +11,18 @@
   <div class="row">
     <h1 align="center">Shifter Information</h1> <br>
     <table class="table">
-      <tr> 
-        <td> <h3> <font color='green'> {{ shifter }} </font> </h3> </td>
+      <tr>
+        {% if shifter %} 
+          <td> <h3> <font color='green'> {{ shifter }} </font> </h3> </td>
+        {% else %}
+          <td> <h3> <font color='red'> No shifter! </font> </h3> </td>
+        {% endif %}
         <td> <h3> <font color='green'> {{ updates }} </font> </h3> </td>
-        <td> <h3> <font color='green'> {{ expert }} </font> </h3> <br> </td>
+        {% if expert %}
+          <td> <h3> <font color='green'> {{ expert }} </font> </h3> </td>
+        {% else %}
+          <td> <h3> <font color='red'> No expert! </font> </h3> </td>
+        {% endif %}
       </tr>
     </table>
     <div class="alert alert-info"> If you are the current shifter, please fill out the below information at the start of your shift. If you are not the current shifter, do not fill in this form. After hitting Submit, make sure the current shifter and expert information about update properly. If multiple people are on shift, the shift leader should fill this out. This information will only be used for email and text alarm alerts. 

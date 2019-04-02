@@ -35,11 +35,12 @@ def get_experts():
     Returns a list of the names of all on-call experts.
     """
     conn = engine.connect()
-    result = conn.execute("SELECT firstname FROM experts")
+    result = conn.execute("SELECT firstname, lastname FROM experts")
     row = result.fetchall()
     names = []
-    for name in row:
-        names.append((name[0], name[0].capitalize()))
+    for first, last in row:
+        name = first.capitalize() + " " + last.capitalize()
+        names.append((name, name))
 
     return names
 
@@ -71,8 +72,14 @@ def get_shifter_information():
     else:
         updates = "Receiving neither text or email alerts."
 
-    shifter = "Current shifter: %s %s" % (row[0].capitalize(), row[1].capitalize())
-    expert  = "Current expert: %s" % row[4].capitalize()
+    shifter = ""
+    if row[0] and row[1]:
+        shifter = "Current shifter: %s %s" % (row[0].capitalize(), row[1].capitalize())
+    expert = ""
+    if row[4]:
+        first = row[4].split()[0].capitalize()
+        last = row[4].split()[1].capitalize()
+        expert  = "Current expert: %s %s" % (first, last)
 
     return shifter, expert, updates
 
@@ -88,7 +95,7 @@ def set_shifter_information(form):
 
     cursor = conn.cursor()
 
-    result = cursor.execute("INSERT INTO shifter_information (firstname,  "
+    result = cursor.execute("INSERT INTO shifter_information (firstname, "
                  "lastname, phonenumber, email, country, expert) "
                  "VALUES (%(firstname)s, %(lastname)s, %(phone)s, "
                  "%(email)s, %(country)s, %(expert)s)", form.data)
