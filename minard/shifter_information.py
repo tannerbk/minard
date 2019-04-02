@@ -73,12 +73,18 @@ def get_shifter_information():
         updates = "Receiving neither text or email alerts."
 
     shifter = ""
-    if row[0] and row[1]:
-        shifter = "Current shifter: %s %s" % (row[0].capitalize(), row[1].capitalize())
     expert = ""
-    if row[4]:
-        first = row[4].split()[0].capitalize()
-        last = row[4].split()[1].capitalize()
+
+    shifter_firstname = row[0]
+    shifter_lastname = row[1]
+    if shifter_firstname and shifter_lastname:
+        shifter = "Current shifter: %s %s" % \
+                  (shifter_firstname.capitalize(), shifter_lastname.capitalize())
+
+    expert_name = row[4]
+    if expert_name:
+        first = expert_name.split()[0].capitalize()
+        last = expert_name.split()[1].capitalize()
         expert  = "Current expert: %s %s" % (first, last)
 
     return shifter, expert, updates
