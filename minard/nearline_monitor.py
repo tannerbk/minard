@@ -178,16 +178,17 @@ def channel_flags_run(run):
         channel_flags_status[run] = -1
         return channel_flags_status
 
-    missed, sync16, sync24, _, _, _, burst, _, _ = get_channel_flags_by_run(run)
+    missed, sync16, sync24, _, _, burst, _, _, _ = get_channel_flags_by_run(run)
     missed = len(missed)
     sync16 = len(sync16)
     sync24 = len(sync24)
+    missed_burst = len(burst)
     if(sync16 >= OUT_OF_SYNC_2 or missed >= MISSED_COUNT_2 or \
-       burst[run] > MISSED_BURST):
+       missed_burst > MISSED_BURST):
         channel_flags_status[run] = 1
     elif((sync16 >= OUT_OF_SYNC_1 and sync16 < OUT_OF_SYNC_2) or \
          (missed >= MISSED_COUNT_1 and missed < MISSED_COUNT_2) or \
-         (burst[run] > 0 and burst[run] <= MISSED_BURST)):
+         (missed_burst > 0 and missed_burst <= MISSED_BURST)):
         channel_flags_status[run] = 2
     else:
         channel_flags_status[run] = 0

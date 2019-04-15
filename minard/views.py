@@ -1483,12 +1483,13 @@ def channelflags():
         nresyncs = {}
         missed_burst = {}
         runs = [selected_run]
-        missed_count, cmos_sync16, cgt_sync24, cmos_sync16_pr, cgt_sync24_pr, missed_burst, normal, owl, other = channelflagsdb.get_channel_flags_by_run(selected_run)
+        missed_count, cmos_sync16, cgt_sync24, cmos_sync16_pr, cgt_sync24_pr, mburst, normal, owl, other = channelflagsdb.get_channel_flags_by_run(selected_run)
         sync16s[selected_run] = len(cmos_sync16)
         sync16s_pr[selected_run] = len(cmos_sync16_pr)
         sync24s[selected_run] = len(cgt_sync24)
         sync24s_pr[selected_run] = len(cgt_sync24_pr)
         missed[selected_run] = len(missed_count)
+        missed_burst[selected_run] = len(mburst)
         nsync16[selected_run], nsync24[selected_run], nresyncs[selected_run] = channelflagsdb.get_number_of_syncs(selected_run)
     return render_template('channelflags.html', runs=runs, nsync16=nsync16, nsync24=nsync24, nresyncs=nresyncs, sync16s=sync16s, sync24s=sync24s, missed=missed, sync16s_pr=sync16s_pr, sync24s_pr=sync24s_pr, limit=limit, selected_run=selected_run, run_range_low=run_range_low, run_range_high=run_range_high, normal=normal, owl=owl, other=other, gold=gold, missed_burst=missed_burst)
 

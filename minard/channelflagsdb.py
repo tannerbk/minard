@@ -171,7 +171,10 @@ def get_channel_flags_by_run(run):
             list_sync16_pr.append((crate, slot, channel, sync16_pr))
         if sync24_pr != 0 and sync24_pr is not None:
             list_sync24_pr.append((crate, slot, channel, sync24_pr))
-        missed_counts_burst = missed_burst
+        if missed_burst is not None:
+            missed_counts_burst = missed_burst
+        else:
+            missed_counts_burst = []
 
     return list_missed, list_sync16, list_sync24, list_sync16_pr, list_sync24_pr, missed_counts_burst, count_normal, count_owl, count_other
 
