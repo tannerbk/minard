@@ -69,6 +69,7 @@ add_remote_control_room("crox");
 add_remote_control_room("crup");
 add_remote_control_room("crab");
 add_remote_control_room("crlip");
+add_remote_control_room("crum");
 
 context.on("focus", function(i) {
   d3.selectAll(".value").style("right", i === null ? null : context.size() - i + "px");
