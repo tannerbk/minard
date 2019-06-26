@@ -85,10 +85,15 @@ def import_TELLIEDQ_ratdb(runs):
         return runs, checkDict, runInformationDict
 
     for run in runs:
+        run_dict = {}
+        runInformation = {}
+        
         try:
-            run_dict = {}
             run_dict["fibre"] = data[run]["fibre"]
-            run_dict["pulse_delay"] = data[run]["pulse_delay"]
+            try:
+                run_dict["pulse_delay"] = data[run]["pulse_delay"]
+            except KeyError:
+                run_dict["pulse_delay"] = data[run]["pulse_separation"]
             run_dict["avg_nhit"] = data[run]["avg_nhit"]
             run_dict["peak_amplitude"] = data[run]["peak_amplitude"]
             run_dict["max_nhit"] = data[run]["max_nhit"]
@@ -101,7 +106,6 @@ def import_TELLIEDQ_ratdb(runs):
             checkDict[run] = run_dict
 
             #Get the runinformation from the tellie dq output
-            runInformation = {}
             runInformation["expected_tellie_events"] = data[run]["check_params"]["expected_tellie_events"]
             runInformation["actual_tellie_events"] = data[run]["check_params"]["actual_tellie_events"]
             runInformation["average_nhit"] = data[run]["check_params"]["average_nhit"]
@@ -113,7 +117,10 @@ def import_TELLIEDQ_ratdb(runs):
             runInformation["pre_peak_adc_count"] = data[run]["check_params"]["pre_peak_adc_count"]
             runInformation["late_peak_adc_count"] = data[run]["check_params"]["late_peak_adc_count"]
             runInformation["subrun_run_times"] = data[run]["check_params"]["subrun_run_times"]
-            runInformation["pulse_delay_correct_proportion"]  = data[run]["check_params"]["pulse_delay_efficiency"]
+            try:
+                runInformation["pulse_delay_correct_proportion"]  = data[run]["check_params"]["pulse_delay_efficiency"]
+            except KeyError:
+                runInformation["pulse_delay_correct_proportion"]  = data[run]["check_params"]["pulse_separation_efficiency"]
 
             #Run Information for the subruns
             runInformation["subrun_numbers"] = data[run]["check_params"]["subrun_numbers"]
@@ -123,7 +130,10 @@ def import_TELLIEDQ_ratdb(runs):
             runInformation["prompt_peak_amplitude_check_subruns"] = data[run]["check_params"]["prompt_peak_amplitude_check"]
             runInformation["prompt_peak_adc_count_check_subruns"] = data[run]["check_params"]["prompt_peak_adc_count_check"]
             runInformation["adc_peak_time_spacing_check_subruns"] = data[run]["check_params"]["adc_peak_time_spacing_check"]
-            runInformation["pulse_delay_efficiency_check_subruns"] = data[run]["check_params"]["pulse_delay_efficiency_check"]
+            try:
+                runInformation["pulse_delay_efficiency_check_subruns"] = data[run]["check_params"]["pulse_delay_efficiency_check"]
+            except KeyError:
+                runInformation["pulse_delay_efficiency_check_subruns"] = data[run]["check_params"]["pulse_separation_efficiency_check"]
             runInformation["subrun_run_length_check"] = data[run]["check_params"]["subrun_run_length_check"]
             runInformation["correct_fibre_check_subruns"] = data[run]["check_params"]["correct_fibre_check"]
             runInformation["trigger_check_subruns"] = data[run]["check_params"]["trigger_check"]
@@ -133,7 +143,7 @@ def import_TELLIEDQ_ratdb(runs):
             checkDict[run] = -1
             runInformationDict[run] = -1
 
-    return runs, checkDict, runInformation
+    return runs, checkDict, runInformationDict
 
 #SMELLIE Tools
 def import_SMELLIE_runnumbers(limit=10,offset=0):
@@ -206,4 +216,4 @@ def import_SMELLIEDQ_ratdb(runs):
             checkDict[run] = -1
             runInformationDict[run] = -1
 
-    return runs, checkDict, runInformation
+    return runs, checkDict, runInformationDict
