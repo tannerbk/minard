@@ -1318,17 +1318,17 @@ def calibdq_tellie():
 @app.route('/calibdq_tellie/<int:run_number>/')
 def calibdq_tellie_run_number(run_number):
     run_num, check_params, runInfo = HLDQTools.import_TELLIEDQ_ratdb(run_number)
-    return render_template('calibdq_tellie_run.html', run_number=run_number, runInformation=runInfo)
+    return render_template('calibdq_tellie_run.html', run_number=run_number, runInformation=runInfo[run_number])
 
-@app.route('/calibdq_tellie/<run_number>/<subrun_number>')
+@app.route('/calibdq_tellie/<int:run_number>/<int:subrun_number>')
 def calibdq_tellie_subrun_number(run_number,subrun_number):
-    run_num, check_params, runInfo = HLDQTools.import_TELLIEDQ_ratdb(int(run_number))
+    run_num, check_params, runInfo = HLDQTools.import_TELLIEDQ_ratdb(run_number)
     # Find the index
     try:
-        subrun_index = runInfo["subrun_numbers"].index(int(subrun_number))
+        subrun_index = runInfo[run_number]["subrun_numbers"].index(subrun_number)
     except ValueError:
         subrun_index = -999
-    return render_template('calibdq_tellie_subrun.html', run_number=run_number, subrun_index=subrun_index, runInformation=runInfo)
+    return render_template('calibdq_tellie_subrun.html', run_number=run_number, subrun_index=subrun_index, runInformation=runInfo[run_number])
 
 @app.route('/noise')
 def noise():
@@ -1642,15 +1642,15 @@ def calibdq_smellie():
         run_vals_sorted.append(run_dict[runNum])
     return render_template('calibdq_smellie.html', run_numbers=run_numbers_sorted, run_info=run_vals_sorted, limit=limit, offset=offset)
 
-@app.route('/calibdq_smellie/<run_number>')
+@app.route('/calibdq_smellie/<int:run_number>')
 def calibdq_smellie_run_number(run_number):
     run_num, check_dict, runInfo = HLDQTools.import_SMELLIEDQ_ratdb(int(run_number))
-    return render_template('calibdq_smellie_run.html', run_number=run_number, runInfo=runInfo)
+    return render_template('calibdq_smellie_run.html', run_number=run_number, runInfo=runInfo[run_number])
 
-@app.route('/calibdq_smellie/<run_number>/<subrun_number>')
+@app.route('/calibdq_smellie/<int:run_number>/<int:subrun_number>')
 def calibdq_smellie_subrun_number(run_number,subrun_number):
-    run_num, check_dict, runInfo = HLDQTools.import_SMELLIEDQ_ratdb(int(run_number))
-    return render_template('calibdq_smellie_subrun.html', run_number=run_number, subrun_number=subrun_number, runInformation=runInfo)
+    run_num, check_dict, runInfo = HLDQTools.import_SMELLIEDQ_ratdb(run_number)
+    return render_template('calibdq_smellie_subrun.html', run_number=run_number, subrun_number=subrun_number, runInformation=runInfo[run_number])
 
 @app.route("/dropout")
 @app.route("/dropout/<int:run_number>")
