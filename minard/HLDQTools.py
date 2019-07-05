@@ -90,6 +90,7 @@ def import_TELLIEDQ_ratdb(runs):
         
         try:
             run_dict["fibre"] = data[run]["fibre"]
+            #Parameter pulse_delay was renamed to pulse_separation in RAT release 6.16.9
             try:
                 run_dict["pulse_delay"] = data[run]["pulse_delay"]
             except KeyError:
@@ -117,6 +118,7 @@ def import_TELLIEDQ_ratdb(runs):
             runInformation["pre_peak_adc_count"] = data[run]["check_params"]["pre_peak_adc_count"]
             runInformation["late_peak_adc_count"] = data[run]["check_params"]["late_peak_adc_count"]
             runInformation["subrun_run_times"] = data[run]["check_params"]["subrun_run_times"]
+            #Parameter pulse_delay was renamed to pulse_separation in RAT release 6.16.9
             try:
                 runInformation["pulse_delay_correct_proportion"]  = data[run]["check_params"]["pulse_delay_efficiency"]
             except KeyError:
@@ -130,6 +132,7 @@ def import_TELLIEDQ_ratdb(runs):
             runInformation["prompt_peak_amplitude_check_subruns"] = data[run]["check_params"]["prompt_peak_amplitude_check"]
             runInformation["prompt_peak_adc_count_check_subruns"] = data[run]["check_params"]["prompt_peak_adc_count_check"]
             runInformation["adc_peak_time_spacing_check_subruns"] = data[run]["check_params"]["adc_peak_time_spacing_check"]
+            #Parameter pulse_delay was renamed to pulse_separation in RAT release 6.16.9
             try:
                 runInformation["pulse_delay_efficiency_check_subruns"] = data[run]["check_params"]["pulse_delay_efficiency_check"]
             except KeyError:
