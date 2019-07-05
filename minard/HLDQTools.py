@@ -137,9 +137,9 @@ def import_TELLIEDQ_ratdb(runs):
             runInformation["subrun_run_length_check"] = data[run]["check_params"]["subrun_run_length_check"]
             runInformation["correct_fibre_check_subruns"] = data[run]["check_params"]["correct_fibre_check"]
             runInformation["trigger_check_subruns"] = data[run]["check_params"]["trigger_check"]
-
             runInformationDict[run] = runInformation
-        except KeyError:
+        except KeyError as kErr:
+            app.logger.warning("When trying to parse the TELLIE HLDQ table could not find the key %s" % kErr.args[0])
             checkDict[run] = -1
             runInformationDict[run] = -1
 
@@ -212,7 +212,8 @@ def import_SMELLIEDQ_ratdb(runs):
             runInformation["events_failing_nhit_passing_trigger"] = data[run]["check_params"]["events_failing_nhit_passing_trigger"]
 
             runInformationDict[run] = runInformation
-        except KeyError:
+        except KeyError as kErr:
+            app.logger.warning("When trying to parse the SMELLIE HLDQ table could not find the key %s" % kErr.args[0])
             checkDict[run] = -1
             runInformationDict[run] = -1
 
