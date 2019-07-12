@@ -11,23 +11,9 @@ def dictify(rows):
         rv.append(d)
     return rv
 
-def runs_after_run(run, maxrun=None):
+def get_noise_results(limit=100, offset=0):
     conn = engine_nl.connect()
-    cmd = 'SELECT * FROM pmtnoise WHERE %d < run_number' % run
-    if maxrun:
-        rows = conn.execute('SELECT * FROM pmtnoise'
-                            ' WHERE %s < run_number AND run_number < %s'
-                            ' ORDER BY run_number DESC;', 
-                            (int(run), int(maxrun)))
-    else:
-        rows = conn.execute('SELECT * FROM pmtnoise' 
-                            ' WHERE %s < run_number'
-                            ' ORDER BY run_number DESC;', 
-                            (int(run)))
-    return dictify(rows)
-
-def get_run_by_number(run):
-    conn = engine_nl.connect()
-    rows = conn.execute('SELECT * FROM pmtnoise WHERE %s = run_number;', \
-                        (int(run)))
+    rows = conn.execute('SELECT * FROM pmtnoise '
+                        'ORDER BY run_number DESC '
+                        'LIMIT %s OFFSET %s;', (limit, offset))
     return dictify(rows)

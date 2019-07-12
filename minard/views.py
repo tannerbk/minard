@@ -1332,8 +1332,13 @@ def calibdq_tellie_subrun_number(run_number,subrun_number):
 
 @app.route('/noise')
 def noise():
-    runs = pmtnoisedb.runs_after_run(0)
-    return render_template('noise.html', runs=runs)
+    limit = request.args.get("limit", 336, type=int) # ~ 2 weeks
+    offset = request.args.get("offset", 0, type=int)
+    plotmask = 2097150 # all crates plotted
+    runs = pmtnoisedb.get_noise_results(limit, offset)
+    return render_template('noise.html', runs=runs,
+                            limit=limit, offset=offset,
+                            plotmask=plotmask)
 
 @app.route('/noise_run_detail/<run_number>')
 def noise_run_detail(run_number):
