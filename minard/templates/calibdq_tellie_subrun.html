@@ -110,6 +110,14 @@
                 <img src="{{ url_for('static', filename="/hldq/TELLIE/TELLIE_DQ_IMAGES_"+run_number|string+"/tac_count_run_"+run_number|string+"_subrun_"+runInformation["subrun_numbers"][subrun_index]|string+".png") }}" class="img-responsive center-block">
             </div>
         </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Pulse Delay Distribution</h3>
+            </div>
+            <div class="panel-body">
+                <img src="{{ url_for('static', filename="/hldq/TELLIE/TELLIE_DQ_IMAGES_"+run_number|string+"/pulse_separation_run_"+run_number|string+"_subrun_"+runInformation["subrun_numbers"][subrun_index]|string+".png") }}" class="img-responsive center-block" alt="Plot does not exist. Reprocessing this run with the most recent telliedq processor will fix this.">
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
