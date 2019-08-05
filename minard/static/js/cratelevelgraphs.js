@@ -8,6 +8,11 @@ function isPlottable(pair){
     return (isNumber(pair.run) && isNumber(pair.value))
 }
 
+cratelabels = ['Average']
+for (var i = 0 ; i < 19 ; i++){
+    cratelabels.push('Crate ' + i.toString())
+}
+
 function mkCrateCheckboxes(divid, pfx, manager){
     // returns function to update the crate mask, and refresh the plot
     // needs to be pre-defined, else crate index is ref'd after loop :(
@@ -27,7 +32,7 @@ function mkCrateCheckboxes(divid, pfx, manager){
     }
 
     // crates arranged in a grid...
-    var nCrates = 19 
+    var nCrates = 20
     nCols = 2
     nRows = Math.floor(nCrates/nCols) + 1
     nCols += 1
@@ -37,7 +42,7 @@ function mkCrateCheckboxes(divid, pfx, manager){
         var i = iRow + iCol*nRows
         if (!(i < nCrates)) continue
         var cbid = pfx + 'crate' + i.toString()
-        var label = 'Crate ' + i.toString()
+        var label = cratelabels[i]
         cbox = '<input id="' + cbid + '" type="checkbox" value="' + i + '"'
         if (manager.plotmask & 2<<i){
             cbox += ' checked'
@@ -89,10 +94,10 @@ function mkCrateLevelPlot(divid, series, manager,
         var ns = 0
         theseries = []
         labels = []
-        for (var i = 0 ; i < 19 ; i++){
+        for (var i = 0 ; i < 20 ; i++){
             if (manager.plotmask & 2<<i){
                 theseries.push(series[i])
-                labels.push('Crate ' + i.toString())
+                labels.push(cratelabels[i])
                 ns += 1
             }
         }
@@ -101,6 +106,7 @@ function mkCrateLevelPlot(divid, series, manager,
         else
             charttype = 'line'
 
+        console.log(theseries)
         MG.data_graphic({
             title: thetitle, 
             data: theseries,

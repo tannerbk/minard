@@ -50,7 +50,7 @@
       <tr>
       {% endif %}
 	<td><a href="{{ url_for('noise_run_detail',run_number = run['run_number']) }}">{{ run["run_number"] }}</a></td>
-	<td>{{ run["run_time"]|timefmt }}</td>
+	<td>{{ run["timestamp"].strftime("%Y-%m-%d %H:%M:%S") }}</td>
 	<td>{{ "%.0f" % (run["average_noiserate"]|float) }}</td>
 	{% if "average_qhl_hhp" in run %}
 	<td>{{ "%.1f" % (run["average_qhl_hhp"]|float) }}</td>
@@ -100,27 +100,59 @@
     <script src="static/js/cratelevelgraphs.js"></script>
     <script>
         noisejson = {{ runs | tojson }}
+
+        // list times as Sudbury time
+        runtimes = []
+        for (var i = 0 ; i < noisejson.length ; i++){
+            runtime = moment(noisejson[i]['plot_time'], 'X')
+            runtime = runtime.tz('Canada/Eastern')
+            runtimes.push(runtime)
+        }
+
+        // sort the datas into a plottable representation
         noiseseries = []
         qhlseries = []
         for (var i = 0 ; i < 19 ; i++){
             noise = []
             qhl = []
             for (var j = 0 ; j < noisejson.length ; j++){
-                runtime = moment(noisejson[j]['run_time'], 'X')
-                noise.push({'date':runtime.toDate(), 
+                runtime = runtimes[j]
+                time = runtime.tz('Canada/Eastern').toDate()
+                noise.push({'date':time,
                           'value':noisejson[j]['average_noise_crate'][i]})
-                qhl.push({'date':runtime.toDate(), 
+                qhl.push({'date':time,
                           'value':noisejson[j]['average_qhl_hhp_crate'][i]})
             }
             noiseseries.push(noise)
             qhlseries.push(qhl)
         }
 
+        // average across all crates...
+        noiseavg = []
+        qhlavg = []
+        for (var i = 0 ; i < noisejson.length ; i++){
+            noisesum = 0.0
+            qhlsum = 0.0
+            for (var j = 0 ; j < 19 ; j++){
+                noisesum += noiseseries[j][i]['value']
+                qhlsum += qhlseries[j][i]['value']
+            }
+            noisesum /= 19
+            qhlsum /= 19
+
+            noiseavg.push({'date':noiseseries[0][i]['date'],
+                           'value':noisesum})
+            qhlavg.push({'date':qhlseries[0][i]['date'],
+                           'value':qhlsum})
+        }
+        noiseseries.splice(0, 0, noiseavg)
+        qhlseries.splice(0, 0, qhlavg)
+
         backlinkbase = '{{ url_for("noise", limit=limit, offset=offset+limit, plotmask='plotmasktemplate') | safe }}'
         nextlinkbase = '{{ url_for("noise", limit=limit, offset=offset-limit, plotmask='plotmasktemplate') | safe }}'
 
         jQuery(document).ready(function($){
-            availmask = (2<<19)-1
+            availmask = (2<<20)-1
             // init plot manager/checkboxes
             mgr = mkPlotManager('checkboxes', availmask, {{plotmask}})
             mgr.refreshers.push(function(){
@@ -129,7 +161,7 @@
             })
             mkCrateLevelPlot('noise-graph', noiseseries, mgr,
                              'Average Noise Rate', '', 'Noise Rate [Hz]', 
-                             1500.0)
+                             2000.0)
             mkCrateLevelPlot('hhp-graph',   qhlseries,  mgr,
                              'Average QHL HHP', '', 'HHP [cap]',
                              100)
