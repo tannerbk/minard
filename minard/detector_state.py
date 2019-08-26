@@ -296,7 +296,11 @@ def get_detector_state_check(run=0):
     # channels in non-attenuated mode, and keep the others
     # in attenuated mode. The TUBII channel mapping has 
     # changed several times and the run-numbers are hard-coded.
-    if run == 0 or run > 205825:
+    # Now with PPO in we leave only the ESUMH unattenuated.
+    if run == 0 or run > 250000:
+        nonattenuated = [7]
+        attenuated = range(0, 6)
+    elif run > 205825:
         nonattenuated = [2, 6, 7]
         attenuated = [0, 1, 3, 4, 5]
     elif run > 200386:
