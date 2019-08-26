@@ -299,7 +299,7 @@ def get_detector_state_check(run=0):
     # Now with PPO in we leave only the ESUMH unattenuated.
     if run == 0 or run > 250000:
         nonattenuated = [7]
-        attenuated = range(0, 6)
+        attenuated = range(0, 7)
     elif run > 205825:
         nonattenuated = [2, 6, 7]
         attenuated = [0, 1, 3, 4, 5]
