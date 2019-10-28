@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+{% block title %}Burst Trigger{% endblock %}
+{% block head %}
+  {{ super() }}
+{% endblock %}
+{% block body %}
+  {{ super() }}
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+          <h2>Supernova Burst Trigger </h2>
+
+          <h3>Details</h3>
+          <table class="table table-bordered table-condensed table-striped">
+              <thead>
+                  <tr>
+                      <th>Run Number</th>
+                      <th>SubRun Number</th>
+                      <th>Burst Number</th>
+                      <th>Burst File Date</th>
+                      <th>Burst File Time</th>
+                      <th>ZDAB File</th>
+                      <th># Events</th>
+                      <th>Burst Time</th>
+                      <th>NHit(avg)</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  {% for run in data.items() %}
+                  <tr>
+                      <td><a href="{{ url_for('burst_run_detail', run_number=run[1]['run'], subrun=run[1]['subrun'], sub=run[1]['burst_n']) }}">{{ run[1]['run'] }}</a></td>
+                      <td>{{  run[1]["subrun"] }}</td>
+                      <td>{{  run[1]["burst_n"] }}</td>
+                      <td>{{  run[1]["date"] }}</td>
+                      <td>{{  run[1]["time"] }}</td>
+                      <td>{{  run[1]["zdab_file"] }}</td>
+                      <td>{{  run[1]["burst_size"] }}</td>
+                      <td>{{  run[1]["burst_length"] }}</td>
+                      <td>{{  run[1]["avg_nhit"] }}</td>
+                  </tr>
+                  {% endfor %}
+              </tbody>
+          </table>
+          {% if offset > limit-1 %}
+            <a href="{{ url_for("burst", offset=offset-limit, limit=limit) }}">Back</a>
+          {% endif %}
+          {% if total > offset + limit %}
+          <a href="{{ url_for("burst", offset=offset+limit, limit=limit) }}">Next</a>
+          {% endif %}
+      </div>
+    </div>
+  </div>
+
+{% endblock %}

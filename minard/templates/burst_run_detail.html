@@ -1,0 +1,159 @@
+{% extends "layout.html" %}
+{% block title %}Burst Run Detail{% endblock %}
+{% block head %}
+  {{ super() }}
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/pca.css') }}" media="screen">
+{% endblock %}
+{% block body %}
+  {{ super() }}
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        {{ subrun }}
+        {{ sub }}
+        <h2>Run {{ data["run"] }} details</h2>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Test</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Run</td>
+                <td>{{ data["run"] }}</td>
+              </tr>
+              <tr>
+                <td>SubRun</td>
+                <td>{{ data["subrun"] }}</td>
+              </tr>
+              <tr>
+                <td>Burst #</td>
+                <td>{{ data["burst_n"] }}</td>
+              </tr>
+              <tr>
+                <td>Date</td>
+                <td>{{ data["date"] }}</td>
+              </tr>
+              <tr>
+                <td>Time</td>
+                <td>{{ data["time"] }}</td>
+              </tr>
+              <tr>
+                <td>Burst length</td>
+                <td>{{ data["burst_length"] }}</td>
+              </tr>
+              <tr>
+                <td>Burst size</td>
+                <td>{{ data["burst_size"] }}</td>
+              </tr>
+              <tr>
+                <td>Avg NHit</td>
+                <td>{{ data["avg_nhit"] }}</td>
+              </tr>
+              <tr>
+                <td>Triggers</td>
+                <td>{{ data["triggers"] }}</td>
+              </tr>
+              <tr>
+                <td>Hits</td>
+                <td>{{ data["hits"] }}</td>
+              </tr>
+              <tr>
+                <td>ROOT file</td>
+                <td>{{ data["root_file"] }}</td>
+              </tr>
+              <tr>
+                <td>ZDAB file</td>
+                <td>{{ data["zdab_file"] }}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="row">
+            <div class="col-md-12">
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h3 class="panel-title">Nhit(ZOOM) / Nhit</h3>
+                </div>
+                <div class="panel-body">
+                  <div class="col-md-6">
+                    <img src="{{ url_for('static', filename="bursts/" + files + "/" + files + "_nhit_zoom.png") }}"
+                    alt="NHit ZOOM histogram" class="img-responsive">
+                  </div>
+                  <div class="col-md-6">
+                    <img src="{{ url_for('static', filename="bursts/" + files + "/" + files + "_nhit.png") }}"
+                    alt="NHit histogram" class="img-responsive">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12">
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h3 class="panel-title">Time spectrum / Time spectrum (cumulative)</h3>
+                </div>
+                <div class="panel-body">
+                  <div class="col-md-6">
+                    <img src="{{ url_for('static', filename="bursts/" + files + "/" + files + "_time.png") }}"
+                    alt="Time spectrum histogram" class="img-responsive">
+                  </div>
+                  <div class="col-md-6">
+                    <img src="{{ url_for('static', filename="bursts/" + files + "/" + files + "_timeC.png") }}"
+                    alt="Time spectrum - cumulative histogram" class="img-responsive">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12">
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h3 class="panel-title">Crate / Card / Channel distributions</h3>
+                </div>
+                <div class="panel-body">
+                  <div class="col-md-6">
+                    <img src="{{ url_for('static', filename="bursts/" + files + "/" + files + "_crate.png") }}"
+                    alt="Crate histogram" class="img-responsive">
+                  </div>
+                  <div class="col-md-6">
+                    <img src="{{ url_for('static', filename="bursts/" + files + "/" + files + "_card.png") }}"
+                    alt="Card histogram" class="img-responsive">
+                  </div>
+                  <div class="col-md-6">
+                    <img src="{{ url_for('static', filename="bursts/" + files + "/" + files + "_channel.png") }}"
+                    alt="Channel histogram" class="img-responsive">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12">
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h3 class="panel-title">Triggers</h3>
+                </div>
+                <div class="panel-body">
+                  <div class="col-md-6">
+                    <img src="{{ url_for('static', filename="bursts/" + files + "/" + files + "_trigs.png") }}"
+                    alt="Triggers histogram" class="img-responsive">
+                  </div>
+                </div>
+              </div>
+            </div
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div
+{% endblock %}

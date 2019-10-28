@@ -38,7 +38,13 @@
                 <div class="navbar-collapse collapse">
                     <ul class="nav navbar-nav">
                         {{ nav_link('status', 'Status') }}
-                        {{ nav_link('l2', 'L2') }}
+                        <!-- Dropdown L2 -->
+                        <li class='dropdown'>
+			<a href='#' class='dropdown-toggle' data-toggle='dropdown'>L2 <b class='caret'></b></a>
+                            <ul class='dropdown-menu'>
+                                {{ nav_link('l2', 'L2') }}
+                                {{ nav_link('burst', 'Burst Trigger') }}
+                            </ul>
                         {{ nav_link('snostream', 'Stream') }}
                         <!-- Dropdown Detector -->
                         <li class='dropdown'>
@@ -82,10 +88,10 @@
                                 {{ nav_link('nearline', 'Job Status') }}
                                 {{ nav_link('nearline_failures', 'Nearline Failures') }}
                                 {{ nav_link('nearline_monitoring_summary', 'Nearline Monitoring') }}
-                                {{ nav_link('pingcrates', 'Ping Crates') }}  
+                                {{ nav_link('pingcrates', 'Ping Crates') }}
                                 {{ nav_link('crate_gain_monitor', 'PMT Gains by Crate') }}
                                 {{ nav_link('occupancy_by_trigger', 'Occupancy by Trigger') }}
-                                {{ nav_link('channelflags', 'Channel Flags') }}  
+                                {{ nav_link('channelflags', 'Channel Flags') }}
                                 {{ nav_link('trigger_clock_jump', 'Trigger Clock Jumps') }}
                                 {{ nav_link('muon_list', 'Muons and Atmospherics') }}
                                 {{ nav_link('rathome', 'RAT') }}

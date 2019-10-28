@@ -35,6 +35,7 @@ import dropout
 import pmtnoisedb
 import gain_monitor
 import activity
+import burst as burst_f
 from shifter_information import get_shifter_information, set_shifter_information, ShifterInfoForm, get_experts
 from run_list import golden_run_list
 from .polling import polling_runs, polling_info, polling_info_card, polling_check, get_cmos_rate_history, polling_summary, get_most_recent_polling_info, get_vmon, get_base_current_history, get_vmon_history
@@ -546,6 +547,14 @@ def l2():
         return redirect(url_for('l2',step=step,height=height,_external=True))
     return render_template('l2.html',step=step,height=height)
 
+@app.route('/burst')
+def burst():
+    offset = request.args.get('offset',type=int)
+    limit = request.args.get('limit',default=15,type=int)
+    if offset == None:
+        return redirect("burst?limit=15&offset=0")
+    return render_template( 'burst.html', data=burst_f.load_burst_runs(offset, limit)[0], total=burst_f.load_burst_runs(offset, limit)[1], offset=burst_f.load_burst_runs(offset, limit)[2], limit=burst_f.load_burst_runs(offset, limit)[3] )
+
 @app.route('/orca-session-logs')
 def orca_session_logs():
     limit = request.args.get("limit", 10, type=int)
@@ -887,7 +896,7 @@ def cmos_rates_check():
     return render_template('cmos_rates_check.html', cmos_changes=cmos_changes, cmos_high_rates=cmos_high_rates, cmos_low_rates=cmos_low_rates, high_rate=high_rate, low_rate=low_rate, run_number=run_number, pct_change=pct_change)
 
 def convert_timestamp(data):
-    
+
     # Convert datetime objects to strings
     for i in range(len(data)):
         data[i]['timestamp'] = data[i]['timestamp'].isoformat()
@@ -1296,6 +1305,10 @@ def pca_run_detail(run_number):
                            run_number=run_number,
                            run=run)
 
+@app.route('/burst_run_detail/<int:run_number>/<int:subrun>/<int:sub>')
+def burst_run_detail(run_number, subrun, sub):
+    return render_template('burst_run_detail.html', data=burst_f.burst_run_detail(run_number, subrun, sub)[0], files=burst_f.burst_run_detail(run_number, subrun, sub)[1])
+
 @app.route('/calibdq')
 def calibdq():
         return render_template('calibdq.html')
@@ -1377,7 +1390,7 @@ def occupancy_by_trigger():
 
     # If no data for selected run
     if len(status) == 0:
-        status[selected_run] = -1        
+        status[selected_run] = -1
 
     return render_template('occupancy_by_trigger.html', runs=runs, limit=limit, crates=crates, slots=slots, status=status, selected_run=selected_run, run_range_low=run_range_low, run_range_high=run_range_high, gold=gold)
 
@@ -1525,7 +1538,7 @@ def muons_by_run(run_number):
     muon_info, mmuon_info, atm_info = muonsdb.get_muon_info_by_run(int(run_number))
     run_number=int(run_number)
 
-    return render_template('muons_by_run.html', run_number=run_number, muon_info=muon_info, mmuon_info=mmuon_info, atm_info=atm_info) 
+    return render_template('muons_by_run.html', run_number=run_number, muon_info=muon_info, mmuon_info=mmuon_info, atm_info=atm_info)
 
 @app.route('/trigger_clock_jump')
 def trigger_clock_jump():
@@ -1609,7 +1622,7 @@ def shifter_information():
 
     if request.method == "POST" and form.validate():
         try:
-            set_shifter_information(form) 
+            set_shifter_information(form)
         except Exception as e:
             flash(str(e), 'danger')
             return render_template('shifter_information.html', form=form)
