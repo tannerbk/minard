@@ -674,7 +674,8 @@ function display_run_type(run_type,time_stamp) {
     25:"Cavity Recirculation ON",
     26:"SL Assay",
     27:"Unusual Activity",
-    28:"AV Recirculation ON"
+    28:"AV Recirculation ON",
+    29:"Scint. Fill"
     };
     var flag = false;
     var translator = function(low_bit,high_bit,trans_map){
