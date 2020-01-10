@@ -26,7 +26,7 @@ install: /opt/minard/bin/activate
 	/opt/minard/bin/pip install --no-deps -I .
 	# need to install gunicorn in virtual environment so that the
 	# script /opt/minard/bin/gunicorn exists
-	/opt/minard/bin/pip install -I gunicorn
+	/opt/minard/bin/pip install gunicorn
 	mkdir -p /var/www/minard
 	# copy static files to /var/www/minard so that nginx
 	# can serve them instead of flask
