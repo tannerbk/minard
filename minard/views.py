@@ -1726,8 +1726,6 @@ def scint_level():
         run_range_high = detector_state.get_latest_run()
 
     data = scintillator_level.get_scintillator_level(run_range_low, run_range_high)
-    for x in range(len(data)):
-        data[x]['run'] = int(data[x]['run'])
 
     return render_template('scint_level.html', data=data, run_range_low=run_range_low, run_range_high=run_range_high)
 
