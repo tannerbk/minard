@@ -1,0 +1,85 @@
+{% extends "layout.html" %}
+{% block title %}Scintillator Level{% endblock %}
+{% block head %}
+    <!-- metrics-graphics stylesheet goes above super() because we want bootstrap's style
+    (which is linked in super()) to override it. -->
+    <link rel="stylesheet" type="text/css"  href="{{ url_for('static',filename='css/metricsgraphics.css') }}">
+    <link rel="stylesheet" type="text/css"  href="{{ url_for('static',filename='css/mg_line_brushing.css') }}">
+<style>
+.mg-x-axis text, .mg-y-axis text, .mg-histogram .axis text {
+    font-size: 1.5rem;
+}
+</style>
+    {{ super() }}
+{% endblock %}
+{% block body %}
+    {{ super() }}
+<div class="container">
+    <h2> Scintillator levels used in RAT vs run number </h2>
+    <div class="row">
+        Run Range:
+        <input type="text" id="run_range_low" value={{run_range_low}} style="width:80px;"> - 
+        <input type="text" id="run_range_high" value={{run_range_high}} style="width:80px;"> 
+        <button type=button onclick="history();">Update Plot</button>
+    </div>
+    <div class="row">
+        <div class="col-md-12" id="main">
+            {% if not data %}
+                <h2 align="left"> No data available </h2>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block script %}
+    <script src="{{ url_for('static', filename='js/d3.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/moment.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/moment-timezone-with-data.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/tzscale.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/metricsgraphics.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/mg_line_brushing.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/stream_utilities.js') }}"></script>
+    <script>
+        if (url_params.run_range_low) {
+            document.getElementById("run_range_low").value = url_params.run_range_low;
+        }
+        if (url_params.run_range_high) {
+            document.getElementById("run_range_high").value = url_params.run_range_high;
+        }
+
+        var sdata = {{ data | safe }};
+
+        var params = {
+            chart_type: 'point',
+            area: false,
+            data: sdata,
+            width: $('#main').width(),
+            height: 500,
+            target: "#main",
+            x_accessor:'run',
+            y_accessor:'scint_lvl',
+            min_y_from_data: true,
+            point_size: 6.0,
+            yax_count: 10,
+            xax_count: 10,
+        };
+
+        MG.data_graphic(params);
+
+        function history() {
+            var params = {};
+            try {
+                params['run_range_low'] = document.getElementById("run_range_low").value;
+            } catch (e) {
+                params['run_range_low'] = 200000;
+            }
+            try {
+                params['run_range_high'] = document.getElementById("run_range_high").value;
+            } catch (e) {
+                params['run_range_high'] = 200000;
+            }
+            window.location.replace($SCRIPT_ROOT + "/scint_level?" + $.param(params));
+        }
+
+    </script>
+{% endblock %}

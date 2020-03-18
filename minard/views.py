@@ -35,6 +35,7 @@ import dropout
 import pmtnoisedb
 import gain_monitor
 import activity
+import scintillator_level
 import burst as burst_f
 from shifter_information import get_shifter_information, set_shifter_information, ShifterInfoForm, get_experts
 from run_list import golden_run_list
@@ -1715,3 +1716,18 @@ def _dropout_detail_n100(run_number):
 @app.route("/dropout/_dropout_detail/N20/<int:run_number>")
 def _dropout_detail_n20(run_number):
     return dropout.get_details(run_number, 2)
+
+@app.route('/scint_level')
+def scint_level():
+    run_range_low = request.args.get("run_range_low", 250000, type=int)
+    run_range_high = request.args.get("run_range_high", 0, type=int)
+
+    if run_range_high == 0:
+        run_range_high = detector_state.get_latest_run()
+
+    data = scintillator_level.get_scintillator_level(run_range_low, run_range_high)
+    for x in range(len(data)):
+        data[x]['run'] = int(data[x]['run'])
+
+    return render_template('scint_level.html', data=data, run_range_low=run_range_low, run_range_high=run_range_high)
+
