@@ -6,7 +6,7 @@
     <link rel="stylesheet" type="text/css"  href="{{ url_for('static',filename='css/metricsgraphics.css') }}">
     <link rel="stylesheet" type="text/css"  href="{{ url_for('static',filename='css/mg_line_brushing.css') }}">
 <style>
-.mg-x-axis text, .mg-y-axis text, .mg-histogram .axis text {
+.mg-y-label text, .mg-x-axis text, .mg-y-axis text, .mg-histogram .axis text {
     font-size: 1.5rem;
 }
 </style>
@@ -15,7 +15,7 @@
 {% block body %}
     {{ super() }}
 <div class="container">
-    <h2> Scintillator levels used in RAT vs run number </h2>
+    <h2> Scintillator z level (mm) used in RAT vs run number </h2>
     <div class="row">
         Run Range:
         <input type="text" id="run_range_low" value={{run_range_low}} style="width:80px;"> - 
@@ -54,7 +54,7 @@
             area: false,
             data: sdata,
             width: $('#main').width(),
-            height: 500,
+            height: url_params['height'] || 600,
             target: "#main",
             x_accessor:'run',
             y_accessor:'scint_lvl',
@@ -62,6 +62,9 @@
             point_size: 6.0,
             yax_count: 10,
             xax_count: 10,
+            y_mouseover: function(d, i) {
+                return 'Scint. z level (mm):' + my_si_format(d['scint_lvl']);
+            },
         };
 
         MG.data_graphic(params);
