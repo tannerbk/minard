@@ -5,23 +5,18 @@
     (which is linked in super()) to override it. -->
     <link rel="stylesheet" type="text/css"  href="{{ url_for('static',filename='css/metricsgraphics.css') }}">
     <link rel="stylesheet" type="text/css"  href="{{ url_for('static',filename='css/mg_line_brushing.css') }}">
-<style>
-.mg-y-label text, .mg-x-axis text, .mg-y-axis text, .mg-histogram .axis text {
-    font-size: 1.5rem;
-}
-</style>
     {{ super() }}
 {% endblock %}
 {% block body %}
     {{ super() }}
 <div class="container">
-    <h2> Scintillator z level (mm) used in RAT vs run number </h2>
     <div class="row">
         Run Range:
         <input type="text" id="run_range_low" value={{run_range_low}} style="width:80px;"> - 
         <input type="text" id="run_range_high" value={{run_range_high}} style="width:80px;"> 
         <button type=button onclick="history();">Update Plot</button>
     </div>
+    <h2> Scintillator z level (mm) used in RAT vs run number </h2>
     <div class="row">
         <div class="col-md-12" id="main">
             {% if not data %}
@@ -54,12 +49,16 @@
             area: false,
             data: sdata,
             width: $('#main').width(),
+            left: 100,
+            right: 100,
             height: url_params['height'] || 600,
             target: "#main",
             x_accessor:'run',
             y_accessor:'scint_lvl',
             min_y_from_data: true,
-            point_size: 6.0,
+            point_size: 4.0,
+            y_label: "Scintillator z level (mm)",
+            x_label: "Run number",
             yax_count: 10,
             xax_count: 10,
             y_mouseover: function(d, i) {
