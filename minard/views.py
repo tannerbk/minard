@@ -553,7 +553,7 @@ def burst():
     offset = request.args.get('offset',type=int)
     limit = request.args.get('limit',default=15,type=int)
     if offset == None:
-        return redirect("burst?limit=15&offset=0")
+        return redirect("burst?limit=25&offset=0")
     return render_template( 'burst.html', data=burst_f.load_burst_runs(offset, limit)[0], total=burst_f.load_burst_runs(offset, limit)[1], offset=burst_f.load_burst_runs(offset, limit)[2], limit=burst_f.load_burst_runs(offset, limit)[3] )
 
 @app.route('/orca-session-logs')
@@ -683,6 +683,20 @@ def get_l2():
         times = []
 
     return jsonify(files=files,times=times)
+
+@app.route('/get_SH')
+def get_SH():
+    try:
+        nhit = redis.get('l2:nhit')
+        size = redis.get('l2:size')
+        window = redis.get('l2:window')
+        rate = redis.get('l2:rate')
+        settings = [nhit,size,window,rate]
+    except ValueError:
+        # no files
+        settings = [0,0,0,0]
+
+    return jsonify(settings=settings)
 
 @app.route('/graph')
 def graph():
@@ -1728,4 +1742,3 @@ def scint_level():
     data = scintillator_level.get_scintillator_level(run_range_low, run_range_high)
 
     return render_template('scint_level.html', data=data, run_range_low=run_range_low, run_range_high=run_range_high)
-

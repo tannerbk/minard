@@ -15,15 +15,19 @@
           <table class="table table-bordered table-condensed table-striped">
               <thead>
                   <tr>
-                      <th>Run Number</th>
-                      <th>SubRun Number</th>
-                      <th>Burst Number</th>
-                      <th>Burst File Date</th>
-                      <th>Burst File Time</th>
-                      <th>ZDAB File</th>
-                      <th># Events</th>
+                      <th>Run</th>
+                      <th>SubRun</th>
+                      <th>Burst</th>
+                      <th>Burst Date</th>
                       <th>Burst Time</th>
+                      <th># Events</th>
+                      <th>Burst Length [s]</th>
                       <th>NHit(avg)</th>
+                      <th>GTID range</th>
+                      <th>SH nhit</th>
+                      <th>SH length</th>
+                      <th>SH size</th>
+                      <th>SH endrate</th>
                   </tr>
               </thead>
               <tbody>
@@ -34,10 +38,14 @@
                       <td>{{  run[1]["burst_n"] }}</td>
                       <td>{{  run[1]["date"] }}</td>
                       <td>{{  run[1]["time"] }}</td>
-                      <td>{{  run[1]["zdab_file"] }}</td>
                       <td>{{  run[1]["burst_size"] }}</td>
                       <td>{{  run[1]["burst_length"] }}</td>
                       <td>{{  run[1]["avg_nhit"] }}</td>
+                      <td>{{ run[1]["firstGTID"] }} - {{ run[1]["lastGTID"] }}</td>
+                      <td>{{  run[1]["c_nhit"] }}</td>
+                      <td>{{  run[1]["c_length"] }}</td>
+                      <td>{{  run[1]["c_size"] }}</td>
+                      <td>{{  run[1]["c_rate"] }}</td>
                   </tr>
                   {% endfor %}
               </tbody>

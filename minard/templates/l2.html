@@ -20,6 +20,7 @@
 {% block body %}
     {{ super() }}
     <div class="container">
+
         <div class="row">
             <div class="col-md-2 col-md-offset-10 text-right">
                 <select id="step-menu">
@@ -31,6 +32,44 @@
         </div>
         <div class="row">
             <div class="col-md-12" style="padding:0" id="main"></div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-12">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">Dynamic threshold</h3>
+              </div>
+              <div class="panel-body">
+                <div class="row">
+                  <div class="col-md-12">
+                    <img src="{{ url_for('static', filename="bursts/dyn_nhit.png") }}" alt="Dynamic threshold plot" class="img-responsive">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-12">
+              <table class="table table-hover">
+                  <thead>
+                      <tr>
+                          <th>NHit burst</th>
+                          <th>Burst Window</th>
+                          <th>Burst Size</th>
+                          <th>End Rate</th>
+                      </tr>
+                  </thead>
+                      <tr>
+                          <td id="nhit"> 1 </td>
+                          <td id="length"> 2 </td>
+                          <td id="size"> 3 </td>
+                          <td id="rate"> 4 </td>
+                      </tr>
+              </table>
+          </div>
         </div>
         <div class="row">
             {% for id, caption in states %}
@@ -66,5 +105,8 @@
         {% for name, _ in states %}
             update_files("{{ name }}", 20);
         {% endfor %}
+    </script>
+    <script>
+        get_SH_settings(20);
     </script>
 {% endblock %}

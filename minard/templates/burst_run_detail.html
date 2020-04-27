@@ -16,8 +16,8 @@
         <table class="table table-striped">
           <thead>
             <tr>
-              <th>Test</th>
-              <th>Status</th>
+              <th>Parameter</th>
+              <th>Value</th>
             </tr>
           </thead>
           <tbody>
@@ -42,6 +42,22 @@
               <td>{{ data["time"] }}</td>
             </tr>
             <tr>
+              <td>Date UTC</td>
+              <td>{{ data["dateUTC"] }}</td>
+            </tr>
+            <tr>
+              <td>Time UTC</td>
+              <td>{{ data["timeUTC"] }}</td>
+            </tr>
+            <tr>
+              <td>First GTID</td>
+              <td>{{ data["firstGTID"] }}</td>
+            </tr>
+            <tr>
+              <td>Last GTID</td>
+              <td>{{ data["lastGTID"] }}</td>
+            </tr>
+            <tr>
               <td>Burst length</td>
               <td>{{ data["burst_length"] }}</td>
             </tr>
@@ -60,6 +76,22 @@
             <tr>
               <td>Hits</td>
               <td>{{ data["hits"] }}</td>
+            </tr>
+            <tr>
+              <td>SH Nhit</td>
+              <td>{{ data["c_nhit"] }}</td>
+            </tr>
+            <tr>
+              <td>SH length</td>
+              <td>{{ data["c_length"] }}</td>
+            </tr>
+            <tr>
+              <td>SH size</td>
+              <td>{{ data["c_size"] }}</td>
+            </tr>
+            <tr>
+              <td>SH endrate</td>
+              <td>{{ data["c_rate"] }}</td>
             </tr>
             <tr>
               <td>ROOT file</td>
@@ -118,6 +150,26 @@
       <div class="col-md-12">
         <div class="panel panel-default">
           <div class="panel-heading">
+            <h3 class="panel-title">Time difference / Time vs NHit</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-6">
+                <img src="{{ url_for('static', filename="bursts/" + files + "/" + files + "_timeDiff.png") }}" alt="Time difference between events" class="img-responsive">
+              </div>
+              <div class="col-md-6">
+                <img src="{{ url_for('static', filename="bursts/" + files + "/" + files + "_timenhit.png") }}" alt="Time - NHit distribution" class="img-responsive">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
             <h3 class="panel-title">Crate / Card / Channel distributions</h3>
           </div>
           <div class="panel-body">
@@ -147,6 +199,9 @@
             <div class="row">
               <div class="col-md-6">
                 <img src="{{ url_for('static', filename="bursts/" + files + "/" + files + "_trigs.png") }}" alt="Triggers histogram" class="img-responsive">
+              </div>
+              <div class="col-md-6">
+                <img src="{{ url_for('static', filename="bursts/" + files + "/" + files + "_flatmap.png") }}" alt="Triggers histogram" class="img-responsive">
               </div>
             </div>
           </div>

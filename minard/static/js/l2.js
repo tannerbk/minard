@@ -14,6 +14,18 @@ function update_files(name, interval) {
     });
 }
 
+function get_SH_settings(interval) {
+  // update the current stonehenge settings loaded from redis
+
+  $.getJSON($SCRIPT_ROOT + '/get_SH').done(function(obj) {
+    var nhit_td = document.getElementById('nhit').innerHTML = obj.settings[0];
+    var size_td = document.getElementById('size').innerHTML = obj.settings[1];
+    var length_td = document.getElementById('length').innerHTML = obj.settings[2];
+    var rate_td = document.getElementById('rate').innerHTML = obj.settings[3];
+    setTimeout(function() {get_SH_settings(interval); }, interval*1000);
+  });
+}
+
 $("#step-menu").on("change", function() {
     window.location.replace($SCRIPT_ROOT + "/l2?step=" + this.value + "&height=" + url_params.height);
 });
@@ -29,7 +41,7 @@ var L2_STREAMS = ['L1','L2','ORPHANS','BURSTS'];
 
 function metric(name) {
     return context.metric(function(start, stop, step, callback) {
-        d3.json($SCRIPT_ROOT + '/metric' + 
+        d3.json($SCRIPT_ROOT + '/metric' +
                 '?expr=' + name +
                 '&start=' + start.toISOString() +
                 '&stop=' + stop.toISOString() +

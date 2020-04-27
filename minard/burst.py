@@ -14,10 +14,10 @@ def load_burst_runs(offset, limit):
     i = 0 #the counter keeps the ordering correct
     results = {}
     skip = offset
-    all = db.view('_design/burst/_view/burst_by_run', descending=False, skip=skip)
+    all = db.view('_design/burst/_view/burst_by_run', descending=True, skip=skip)
     total = all.total_rows
     offset = all.offset
-    for row in db.view('_design/burst/_view/burst_by_run', descending=False, limit=limit, skip=skip):
+    for row in db.view('_design/burst/_view/burst_by_run', descending=True, limit=limit, skip=skip):
         run = row.key[0]
         run_id = row.id
         try:
