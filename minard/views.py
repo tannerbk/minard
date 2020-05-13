@@ -551,10 +551,19 @@ def l2():
 @app.route('/burst')
 def burst():
     offset = request.args.get('offset',type=int)
-    limit = request.args.get('limit',default=15,type=int)
+    limit = request.args.get('limit',default=25,type=int)
+    search = request.args.get('search',type=str)
+    if search is not None:
+        start = request.args.get('start')
+        end = request.args.get('end')
+        if offset == None:
+            return redirect("burst?limit="+str(limit)+"&offset=0&search="+search+"&start="+str(start)+"&end="+str(end))
+        result = burst_f.load_bursts_search(search, start, end, offset, limit)
+        return render_template( 'burst.html', data=result[0], total=result[1], offset=result[2], limit=result[3], search=search, start=start, end=end)
     if offset == None:
         return redirect("burst?limit=25&offset=0")
-    return render_template( 'burst.html', data=burst_f.load_burst_runs(offset, limit)[0], total=burst_f.load_burst_runs(offset, limit)[1], offset=burst_f.load_burst_runs(offset, limit)[2], limit=burst_f.load_burst_runs(offset, limit)[3] )
+    result = burst_f.load_burst_runs(offset, limit)
+    return render_template( 'burst.html', data=result[0], total=result[1], offset=result[2], limit=result[3] )
 
 @app.route('/orca-session-logs')
 def orca_session_logs():
