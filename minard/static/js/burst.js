@@ -29,3 +29,21 @@ function validate_form() {
     }
   }
 }
+
+function fill_boxes() {
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  const search = urlParams.get('search');
+  if (search){
+    var selected = document.getElementById("search-by");
+    var value = selected.value;
+    var start = document.getElementById("start");
+    var end = document.getElementById("end");
+    if (search == "run"){i=0;}
+    else if (search == "gtid"){i=1;}
+    else if (search == "date"){i=2; start.type = "date"; end.type = "date";}
+    selected.selectedIndex = i;
+    start.value = urlParams.get('start');
+    end.value = urlParams.get('end');
+  }
+}

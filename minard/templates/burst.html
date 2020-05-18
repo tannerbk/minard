@@ -80,23 +80,23 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for run in data.items() %}
-                    <tr>
-                        <td><a href="{{ url_for('burst_run_detail', run_number=run[1]['run'], subrun=run[1]['subrun'], sub=run[1]['burst_n']) }}">{{ run[1]['run'] }}</a></td>
-                        <td>{{  run[1]["subrun"] }}</td>
-                        <td>{{  run[1]["burst_n"] }}</td>
-                        <td>{{  run[1]["date"] }}</td>
-                        <td>{{  run[1]["time"] }}</td>
-                        <td>{{  run[1]["burst_size"] }}</td>
-                        <td>{{  run[1]["burst_length"] }}</td>
-                        <td>{{  run[1]["avg_nhit"] }}</td>
-                        <td>{{ run[1]["firstGTID"] }} - {{ run[1]["lastGTID"] }}</td>
-                        <td>{{  run[1]["c_nhit"] }}</td>
-                        <td>{{  run[1]["c_length"] }}</td>
-                        <td>{{  run[1]["c_size"] }}</td>
-                        <td>{{  run[1]["c_rate"] }}</td>
-                    </tr>
-                    {% endfor %}
+                  {% for run in data %}
+                  <tr>
+                      <td><a href="{{ url_for('burst_run_detail', run_number=run['run'], subrun=run['subrun'], sub=run['burst_n']) }}">{{ run['run'] }}</a></td>
+                      <td>{{  run["subrun"] }}</td>
+                      <td>{{  run["burst_n"] }}</td>
+                      <td>{{  run["date"] }}</td>
+                      <td>{{  run["time"] }}</td>
+                      <td>{{  run["burst_size"] }}</td>
+                      <td>{{  run["burst_length"] }}</td>
+                      <td>{{  run["avg_nhit"] }}</td>
+                      <td>{{ run["firstGTID"] }} - {{ run["lastGTID"] }}</td>
+                      <td>{{  run["c_nhit"] }}</td>
+                      <td>{{  run["c_length"] }}</td>
+                      <td>{{  run["c_size"] }}</td>
+                      <td>{{  run["c_rate"] }}</td>
+                  </tr>
+                  {% endfor %}
                 </tbody>
             </table>
             {% if ( (offset > limit-1) and (search != null) ) %}
@@ -117,4 +117,5 @@
 {% endblock %}
 {% block script %}
     <script src="{{ url_for('static', filename='js/burst.js') }}"></script>
+    <script> window.onload = function() {fill_boxes();};</script>
 {% endblock %}

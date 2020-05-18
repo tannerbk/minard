@@ -11,8 +11,7 @@ def load_burst_runs(offset, limit):
     server = couchdb.Server("http://snoplus:"+app.config["COUCHDB_PASSWORD"]+"@"+app.config["COUCHDB_HOSTNAME"])
     db = server["burst"]
 
-    i = 0 #the counter keeps the ordering correct
-    results = {}
+    results = []
     skip = offset
     all = db.view('_design/burst/_view/burst_by_run', descending=True, skip=skip)
     total = all.total_rows
@@ -21,10 +20,9 @@ def load_burst_runs(offset, limit):
         run = row.key[0]
         run_id = row.id
         try:
-            results[i] = dict(db.get(run_id).items())
+            results.append(dict(db.get(run_id).items()))
         except KeyError:
             app.logger.warning("Code returned KeyError searching for burst information in the couchDB. Run Number: %d" % run)
-        i += 1
 
     return results, total, offset, limit
 
@@ -57,39 +55,42 @@ def load_bursts_search(search, start, end, offset, limit):
     server = couchdb.Server("http://snoplus:"+app.config["COUCHDB_PASSWORD"]+"@"+app.config["COUCHDB_HOSTNAME"])
     db = server["burst"]
 
-    i = 0 #the counter keeps the ordering correct
-    results = {}
+    results = []
     skip = offset
 
-    if (search == "run"):
+    if search == "run":
 
         startkey = [int(start), 0, {}]
         endkey = [int(end), {}]
 
         view = '_design/burst/_view/burst_by_run'
 
-    elif (search == "date"):
+    elif search == "date":
 
-        Syear = start[0:4]
-        Smonth = start[5:7]
-        Sday = start[8:10]
-        Eyear = end[0:4]
-        Emonth = end[5:7]
-        Eday = end[8:10]
-        if Smonth[0] == "0": Smonth = Smonth[1]
-        if Emonth[0] == "0": Emonth = Emonth[1]
-        if Sday[0] == "0": Sday = Sday[1]
-        if Eday[0] == "0": Eday = Eday[1]
-        startkey = [int(Syear), int(Smonth), int(Sday)]
-        endkey = [int(Eyear), int(Emonth), int(Eday)]
+        start_year = start[0:4]
+        start_month = start[5:7]
+        start_day = start[8:10]
+        end_year = end[0:4]
+        end_month = end[5:7]
+        end_day = end[8:10]
+        if start_month[0] == "0":
+            start_month = start_month[1]
+        if end_month[0] == "0":
+            end_month = end_month[1]
+        if start_day[0] == "0":
+            start_day = start_day[1]
+        if end_day[0] == "0":
+            end_day = end_day[1]
+        startkey = [int(start_year), int(start_month), int(start_day)]
+        endkey = [int(end_year), int(end_month), int(end_day)]
 
         view = '_design/burst/_view/burst_by_date'
 
-    elif (search == "gtid"):
+    elif search == "gtid":
 
         view = '_design/burst/_view/burst_by_GTID'
 
-    if ((search == "run") or (search == "date")):
+    if (search=="run") or (search=="date"):
         try:
             all = db.view(view, startkey=startkey, endkey=endkey, descending=False)
             total=len(all.rows)
@@ -97,43 +98,40 @@ def load_bursts_search(search, start, end, offset, limit):
             app.logger.warning("Code returned KeyError searching for burst information in the couchDB.")
 
         for row in db.view(view, startkey=startkey, endkey=endkey, descending=False, skip=skip, limit=limit):
-            if (search == "run"): run = row.key[0]
-            elif (search == "date"): run = row.value[0]
+            if search == "run": run = row.key[0]
+            elif search == "date": run = row.value[0]
             run_id = row.id
             try:
-                results[i] = dict(db.get(run_id).items())
+                results.append(dict(db.get(run_id).items()))
             except KeyError:
                 app.logger.warning("Code returned KeyError searching for burst information in the couchDB. Run Number: %d" % run)
-            i += 1
 
         return results, total, offset, limit
 
-    elif (search == "gtid"): ### because this needs to loop through all docs, skip and limit won't work here
+    elif search == "gtid": ### because this needs to loop through all docs, skip and limit won't work here
 
         for row in db.view(view, descending=False):
             startgtid = int(row.key[0])
             endgtid = int(row.key[1])
 
-            if (endgtid < startgtid): ### case for gtid roll-over
+            if endgtid < startgtid: ### case for gtid roll-over
                 if ( (int(start) >= startgtid) and (int(start) <= pow(2,24)) ) or ( (int(end) <= endgtid) and (int(end) >= 0 ) ):
                     run = row.value[0]
                     run_id = row.id
 
                     try:
-                        results[i] = dict(db.get(run_id).items())
+                        results.append(dict(db.get(run_id).items()))
                     except KeyError:
                         app.logger.warning("Code returned KeyError searching for burst information in the couchDB. Run Number: %d" % run)
-                    i += 1
             else:
-                if ( (int(start) >= startgtid) and (int(end) <= endgtid) ):
+                if (int(start) >= startgtid) and (int(end) <= endgtid):
                     run = row.value[0]
                     run_id = row.id
 
                     try:
-                        results[i] = dict(db.get(run_id).items())
+                        results.append(dict(db.get(run_id).items()))
                     except KeyError:
                         app.logger.warning("Code returned KeyError searching for burst information in the couchDB. Run Number: %d" % run)
-                    i += 1
             total = len(results)
 
         return results, total, 0, 100

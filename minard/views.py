@@ -557,13 +557,13 @@ def burst():
         start = request.args.get('start')
         end = request.args.get('end')
         if offset == None:
-            return redirect("burst?limit="+str(limit)+"&offset=0&search="+search+"&start="+str(start)+"&end="+str(end))
-        result = burst_f.load_bursts_search(search, start, end, offset, limit)
-        return render_template( 'burst.html', data=result[0], total=result[1], offset=result[2], limit=result[3], search=search, start=start, end=end)
+            return redirect("burst?limit=%i&offset=0&search=%s&start=%s&end=%s" % (limit, search, start, end))
+        data, total, offset, limit = burst_f.load_bursts_search(search, start, end, offset, limit)
+        return render_template( 'burst.html', data=data, total=total, offset=offset, limit=limit, search=search, start=start, end=end)
     if offset == None:
         return redirect("burst?limit=25&offset=0")
-    result = burst_f.load_burst_runs(offset, limit)
-    return render_template( 'burst.html', data=result[0], total=result[1], offset=result[2], limit=result[3] )
+    data, total, offset, limit = burst_f.load_burst_runs(offset, limit)
+    return render_template( 'burst.html', data=data, total=total, offset=offset, limit=limit )
 
 @app.route('/orca-session-logs')
 def orca_session_logs():
