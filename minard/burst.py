@@ -88,18 +88,20 @@ def load_bursts_search(search, start, end, offset, limit):
 
     elif search == "gtid":
 
-        view = '_design/burst/_view/burst_by_GTID'
+        view = '_design/burst/_view/burst_by_date_GTID'
 
-    if (search=="run") or (search=="date"):
+    if search == "run" or search == "date":
         try:
             all = db.view(view, startkey=startkey, endkey=endkey, descending=False)
-            total=len(all.rows)
+            total = len(all.rows)
         except:
             app.logger.warning("Code returned KeyError searching for burst information in the couchDB.")
 
         for row in db.view(view, startkey=startkey, endkey=endkey, descending=False, skip=skip, limit=limit):
-            if search == "run": run = row.key[0]
-            elif search == "date": run = row.value[0]
+            if search == "run":
+                run = row.key[0]
+            elif search == "date":
+                run = row.value[0]
             run_id = row.id
             try:
                 results.append(dict(db.get(run_id).items()))
@@ -108,11 +110,11 @@ def load_bursts_search(search, start, end, offset, limit):
 
         return results, total, offset, limit
 
-    elif search == "gtid": ### because this needs to loop through all docs, skip and limit won't work here
+    elif search == "gtid": ### this needs to loop through all documents (no start-end key) because we want GTID in range of start/end GTID
 
-        for row in db.view(view, descending=False):
-            startgtid = int(row.key[0])
-            endgtid = int(row.key[1])
+        for row in db.view(view, descending=True, limit=1000):   ### limiting search to last 1000 entries by date
+            startgtid = int(row.value[3])
+            endgtid = int(row.value[4])
 
             if endgtid < startgtid: ### case for gtid roll-over
                 if ( (int(start) >= startgtid) and (int(start) <= pow(2,24)) ) or ( (int(end) <= endgtid) and (int(end) >= 0 ) ):
