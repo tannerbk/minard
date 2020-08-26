@@ -696,14 +696,18 @@ def get_l2():
 @app.route('/get_SH')
 def get_SH():
     try:
-        nhit = redis.get('l2:nhit')
-        size = redis.get('l2:size')
+        nhit3 = redis.get('l2:nhit3')
+        nhit5 = redis.get('l2:nhit5')
+        nhit7 = redis.get('l2:nhit7')
+        nhit10 = redis.get('l2:nhit10')
         window = redis.get('l2:window')
-        rate = redis.get('l2:rate')
-        settings = [nhit,size,window,rate]
+        xwindow = redis.get('l2:xwindow')
+        ywindow = redis.get('l2:ywindow')
+        ext = redis.get('l2:extwindow')
+        settings = [nhit3,nhit5,nhit7,nhit10,window,xwindow,ywindow,ext]
     except ValueError:
         # no files
-        settings = [0,0,0,0]
+        settings = [0,0,0,0,0,0,0,0]
 
     return jsonify(settings=settings)
 
