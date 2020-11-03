@@ -73,28 +73,32 @@
                         <th>Burst Length [s]</th>
                         <th>NHit(avg)</th>
                         <th>GTID range</th>
-                        <th>SH nhit</th>
-                        <th>SH length</th>
-                        <th>SH size</th>
-                        <th>SH endrate</th>
+                        <th>SH Buffer</th>
+                        <th>SH 3Evt</th>
+                        <th>SH 5Evt</th>
+                        <th>SH 7Evt</th>
+                        <th>SH 10Evt</th>
+                        <th>SH End</th>
                     </tr>
                 </thead>
                 <tbody>
                   {% for run in data %}
                   <tr>
                       <td><a href="{{ url_for('burst_run_detail', run_number=run['run'], subrun=run['subrun'], sub=run['burst_n']) }}">{{ run['run'] }}</a></td>
-                      <td>{{  run["subrun"] }}</td>
-                      <td>{{  run["burst_n"] }}</td>
-                      <td>{{  run["date"] }}</td>
-                      <td>{{  run["time"] }}</td>
-                      <td>{{  run["burst_size"] }}</td>
-                      <td>{{  run["burst_length"] }}</td>
-                      <td>{{  run["avg_nhit"] }}</td>
-                      <td>{{ run["firstGTID"] }} - {{ run["lastGTID"] }}</td>
-                      <td>{{  run["c_nhit"] }}</td>
-                      <td>{{  run["c_length"] }}</td>
-                      <td>{{  run["c_size"] }}</td>
-                      <td>{{  run["c_rate"] }}</td>
+                      <td style="text-align: center; vertical-align: middle;">{{  run["subrun"] }}</td>
+                      <td style="text-align: center; vertical-align: middle;">{{  run["burst_n"] }}</td>
+                      <td style="text-align: center; vertical-align: middle;">{{  run["date"] }}</td>
+                      <td style="text-align: center; vertical-align: middle;">{{  run["time"] }}</td>
+                      <td style="text-align: center; vertical-align: middle;">{{  run["burst_size"] }}</td>
+                      <td style="text-align: center; vertical-align: middle;">{{  run["burst_length"] }}</td>
+                      <td style="text-align: center; vertical-align: middle;">{{  run["avg_nhit"] }}</td>
+                      <td style="text-align: center; vertical-align: middle;">{{ run["firstGTID"] }} - {{ run["lastGTID"] }}</td>
+                      <td style="text-align: center; vertical-align: middle;">{{  run["c_buffer"] }}</td>
+                      <td style="text-align: center; vertical-align: middle;">{{  run["c_nhit3"] }}</td>
+                      <td style="text-align: center; vertical-align: middle;">{{  run["c_nhit5"] }}</td>
+                      <td style="text-align: center; vertical-align: middle;">{{  run["c_nhit7"] }}</td>
+                      <td style="text-align: center; vertical-align: middle;">{{  run["c_nhit10"] }}</td>
+                      <td style="text-align: center; vertical-align: middle;">{{  run["c_flag"] }}</td>
                   </tr>
                   {% endfor %}
                 </tbody>
