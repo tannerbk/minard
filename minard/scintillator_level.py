@@ -25,3 +25,19 @@ def get_av_z_offset(run_begin, run_end):
 
     return [dict(zip(keys,row)) for row in rows]
 
+
+def get_av_rope_data(run_begin, run_end):
+
+    conn = engine_nl.connect()
+
+    result = conn.execute("SELECT run::INTEGER, avg_rope_a_reading, avg_rope_b_reading, "
+                          "avg_rope_c_reading, avg_rope_d_reading, avg_rope_e_reading, "
+                          "avg_rope_f_reading, avg_rope_g_reading FROM av_offset WHERE " 
+                          "run >= %s AND run <= %s ORDER BY run", (run_begin, run_end))
+
+    keys = map(str, result.keys())
+    rows = result.fetchall()
+
+    return [dict(zip(keys,row)) for row in rows]
+
+
