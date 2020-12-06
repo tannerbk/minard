@@ -1,5 +1,5 @@
 {% extends "layout.html" %}
-{% block title %}Scintillator Level{% endblock %}
+{% block title %}Scintillator Level and AV offset{% endblock %}
 {% block head %}
     <!-- metrics-graphics stylesheet goes above super() because we want bootstrap's style
     (which is linked in super()) to override it. -->
@@ -18,8 +18,16 @@
     </div>
     <h2> Scintillator z level (mm) used in RAT vs run number </h2>
     <div class="row">
-        <div class="col-md-12" id="main">
-            {% if not data %}
+        <div class="col-md-12" id="main-scint">
+            {% if not scint_data %}
+                <h2 align="left"> No data available </h2>
+            {% endif %}
+        </div>
+    </div>
+    <h2> AV z-offset (mm) used in RAT vs run number </h2>
+    <div class="row">
+        <div class="col-md-12" id="main-av">
+            {% if not av_data %}
                 <h2 align="left"> No data available </h2>
             {% endif %}
         </div>
@@ -42,17 +50,18 @@
             document.getElementById("run_range_high").value = url_params.run_range_high;
         }
 
-        var sdata = {{ data | safe }};
+        var sdata = {{ scint_data | safe }};
+        var adata = {{ av_data | safe }};
 
-        var params = {
+        var sparams = {
             chart_type: 'point',
             area: false,
             data: sdata,
-            width: $('#main').width(),
+            width: $('#main-scint').width(),
             left: 100,
             right: 100,
             height: url_params['height'] || 600,
-            target: "#main",
+            target: "#main-scint",
             x_accessor:'run',
             y_accessor:'scint_lvl',
             min_y_from_data: true,
@@ -66,7 +75,30 @@
             },
         };
 
-        MG.data_graphic(params);
+        var aparams = {
+            chart_type: 'point',
+            area: false,
+            data: adata,
+            width: $('#main-av').width(),
+            left: 100,
+            right: 100,
+            height: url_params['height'] || 600,
+            target: "#main-av",
+            x_accessor:'run',
+            y_accessor:'av_offset_z',
+            min_y_from_data: true,
+            point_size: 4.0,
+            y_label: "AV offset (mm)",
+            x_label: "Run number",
+            yax_count: 10,
+            xax_count: 10,
+            y_mouseover: function(d, i) {
+                return 'AV offset (mm):' + my_si_format(d['av_offset_z']);
+            },
+        };
+
+        MG.data_graphic(sparams);
+        MG.data_graphic(aparams);
 
         function history() {
             var params = {};
