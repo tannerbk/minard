@@ -1752,6 +1752,9 @@ def scint_level():
     if run_range_high == 0:
         run_range_high = detector_state.get_latest_run()
 
-    data = scintillator_level.get_scintillator_level(run_range_low, run_range_high)
+    scint_data = scintillator_level.get_scintillator_level(run_range_low, run_range_high)
+    av_data = scintillator_level.get_av_z_offset(run_range_low, run_range_high)
+    rope_data = scintillator_level.get_av_rope_data(run_range_low, run_range_high)
 
-    return render_template('scint_level.html', data=data, run_range_low=run_range_low, run_range_high=run_range_high)
+    return render_template('scint_level.html', scint_data=scint_data, av_data=av_data, rope_data=rope_data, run_range_low=run_range_low, run_range_high=run_range_high)
+
