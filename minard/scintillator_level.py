@@ -1,7 +1,9 @@
 from .db import engine_nl
 
 def get_scintillator_level(run_begin, run_end):
-
+    '''
+    Get the scintillator level from the scint_level table.
+    '''
     conn = engine_nl.connect()
 
     result = conn.execute("SELECT run::INTEGER, scint_lvl FROM scint_level WHERE " 
@@ -14,7 +16,9 @@ def get_scintillator_level(run_begin, run_end):
 
 
 def get_av_z_offset(run_begin, run_end):
-
+    '''
+    Retrieve the daily AV z-offset from the av-offset table.
+    '''
     conn = engine_nl.connect()
 
     result = conn.execute("SELECT run::INTEGER, av_offset_z FROM av_offset WHERE " 
@@ -27,7 +31,12 @@ def get_av_z_offset(run_begin, run_end):
 
 
 def get_av_rope_data(run_begin, run_end):
+    '''
+    Retrieve the rope length data from the av-offset table.
+    The rope length data are daily averages.
 
+    Note: Rope B reading is not used.
+    '''
     conn = engine_nl.connect()
 
     result = conn.execute("SELECT run::INTEGER, avg_rope_a_reading, avg_rope_b_reading, "
