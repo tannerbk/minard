@@ -105,7 +105,7 @@
             yax_count: 10,
             xax_count: 10,
             y_mouseover: function(d, i) {
-                return 'Scint. z level (mm):' + my_si_format(d['scint_lvl']);
+                return 'Scint. z level (mm):' + format_int(d['scint_lvl']);
             },
         };
 
@@ -127,7 +127,7 @@
             yax_count: 10,
             xax_count: 10,
             y_mouseover: function(d, i) {
-                return 'AV offset (mm):' + my_si_format(d['av_offset_z']);
+                return 'AV offset (mm):' + format_int(d['av_offset_z']);
             },
         };
 
@@ -145,12 +145,12 @@
             min_y_from_data: true,
             point_size: 4.0,
             title: "Rope A", 
-            y_label: "Rope A Length (m)",
+            y_label: "Rope A Length (cm)",
             x_label: "Run number",
             yax_count: 10,
             xax_count: 10,
             y_mouseover: function(d, i) {
-                return 'Rope A Length (m):' + my_si_format(d['avg_rope_a_reading']);
+                return 'Rope A Length (cm):' + format_int(d['avg_rope_a_reading']);
             },
         };
 
@@ -168,12 +168,12 @@
             min_y_from_data: true,
             point_size: 4.0,
             title: "Rope C", 
-            y_label: "Rope C Length (m)",
+            y_label: "Rope C Length (cm)",
             x_label: "Run number",
             yax_count: 10,
             xax_count: 10,
             y_mouseover: function(d, i) {
-                return 'Rope C Length (m):' + my_si_format(d['avg_rope_c_reading']);
+                return 'Rope C Length (cm):' + format_int(d['avg_rope_c_reading']);
             },
         };
 
@@ -191,12 +191,12 @@
             min_y_from_data: true,
             point_size: 4.0,
             title: "Rope D", 
-            y_label: "Rope D Length (m)",
+            y_label: "Rope D Length (cm)",
             x_label: "Run number",
             yax_count: 10,
             xax_count: 10,
             y_mouseover: function(d, i) {
-                return 'Rope D Length (m):' + my_si_format(d['avg_rope_d_reading']);
+                return 'Rope D Length (cm):' + format_int(d['avg_rope_d_reading']);
             },
         };
 
@@ -214,12 +214,12 @@
             min_y_from_data: true,
             point_size: 4.0,
             title: "Rope E",
-            y_label: "Rope E Length (m)",
+            y_label: "Rope E Length (cm)",
             x_label: "Run number",
             yax_count: 10,
             xax_count: 10,
             y_mouseover: function(d, i) {
-                return 'Rope E Length (m):' + my_si_format(d['avg_rope_e_reading']);
+                return 'Rope E Length (cm):' + format_int(d['avg_rope_e_reading']);
             },
         };
 
@@ -237,12 +237,12 @@
             min_y_from_data: true,
             point_size: 4.0,
             title: "Rope F",
-            y_label: "Rope F Length (m)",
+            y_label: "Rope F Length (cm)",
             x_label: "Run number",
             yax_count: 10,
             xax_count: 10,
             y_mouseover: function(d, i) {
-                return 'Rope F Length (m):' + my_si_format(d['avg_rope_f_reading']);
+                return 'Rope F Length (cm):' + format_int(d['avg_rope_f_reading']);
             },
         };
 
@@ -260,12 +260,12 @@
             min_y_from_data: true,
             point_size: 4.0,
             title: "Rope G",
-            y_label: "Rope G Length (m)",
+            y_label: "Rope G Length (cm)",
             x_label: "Run number",
             yax_count: 10,
             xax_count: 10,
             y_mouseover: function(d, i) {
-                return 'Rope G Length (m):' + my_si_format(d['avg_rope_g_reading']);
+                return 'Rope G Length (cm):' + format_int(d['avg_rope_g_reading']);
             },
         };
 
