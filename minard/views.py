@@ -551,10 +551,45 @@ def l2():
 @app.route('/burst')
 def burst():
     offset = request.args.get('offset',type=int)
-    limit = request.args.get('limit',default=15,type=int)
+    limit = request.args.get('limit',default=25,type=int)
+    search = request.args.get('search',type=str)
+    if search is not None:
+        start = request.args.get('start')
+        end = request.args.get('end')
+        if offset == None:
+            return redirect("burst?limit=%i&offset=0&search=%s&start=%s&end=%s" % (limit, search, start, end))
+        data, total, offset, limit = burst_f.load_bursts_search(search, start, end, offset, limit)
+        return render_template( 'burst.html', data=data, total=total, offset=offset, limit=limit, search=search, start=start, end=end)
     if offset == None:
-        return redirect("burst?limit=15&offset=0")
-    return render_template( 'burst.html', data=burst_f.load_burst_runs(offset, limit)[0], total=burst_f.load_burst_runs(offset, limit)[1], offset=burst_f.load_burst_runs(offset, limit)[2], limit=burst_f.load_burst_runs(offset, limit)[3] )
+        return redirect("burst?limit=25&offset=0")
+    data, total, offset, limit = burst_f.load_burst_runs(offset, limit)
+    return render_template( 'burst.html', data=data, total=total, offset=offset, limit=limit )
+
+@app.route('/l3')
+def l3():
+    step = request.args.get('step',3,type=int)
+    height = request.args.get('height',20,type=int)
+    data = burst_f.burst_get_cuts()
+    if not request.args.get('step') or not request.args.get('height'):
+        return redirect(url_for('l3',step=step,height=height,_external=True,data=data))
+    return render_template('l3.html',step=step,height=height,data=data)
+
+@app.route('/burst_l3')
+def burst_l3():
+    offset = request.args.get('offset',type=int)
+    limit = request.args.get('limit',default=25,type=int)
+    search = request.args.get('search',type=str)
+    if search is not None:
+        start = request.args.get('start')
+        end = request.args.get('end')
+        if offset == None:
+            return redirect("burst_l3?limit=%i&offset=0&search=%s&start=%s&end=%s" % (limit, search, start, end))
+        data, total, offset, limit = burst_f.load_bursts_search(search, start, end, offset, limit, 3)
+        return render_template( 'burst_l3.html', data=data, total=total, offset=offset, limit=limit, search=search, start=start, end=end)
+    if offset == None:
+        return redirect("burst_l3?limit=25&offset=0")
+    data, total, offset, limit = burst_f.load_burst_runs(offset, limit, 3)
+    return render_template( 'burst_l3.html', data=data, total=total, offset=offset, limit=limit )
 
 @app.route('/orca-session-logs')
 def orca_session_logs():
@@ -683,6 +718,38 @@ def get_l2():
         times = []
 
     return jsonify(files=files,times=times)
+
+@app.route('/get_l3')
+def get_l3():
+    name = request.args.get('name')
+
+    try:
+        files, times = zip(*redis.zrange('l3:%s' % name, 0, -1, withscores=True))
+    except ValueError:
+        # no files
+        files = []
+        times = []
+
+    return jsonify(files=files,times=times)
+
+@app.route('/get_SH')
+def get_SH():
+    try:
+        nhit3 = redis.get('l2:nhit3')
+        nhit5 = redis.get('l2:nhit5')
+        nhit7 = redis.get('l2:nhit7')
+        nhit10 = redis.get('l2:nhit10')
+        window = redis.get('l2:window')
+        xwindow = redis.get('l2:xwindow')
+        ywindow = redis.get('l2:ywindow')
+        ext = redis.get('l2:extwindow')
+        high = redis.get('l2:highnhit')
+        settings = [nhit3,nhit5,nhit7,nhit10,window,xwindow,ywindow,ext, high]
+    except ValueError:
+        # no files
+        settings = [0,0,0,0,0,0,0,0,0]
+
+    return jsonify(settings=settings)
 
 @app.route('/graph')
 def graph():
@@ -1310,6 +1377,10 @@ def pca_run_detail(run_number):
 def burst_run_detail(run_number, subrun, sub):
     return render_template('burst_run_detail.html', data=burst_f.burst_run_detail(run_number, subrun, sub)[0], files=burst_f.burst_run_detail(run_number, subrun, sub)[1])
 
+@app.route('/burst_run_detail_l3/<int:run_number>/<int:subrun>/<int:sub>')
+def burst_run_detail_l3(run_number, subrun, sub):
+    return render_template('burst_run_detail_l3.html', data=burst_f.burst_run_detail(run_number, subrun, sub, 3)[0], files=burst_f.burst_run_detail(run_number, subrun, sub, 3)[1])
+
 @app.route('/calibdq')
 def calibdq():
         return render_template('calibdq.html')
@@ -1728,4 +1799,3 @@ def scint_level():
     data = scintillator_level.get_scintillator_level(run_range_low, run_range_high)
 
     return render_template('scint_level.html', data=data, run_range_low=run_range_low, run_range_high=run_range_high)
-

@@ -14,6 +14,22 @@ function update_files(name, interval) {
     });
 }
 
+function get_SH_settings(interval) {
+  // update the current stonehenge settings loaded from redis
+
+  $.getJSON($SCRIPT_ROOT + '/get_SH').done(function(obj) {
+    var nhit3_td = document.getElementById('3Evt').innerHTML = obj.settings[0];
+    var nhit5_td = document.getElementById('5Evt').innerHTML = obj.settings[1];
+    var nhit7_td = document.getElementById('7Evt').innerHTML = obj.settings[2];
+    var nhit10_td = document.getElementById('10Evt').innerHTML = obj.settings[3];
+    var window_td = document.getElementById('window').innerHTML = obj.settings[4];
+    var xwindow_td = document.getElementById('pre').innerHTML = obj.settings[5];
+    var ywindow_td = document.getElementById('post').innerHTML = obj.settings[6];
+    var ext_td = document.getElementById('ext').innerHTML = obj.settings[7];
+    setTimeout(function() {get_SH_settings(interval); }, interval*1000);
+  });
+}
+
 $("#step-menu").on("change", function() {
     window.location.replace($SCRIPT_ROOT + "/l2?step=" + this.value + "&height=" + url_params.height);
 });
@@ -29,7 +45,7 @@ var L2_STREAMS = ['L1','L2','ORPHANS','BURSTS'];
 
 function metric(name) {
     return context.metric(function(start, stop, step, callback) {
-        d3.json($SCRIPT_ROOT + '/metric' + 
+        d3.json($SCRIPT_ROOT + '/metric' +
                 '?expr=' + name +
                 '&start=' + start.toISOString() +
                 '&stop=' + stop.toISOString() +

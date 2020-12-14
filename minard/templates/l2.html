@@ -20,6 +20,7 @@
 {% block body %}
     {{ super() }}
     <div class="container">
+
         <div class="row">
             <div class="col-md-2 col-md-offset-10 text-right">
                 <select id="step-menu">
@@ -32,6 +33,52 @@
         <div class="row">
             <div class="col-md-12" style="padding:0" id="main"></div>
         </div>
+
+        <div class="row">
+          <div class="col-md-12">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">Dynamic threshold</h3>
+              </div>
+              <div class="panel-body">
+                <div class="row">
+                  <div class="col-md-12">
+                    <img src="{{ url_for('static', filename="bursts/dyn_nhit.png") }}" alt="Dynamic threshold plot" class="img-responsive">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-12">
+              <table class="table table-hover">
+                  <thead>
+                      <tr>
+                          <th width="12.5%">3Evt [NHit]</th>
+                          <th width="12.5%">5Evt [NHit]</th>
+                          <th width="12.5%">7Evt [NHit]</th>
+                          <th width="12.5%">10Evt [NHit]</th>
+                          <th width="12.5%">Window [s]</th>
+                          <th width="12.5%">Pre [s]</th>
+                          <th width="12.5%">Post [s]</th>
+                          <th width="12.5%">Ext [s]</th>
+                      </tr>
+                  </thead>
+                      <tr>
+                          <td id="3Evt"> 1 </td>
+                          <td id="5Evt"> 2 </td>
+                          <td id="7Evt"> 3 </td>
+                          <td id="10Evt"> 4 </td>
+                          <td id="window"> 5 </td>
+                          <td id="pre"> 6 </td>
+                          <td id="post"> 7 </td>
+                          <td id="ext"> 8 </td>
+                      </tr>
+              </table>
+          </div>
+        </div>
         <div class="row">
             {% for id, caption in states %}
                 {% if not loop.first and loop.index0 % 3 == 0 %}
@@ -42,7 +89,7 @@
                     <table class="table table-hover" id="{{ id }}">
                         <thead>
                             <tr>
-                                <th>{{ caption }}</th>
+                                <th style="width:60%">{{ caption }}</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -66,5 +113,8 @@
         {% for name, _ in states %}
             update_files("{{ name }}", 20);
         {% endfor %}
+    </script>
+    <script>
+        get_SH_settings(20);
     </script>
 {% endblock %}
