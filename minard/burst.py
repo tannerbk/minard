@@ -1,5 +1,8 @@
 import couchdb
 from . import app
+from time import strftime
+from datetime import datetime
+import calendar
 
 def load_burst_runs(offset, limit, level=2):
     """
@@ -169,3 +172,35 @@ def burst_get_cuts():
             app.logger.warning("Code returned KeyError searching for cut document in the couchDB.")
 
     return result
+
+def burst_form_upload(run_number, subrun, sub, tick, note, name):
+    """
+    Uploads checkbox value and note field to appropriate couchdb document - this is for SN burst review.
+    """
+    server = couchdb.Server("http://snoplus:"+app.config["COUCHDB_PASSWORD"]+"@"+app.config["COUCHDB_HOSTNAME"])
+    db = server["burst_cleaning"]
+
+    startkey = [run_number, subrun, sub]
+    endkey = [run_number, subrun, sub]
+    rows = db.view('_design/burst_cleaning/_view/burst_by_run', startkey=startkey, endkey=endkey, descending=False, include_docs=True)
+    for row in rows:
+        run_id = row.id
+        try:
+            doc = dict(db.get(run_id).items())
+        except KeyError:
+            app.logger.warning("Code returned KeyError searching for burst_details information in the couchDB. Run Number: %d" % run_number)
+        try:
+            doc["checked"] = tick
+            doc["note"] = note
+            doc["reviewed_by"] = name
+            date = datetime.today().strftime("%d-%m-%Y")
+            time = datetime.today().strftime("%H-%M-%S")
+            month = calendar.month_abbr[int(date.split('-')[1])]
+            final_date = date.split('-')[0] + "-" + month + "-" + date.split('-')[2]
+            doc["review_date"] = final_date
+            doc["review_time"] = time
+            db.save(doc)
+        except KeyError:
+            app.logger.warning("Code returned KeyError appending to couchDB document. Doc ID: %s" % run_id)
+
+    return 1

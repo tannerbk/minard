@@ -75,9 +75,9 @@
                         <th style="text-align: center; vertical-align: middle;">Survived</th>
                         <th style="text-align: center; vertical-align: middle;">Length [s]</th>
                         <th style="text-align: center; vertical-align: middle;">NHit(avg)</th>
-                        <th style="text-align: center; vertical-align: middle;">GTID range</th>
-                        <th style="text-align: center; vertical-align: middle;">Buffer</th>
                         <th style="text-align: center; vertical-align: middle;">SH End</th>
+                        <th style="text-align: center; vertical-align: middle;">Check</th>
+                        <th style="text-align: center; vertical-align: middle;">Note</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -99,9 +99,9 @@
                         {% endif %}
                       <td style="text-align: center; vertical-align: middle;">{{ run["burst_length_clean"] }}</td>
                       <td style="text-align: center; vertical-align: middle;">{{ run["avg_nhit_clean"] }}</td>
-                      <td style="text-align: center; vertical-align: middle;">{{ run["firstGTID"] }} - {{ run["lastGTID"] }}</td>
-                      <td style="text-align: center; vertical-align: middle;">{{ run["c_buffer"] }}</td>
                       <td style="text-align: center; vertical-align: middle;">{{ run["c_flag"] }}</td>
+                      <td style="text-align: center; vertical-align: middle;">{{ run["checked"] }}</td>
+                      <td style="text-align: center; vertical-align: middle;">{{ run["note"] }}</td>
                   </tr>
                   {% endfor %}
                 </tbody>

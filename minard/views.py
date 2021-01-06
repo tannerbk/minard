@@ -1381,6 +1381,17 @@ def burst_run_detail(run_number, subrun, sub):
 def burst_run_detail_l3(run_number, subrun, sub):
     return render_template('burst_run_detail_l3.html', data=burst_f.burst_run_detail(run_number, subrun, sub, 3)[0], files=burst_f.burst_run_detail(run_number, subrun, sub, 3)[1])
 
+@app.route('/burst_form')
+def burst_form():
+    tick = request.args.get('review',type=int)
+    note = request.args.get('notes',type=str)
+    name = request.args.get('review_by',type=str)
+    run_number = request.args.get('run_number',type=int)
+    subrun = request.args.get('subrun',type=int)
+    sub = request.args.get('sub',type=int)
+    burst_f.burst_form_upload(run_number, subrun, sub, tick, note, name)
+    return render_template('burst_run_detail_l3.html', data=burst_f.burst_run_detail(run_number, subrun, sub, 3)[0], files=burst_f.burst_run_detail(run_number, subrun, sub, 3)[1])
+
 @app.route('/calibdq')
 def calibdq():
         return render_template('calibdq.html')

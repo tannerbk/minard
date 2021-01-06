@@ -540,5 +540,69 @@
         </div>
       </div>
     </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><b>Review</h3>
+          </div>
+          <div class="panel-body">
+            <form name="burst_form" method="get" action="/burst_form">
+              <div class="row">
+                <div class="col-md-3">
+                  <label for="review">Reviewed?</label>&emsp;&emsp;&emsp;
+                  <select id="review" name="review">
+                    {% if data["checked"] == 0 %}
+                      <option value="0" selected>Not reviewed</option>
+                      <option value="1">Algorithm</option>
+                      <option value="2">Person</option>
+                    {% elif data["checked"] == 1 %}
+                      <option value="0">Not reviewed</option>
+                      <option value="1" selected>Algorithm</option>
+                      <option value="2">Person</option>
+                    {% elif data["checked"] == 2  %}
+                      <option value="0">Not reviewed</option>
+                      <option value="1">Algorithm</option>
+                      <option value="2" selected>Person</option>
+                    {% endif %}
+                  </select>
+                  <input type="hidden" id="run_number" name="run_number" value='{{ data["run"] }}'>
+                  <input type="hidden" id="subrun" name="subrun" value='{{ data["subrun"] }}'>
+                  <input type="hidden" id="sub" name="sub" value='{{ data["burst_n"] }}'>
+                </div>
+                <div class="col-md-4">
+                  <label for="review_by">Reviewed by:</label>
+                  <input type="text" id="review_by" name="review_by" style="width:63%" value='{{ data["reviewed_by"] }}'>
+                </div>
+                <div class="col-md-5">
+                  Review date: {{ data["review_date"] }} &emsp; {{ data["review_time"] }}
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-1">
+                  <label for="notes">Notes:</label>
+                </div>
+                <div class="col-md-10">
+                  {% if data["note"]|length > 1 %}
+                    <span style="white-space: pre-line">{{ data["note"] }}<br></span>
+                    <textarea style="width:100%" id="notes" name="notes" rows="3" onkeypress="press(event)">{{ data["note"] }}</textarea>
+                  {% else %}
+                    <textarea style="width:100%" id="notes" name="notes" rows="2" onkeypress="press(event)"></textarea>
+                  {% endif %}
+                </div>
+                <div class="col-md-1">
+                  <input type="submit" value="Submit">
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
+{% endblock %}
+{% block script %}
+  <script src="{{ url_for('static', filename='js/burst_form.js') }}"></script>
 {% endblock %}
