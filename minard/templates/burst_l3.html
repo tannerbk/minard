@@ -61,6 +61,8 @@
             </div>
 
             <h3>Details</h3>
+            <small> <b>SH End:</b> 0=normal, 1=end of file reached, 2=events out of order, 3=too long </small> <br>
+            <small> <b>Check:</b> 0=not checked, 1=checked by algorithm, 2=checked by person </small>
             <table class="table table-bordered table-condensed table-striped">
                 <thead>
                     <tr>
@@ -101,7 +103,7 @@
                       <td style="text-align: center; vertical-align: middle;">{{ run["avg_nhit_clean"] }}</td>
                       <td style="text-align: center; vertical-align: middle;">{{ run["c_flag"] }}</td>
                       <td style="text-align: center; vertical-align: middle;">{{ run["checked"] }}</td>
-                      <td style="text-align: center; vertical-align: middle;">{{ run["note"] }}</td>
+                      <td style="text-align: center; vertical-align: middle;">{{ run["summary"] }}</td>
                   </tr>
                   {% endfor %}
                 </tbody>

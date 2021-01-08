@@ -173,7 +173,7 @@ def burst_get_cuts():
 
     return result
 
-def burst_form_upload(run_number, subrun, sub, tick, note, name):
+def burst_form_upload(run_number, subrun, sub, tick, summary, note, name):
     """
     Uploads checkbox value and note field to appropriate couchdb document - this is for SN burst review.
     """
@@ -191,10 +191,11 @@ def burst_form_upload(run_number, subrun, sub, tick, note, name):
             app.logger.warning("Code returned KeyError searching for burst_details information in the couchDB. Run Number: %d" % run_number)
         try:
             doc["checked"] = tick
+            doc["summary"] = summary
             doc["note"] = note
             doc["reviewed_by"] = name
             date = datetime.today().strftime("%d-%m-%Y")
-            time = datetime.today().strftime("%H-%M-%S")
+            time = datetime.today().strftime("%H:%M:%S")
             month = calendar.month_abbr[int(date.split('-')[1])]
             final_date = date.split('-')[0] + "-" + month + "-" + date.split('-')[2]
             doc["review_date"] = final_date

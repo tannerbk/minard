@@ -550,14 +550,10 @@
           <div class="panel-body">
             <form name="burst_form" method="get" action="/burst_form">
               <div class="row">
-                <div class="col-md-3">
+                <div class="col-md-4">
                   <label for="review">Reviewed?</label>&emsp;&emsp;&emsp;
                   <select id="review" name="review">
-                    {% if data["checked"] == 0 %}
-                      <option value="0" selected>Not reviewed</option>
-                      <option value="1">Algorithm</option>
-                      <option value="2">Person</option>
-                    {% elif data["checked"] == 1 %}
+                    {% if data["checked"] == 1 %}
                       <option value="0">Not reviewed</option>
                       <option value="1" selected>Algorithm</option>
                       <option value="2">Person</option>
@@ -565,6 +561,10 @@
                       <option value="0">Not reviewed</option>
                       <option value="1">Algorithm</option>
                       <option value="2" selected>Person</option>
+                    {% else %}
+                      <option value="0" selected>Not reviewed</option>
+                      <option value="1">Algorithm</option>
+                      <option value="2">Person</option>
                     {% endif %}
                   </select>
                   <input type="hidden" id="run_number" name="run_number" value='{{ data["run"] }}'>
@@ -575,8 +575,22 @@
                   <label for="review_by">Reviewed by:</label>
                   <input type="text" id="review_by" name="review_by" style="width:63%" value='{{ data["reviewed_by"] }}'>
                 </div>
-                <div class="col-md-5">
-                  Review date: {{ data["review_date"] }} &emsp; {{ data["review_time"] }}
+                <div class="col-md-4">
+                  Review date: {{ data["review_date"] }} &emsp; {{ data["review_time"] }} [local]
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-1">
+                  <label for="notes">Summary:</label>
+                </div>
+                <div class="col-md-10">
+                  {% if data["summary"]|length > 1 %}
+                    <textarea style="width:100%" id="summary" name="summary" rows="3" onkeypress="press(event)">{{ data["summary"] }}</textarea>
+                  {% else %}
+                    <textarea style="width:100%" id="summary" name="summary" rows="2" onkeypress="press(event)"></textarea>
+                  {% endif %}
+                </div>
+                <div class="col-md-1">
                 </div>
               </div>
               <div class="row">
@@ -585,7 +599,6 @@
                 </div>
                 <div class="col-md-10">
                   {% if data["note"]|length > 1 %}
-                    <span style="white-space: pre-line">{{ data["note"] }}<br></span>
                     <textarea style="width:100%" id="notes" name="notes" rows="3" onkeypress="press(event)">{{ data["note"] }}</textarea>
                   {% else %}
                     <textarea style="width:100%" id="notes" name="notes" rows="2" onkeypress="press(event)"></textarea>
