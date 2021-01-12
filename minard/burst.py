@@ -1,5 +1,6 @@
 import couchdb
 from . import app
+from .db import engine, engine_nl
 from time import strftime
 from datetime import datetime
 import calendar
@@ -205,3 +206,88 @@ def burst_form_upload(run_number, subrun, sub, tick, summary, note, name):
             app.logger.warning("Code returned KeyError appending to couchDB document. Doc ID: %s" % run_id)
 
     return 1
+
+def translator(low_bit,high_bit,trans_map,run_type):
+    """
+    Helper function to manipulate run type bits.
+    """
+    ret = []
+    for i in range(low_bit,high_bit+1):
+        if(run_type & (1<<i)):
+            if(i-low_bit >= len(trans_map)):
+                ret.append(" SPARE (???)")
+            else:
+                ret.append(" "+trans_map[i]);
+    return ret
+
+def get_run_type(run):
+    """
+    Tries to retrieve run type from postgresql, then manipulates into user readable strings.
+    Returns array of strings for Run type, Calibration type, Bits.
+    """
+    run_type_translation = {
+        0: "Maintenance",
+        1: "Transition",
+        2: "Physics",
+        3: "Deployed Source",
+        4: "External Source",
+        5: "ECA",
+        6: "Diagnostic",
+        7: "Experimental",
+        8: "Supernova"
+    }
+    calib_translation = {
+        11:"TELLIE",
+        12:"SMELLIE",
+        13:"AMELLIE",
+        14:"PCA",
+        15:"ECA Pedestal",
+        16:"ECA Time Slope"
+    }
+    detector_state_translation = {
+        21:"DCR Activity",
+        22:"Compensation Coils Off",
+        23:"PMTS Off",
+        24:"Bubblers On",
+        25:"Cavity Recirculation ON",
+        26:"SL Assay",
+        27:"Unusual Activity",
+        28:"AV Recirculation ON",
+        29:"Scint. Fill"
+    }
+
+    run_bits = [None] * 3
+    conn = engine.connect()
+    try:
+        result = conn.execute("SELECT run_type FROM run_state WHERE run = %s", run)
+
+        keys = result.keys()
+        row = result.fetchone()
+        runtype = row[0]
+
+        run_desc = translator(0, 10, run_type_translation, runtype)
+        calib_desc = translator(11, 20, calib_translation, runtype)
+        det_state_desc = translator(21, 31, detector_state_translation, runtype)
+
+        if len(run_desc) > 0:
+            run_desc_string = str(run_desc[0])
+        else:
+            run_desc_string = ""
+        if len(calib_desc) > 0:
+            calib_desc_string = str(calib_desc[0])
+        else:
+            calib_desc_string = ""
+        det_state_string = ""
+        for i in det_state_desc:
+            det_state_string += i + ", "
+
+        run_bits = [None] * 3
+        run_bits[0] = run_desc_string
+        run_bits[1] = calib_desc_string
+        run_bits[2] = det_state_string[:-2]
+    except:
+        run_bits[0] = ""
+        run_bits[1] = ""
+        run_bits[2] = ""
+
+    return run_bits

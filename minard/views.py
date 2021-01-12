@@ -1375,11 +1375,11 @@ def pca_run_detail(run_number):
 
 @app.route('/burst_run_detail/<int:run_number>/<int:subrun>/<int:sub>')
 def burst_run_detail(run_number, subrun, sub):
-    return render_template('burst_run_detail.html', data=burst_f.burst_run_detail(run_number, subrun, sub)[0], files=burst_f.burst_run_detail(run_number, subrun, sub)[1])
+    return render_template('burst_run_detail.html', data=burst_f.burst_run_detail(run_number, subrun, sub)[0], files=burst_f.burst_run_detail(run_number, subrun, sub)[1], runtype=burst_f.get_run_type(run_number))
 
 @app.route('/burst_run_detail_l3/<int:run_number>/<int:subrun>/<int:sub>')
 def burst_run_detail_l3(run_number, subrun, sub):
-    return render_template('burst_run_detail_l3.html', data=burst_f.burst_run_detail(run_number, subrun, sub, 3)[0], files=burst_f.burst_run_detail(run_number, subrun, sub, 3)[1])
+    return render_template('burst_run_detail_l3.html', data=burst_f.burst_run_detail(run_number, subrun, sub, 3)[0], files=burst_f.burst_run_detail(run_number, subrun, sub, 3)[1], runtype=burst_f.get_run_type(run_number))
 
 @app.route('/burst_form')
 def burst_form():
