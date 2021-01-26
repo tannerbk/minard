@@ -79,7 +79,7 @@ def load_bursts_search(search, start, end, offset, limit, level=2):
 
     if search == "run":
 
-        startkey = [int(start), 0, {}]
+        startkey = [int(start), 0, 0]
         endkey = [int(end), {}]
 
         view = '_design/'+view_string+'/_view/burst_by_run'
