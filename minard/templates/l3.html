@@ -23,222 +23,55 @@
 
     <div class="row">
       <div class="col-md-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title" style="text-align: center">Supernova Burst Trigger - Level 3</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-12" style="text-align: center">
+                Level 3 is a continuation of the Supernova burst detection.<br>
+                Data cleaning is applied to bursts as well as basic analysis.<br>
+                Additionally, burst classification occurs at this step.<br>
+                There is a focus on the surviving high NHit events.<br><br>
+                <i>The goal is to validate whether burst is "Supernova-like".</i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
         <table class="table table-hover">
           <thead>
           <tr>
-          <th width="50%" style="text-align:right">Cut type</th>
-          <th width="50%">Applied?</th>
+          <th width="10%">Status</th>
+          <th width="90%">Cuts</th>
           </tr>
           </thead>
 
           <tr>
-            <td style="text-align:right"> nothingcut </td>
-            <td> {% if data["nothingcut"] == 1 %}
-            &#9989;
-            {% else %}
-            &#10060;
-            {% endif %} </td>
+            <td> &#9989; Applied: </td>
+            <td>
+              {% for cut in data[0][:-1] %}
+                {{ cut }},
+              {% endfor %}
+              {{ data[0][-1] }}
+            </td>
           </tr>
+
           <tr>
-            <td style="text-align:right"> nhitcut </td>
-            <td> {% if data["nhitcut"] == 1 %}
-            &#9989;
-            {% else %}
-            &#10060;
-            {% endif %} </td>
+            <td> &#10060; Not Applied: </td>
+            <td>
+              {% for cut in data[1][:-1] %}
+                {{ cut }},
+              {% endfor %}
+              {{ data[1][-1] }}
+            </td>
           </tr>
-          <tr>
-            <td style="text-align:right"> zerozerocut </td>
-            <td> {% if data["zerozerocut"] == 1 %}
-            &#9989;
-            {% else %}
-            &#10060;
-            {% endif %} </td>
-          </tr>
-          <tr>
-            <td style="text-align:right"> ringoffire </td>
-            <td> {% if data["ringoffire"] == 1 %}
-            &#9989;
-            {% else %}
-            &#10060;
-            {% endif %} </td>
-          </tr>
-          <tr>
-            <td style="text-align:right"> crateisotropy </td>
-            <td> {% if data["crateisotropy"] == 1 %}
-            &#9989;
-            {% else %}
-            &#10060;
-            {% endif %} </td>
-          </tr>
-          <tr>
-            <td style="text-align:right"> flashergeocut </td>
-            <td> {% if data["flashergeocut"] == 1 %}
-            &#9989;
-            {% else %}
-            &#10060;
-            {% endif %} </td>
-          </tr>
-          <tr>
-            <td style="text-align:right"> neckcut </td>
-            <td> {% if data["neckcut"] == 1 %}
-            &#9989;
-            {% else %}
-            &#10060;
-            {% endif %} </td>
-          </tr>
-          <tr>
-            <td style="text-align:right"> junkcut </td>
-            <td> {% if data["junkcut"] == 1 %}
-            &#9989;
-            {% else %}
-            &#10060;
-            {% endif %} </td>
-          </tr>
-          <tr>
-            <td style="text-align:right"> qcluster </td>
-            <td> {% if data["qcluster"] == 1 %}
-            &#9989;
-            {% else %}
-            &#10060;
-            {% endif %} </td>
-          </tr>
-          <tr>
-            <td style="text-align:right"> qvt </td>
-            <td> {% if data["qvt"] == 1 %}
-            &#9989;
-            {% else %}
-            &#10060;
-            {% endif %} </td>
-          </tr>
-          <tr>
-            <td style="text-align:right"> qvnhit </td>
-            <td> {% if data["qvnhit"] == 1 %}
-            &#9989;
-            {% else %}
-            &#10060;
-            {% endif %} </td>
-          </tr>
-          <tr>
-            <td style="text-align:right"> thresholdflashercut </td>
-            <td> {% if data["thresholdflashercut"] == 1 %}
-            &#9989;
-            {% else %}
-            &#10060;
-            {% endif %} </td>
-          </tr>
-          <tr>
-            <td style="text-align:right"> caencut </td>
-            <td> {% if data["caencut"] == 1 %}
-            &#9989;
-            {% else %}
-            &#10060;
-            {% endif %} </td>
-          </tr>
-          <tr>
-            <td style="text-align:right"> muontag </td>
-            <td> {% if data["muontag"] == 1 %}
-            &#9989;
-            {% else %}
-            &#10060;
-            {% endif %} </td>
-          </tr>
-          <tr>
-            <td style="text-align:right"> tpmuonfollowercut </td>
-            <td> {% if data["tpmuonfollowercut"] == 1 %}
-            &#9989;
-            {% else %}
-            &#10060;
-            {% endif %} </td>
-          </tr>
-          <tr>
-            <td style="text-align:right"> missedmuonfollower </td>
-            <td> {% if data["missedmuonfollower"] == 1 %}
-            &#9989;
-            {% else %}
-            &#10060;
-            {% endif %} </td>
-          </tr>
-          <tr>
-            <td style="text-align:right"> missedcountburstcut </td>
-            <td> {% if data["missedcountburstcut"] == 1 %}
-            &#9989;
-            {% else %}
-            &#10060;
-            {% endif %} </td>
-          </tr>
-          <tr>
-            <td style="text-align:right"> missingcaendata </td>
-            <td> {% if data["missingcaendata"] == 1 %}
-            &#9989;
-            {% else %}
-            &#10060;
-            {% endif %} </td>
-          </tr>
-          <tr>
-            <td style="text-align:right"> itctimespreadcut </td>
-            <td> {% if data["itctimespreadcut"] == 1 %}
-            &#9989;
-            {% else %}
-            &#10060;
-            {% endif %} </td>
-          </tr>
-          <tr>
-            <td style="text-align:right"> ftscut </td>
-            <td> {% if data["ftscut"] == 1 %}
-            &#9989;
-            {% else %}
-            &#10060;
-            {% endif %} </td>
-          </tr>
-          <tr>
-            <td style="text-align:right"> prescalecut </td>
-            <td> {% if data["prescalecut"] == 1 %}
-            &#9989;
-            {% else %}
-            &#10060;
-            {% endif %} </td>
-          </tr>
-          <tr>
-            <td style="text-align:right"> owlcut </td>
-            <td> {% if data["owlcut"] == 1 %}
-            &#9989;
-            {% else %}
-            &#10060;
-            {% endif %} </td>
-          </tr>
-          <tr>
-            <td style="text-align:right"> atmospheric </td>
-            <td> {% if data["atmospheric"] == 1 %}
-            &#9989;
-            {% else %}
-            &#10060;
-            {% endif %} </td>
-          </tr>
-          <tr>
-            <td style="text-align:right"> emptycrate </td>
-            <td> {% if data["emptycrate"] == 1 %}
-            &#9989;
-            {% else %}
-            &#10060;
-            {% endif %} </td>
-          </tr>
-          <tr>
-            <td style="text-align:right"> pollingcut </td>
-            <td> {% if data["pollingcut"] == 1 %}
-            &#9989;
-            {% else %}
-            &#10060;
-            {% endif %} </td>
-          </tr>
-          <tr>
-            <td style="text-align:right"> pedcut </td>
-            <td> {% if data["pedcut"] == 1 %}
-            &#9989;
-            {% else %}
-            &#10060;
-            {% endif %} </td>
-          </tr>
+
         </table>
       </div>
     </div>

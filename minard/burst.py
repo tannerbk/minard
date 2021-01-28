@@ -160,6 +160,7 @@ def burst_get_cuts():
     """
     Returns a dictionary of cleaning cuts that are applied, loaded from specific couchdb document.
     """
+    data=[[],[]]
     server = couchdb.Server("http://snoplus:"+app.config["COUCHDB_PASSWORD"]+"@"+app.config["COUCHDB_HOSTNAME"])
     db = server["burst_cleaning"]
 
@@ -168,10 +169,19 @@ def burst_get_cuts():
         doc_id = row.id
         try:
             result = dict(db.get(doc_id).items())
+            key_list = list(result.keys())
+            val_list = list(result.values())
+            for i in range (0,len(key_list)-1):
+                if key_list[i] not in ["_rev", "_id", "type"]:
+                    if val_list[i] == 1:
+                        data[0].append( key_list[i] )
+                    else:
+                        data[1].append( key_list[i] )
+
         except KeyError:
             app.logger.warning("Code returned KeyError searching for cut document in the couchDB.")
 
-    return result
+    return data
 
 def burst_form_upload(run_number, subrun, sub, tick, summary, note, name):
     """
@@ -206,25 +216,12 @@ def burst_form_upload(run_number, subrun, sub, tick, summary, note, name):
 
     return 1
 
-def translator(low_bit,high_bit,trans_map,run_type):
-    """
-    Helper function to manipulate run type bits.
-    """
-    ret = []
-    for i in range(low_bit,high_bit+1):
-        if(run_type & (1<<i)):
-            if(i-low_bit >= len(trans_map)):
-                ret.append(" SPARE (???)")
-            else:
-                ret.append(" "+trans_map[i]);
-    return ret
-
 def get_run_type(run):
     """
     Tries to retrieve run type from postgresql, then manipulates into user readable strings.
     Returns array of strings for Run type, Calibration type, Bits.
     """
-    run_type_translation = {
+    trans_map = {
         0: "Maintenance",
         1: "Transition",
         2: "Physics",
@@ -233,17 +230,13 @@ def get_run_type(run):
         5: "ECA",
         6: "Diagnostic",
         7: "Experimental",
-        8: "Supernova"
-    }
-    calib_translation = {
+        8: "Supernova",
         11:"TELLIE",
         12:"SMELLIE",
         13:"AMELLIE",
         14:"PCA",
         15:"ECA Pedestal",
-        16:"ECA Time Slope"
-    }
-    detector_state_translation = {
+        16:"ECA Time Slope",
         21:"DCR Activity",
         22:"Compensation Coils Off",
         23:"PMTS Off",
@@ -255,38 +248,24 @@ def get_run_type(run):
         29:"Scint. Fill"
     }
 
-    run_bits = [None] * 3
     conn = engine.connect()
+    run_string = ""
     try:
         result = conn.execute("SELECT run_type FROM run_state WHERE run = %s", run)
+        runtype = result.fetchone()
+        run_string = ""
 
-        keys = result.keys()
-        row = result.fetchone()
-        runtype = row[0]
+        if runtype is not None:
+            runtype = runtype[0]
+            for i in range(30):
+                if (runtype & (1<<i)):
+                    if i not in trans_map:
+                        run_string += "SPARE"
+                    else:
+                        run_string += str(trans_map[i])
+                    run_string += ", "
+            run_string = run_string[:-2]
+    except KeyError:
+        run_string = ""
 
-        run_desc = translator(0, 10, run_type_translation, runtype)
-        calib_desc = translator(11, 20, calib_translation, runtype)
-        det_state_desc = translator(21, 31, detector_state_translation, runtype)
-
-        if len(run_desc) > 0:
-            run_desc_string = str(run_desc[0])
-        else:
-            run_desc_string = ""
-        if len(calib_desc) > 0:
-            calib_desc_string = str(calib_desc[0])
-        else:
-            calib_desc_string = ""
-        det_state_string = ""
-        for i in det_state_desc:
-            det_state_string += i + ", "
-
-        run_bits = [None] * 3
-        run_bits[0] = run_desc_string
-        run_bits[1] = calib_desc_string
-        run_bits[2] = det_state_string[:-2]
-    except:
-        run_bits[0] = ""
-        run_bits[1] = ""
-        run_bits[2] = ""
-
-    return run_bits
+    return run_string

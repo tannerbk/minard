@@ -48,18 +48,8 @@
                     </tr>
                     <tr>
                       <td>Run type</td>
-                      <td>{{ runtype[0] }}</td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <td>Calibration</td>
-                      <td>{{ runtype[1] }}</td>
-                      <td>Type of calibration (if any)</td>
-                    </tr>
-                    <tr>
-                      <td>Bits</td>
-                      <td>{{ runtype[2] }}</td>
-                      <td>Corresponding run bits</td>
+                      <td>{{ runtype }}</td>
+                      <td>Type of run, calibration, run bits</td>
                     </tr>
                     <tr>
                       <td>Date</td>
@@ -89,7 +79,7 @@
                     <tr>
                       <td>SH End</td>
                       <td>{{ data["c_flag"] }}</td>
-                      <td>Burst end condition (0:normal,1:EoF reached,2:out of order,3:too long) </td>
+                      <td>Burst end condition (0:normal,1:EoF reached,2:out of order,3:too long,4:clock jumps)</td>
                     </tr>
                     <tr>
                       <td>Total entries</td>
