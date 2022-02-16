@@ -46,22 +46,22 @@
                     {% endfor %}
                     </ul>
                 {% endif %}
-                <h4> FEC Status </h4>
-                {% if fec_messages | length == 0 %}
-                    <p>No issues!
-                {% else %}
-                    <ul>
-                    {% for message in fec_messages %}
-                        <li>{{ message }}
-                    {% endfor %}
-                    </ul>
-                {% endif %}
                 <h4> Crate Status </h4>
                 {% if off_messages | length == 0 %}
                     <p>No issues!
                 {% else %}
                     <ul>
                     {% for message in off_messages %}
+                        <li>{{ message }}
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+                <h4> FEC Status </h4>
+                {% if fec_messages | length == 0 %}
+                    <p>No issues!
+                {% else %}
+                    <ul>
+                    {% for message in fec_messages %}
                         <li>{{ message }}
                     {% endfor %}
                     </ul>

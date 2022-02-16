@@ -252,7 +252,6 @@ def get_detector_state_check(run=0):
     nominal_settings = get_nominal_settings_for_run(run)
     mtc_key = run_state['mtc']
     tubii_key = run_state['tubii']
-    caen_key = run_state['caen']
 
     channels = []
     trig_messages = []
@@ -373,7 +372,7 @@ def get_detector_state_check(run=0):
                     trig_messages.append("Warning: TUBII channels %s are in non-attentuating mode"\
                         % str(attenuated_channels)[1:-1])
 
-    caen_state = get_caen_state(caen_key)
+    caen_state = get_caen_state(run)
 
     if caen_state is None:
         trig_messages.append("CAEN settings are unknown.")
@@ -398,14 +397,16 @@ def get_detector_state_check(run=0):
 
         xl3_mode = detector_state[crate]['xl3_mode']
         if xl3_mode == 1:
-            hv_messages.append("crate %i is in init mode" % crate)
+            off_messages.append("crate %i is in init mode" % crate)
 
         hv_on = detector_state[crate]['hv_a_on'] == True
         if not hv_on:
             hv_messages.append("crate %i HV is off" % crate)
+            off_messages.append("crate %i HV is off" % crate)
 
         if crate == 16 and not detector_state[crate]['hv_b_on']:
             hv_messages.append("OWL HV is off")
+            off_messages.append("OWL HV is off")
 
         hv_relay_mask1 = detector_state[crate]['hv_relay_mask1']
         hv_relay_mask2 = detector_state[crate]['hv_relay_mask2']
