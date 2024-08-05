@@ -41,6 +41,7 @@
             <th> Pulsed trigger enabled </th>
             <th> Pulser rate </th>
             <th> Calibration delay </th>
+	    <th> Prescale </th>
           </tr>
           <tr>
             <td> {{ ptb['mtca_enabled'] }} </td>
@@ -50,6 +51,7 @@
             <td> {{ ptb['pulser_enabled'] }} </td>
             <td> {{ ptb['pulser_rate'] }} </td>
             <td> {{ ptb['calibration_delay']*16 }} </td>
+	    <td> {{ ptb['prescale'] }} </td>
           </tr>
         </table>
       </div>
@@ -70,7 +72,7 @@
             <td> {{ caen[0]['name'] }} </td>
             <td> {{ caen[0]['external_trigger_enable'] }} </td>
             <td> {{ caen[0]['record_length']*2.0 }} </td>
-            <td> {{ caen[0]['post_trigger']*2.0 }} </td>
+            <td> {{ caen[0]['post_trigger']*8.0 }} </td>
             <td>
             {% for i in range (caen[0]['enabled']|length) %}
               {% if caen[0]['enabled'][i] == False %}

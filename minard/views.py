@@ -18,7 +18,7 @@ from minard.high_voltage import get_all_hvs
 
 TRIGGER_NAMES = ['100L', '100M', '100H']
 RUN_TYPES = {0: 'Diagnostic', 1: 'Physics', 2: 'Fiber calibration', 3: 'Deployed calibration'}
-SOURCE_TYPES = {0: 'Laserball', 1: 'AmBe', 2: 'PuBe', 3: '137Cs', 4: 'Directional'}
+SOURCE_TYPES = {0: 'Laserball', 1: 'AmBe', 2: 'PuBe', 3: '137Cs', 4: 'Directional Sr-90', 5: 'Directional Ru-106', 6: 'Thorium', 7: 'Cherenkov'}
 
 
 redis = Redis(decode_responses=True)
