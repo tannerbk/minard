@@ -183,6 +183,7 @@ def detector():
     return render_template('detector.html')
 
 CHANNELS = np.arange(16*17)
+SENSORS = 1+np.arange(24) # SZ
 
 @app.route('/query')
 @nocache
@@ -192,6 +193,9 @@ def query():
     if name == 'dispatcher':
         return jsonify(name=redis.get('dispatcher'))
 
+    if name == 'scdispatcher':
+        return jsonify(name=redis.get('scdispatcher'))
+ 
     if 'nhit' in name:
         seconds = request.args.get('seconds',type=int)
 
@@ -203,7 +207,7 @@ def query():
         nhit = map(int,sum(p.execute(),[]))
         return jsonify(value=nhit)
 
-    if name in ('occupancy','cmos','base'):
+    if name in ('occupancy','cmos','base','slowcontrols'):
         now = int(time.time())
         step = request.args.get('step',60,type=int)
 
@@ -234,7 +238,13 @@ def query():
             len_ = redis.hmget('ts:%i:%i:%s:len' % (interval,i,name),CHANNELS)
 
             values = list(map(div,sum_,len_))
-        else:
+        elif name == 'slowcontrols':
+            # returns list of average data for sensors 1-24
+            sum_ = redis.hmget('ts:%i:%i:%s:sum' % (interval,i,name),SENSORS)
+            len_ = redis.hmget('ts:%i:%i:%s:len' % (interval,i,name),SENSORS)
+
+            values = list(map(div,sum_,len_))
+        else: # (occupancy)
             hits = redis.hmget('ts:%i:%i:occupancy:hits' % (interval,i), CHANNELS)
             count = int(redis.get('ts:%i:%i:occupancy:count' % (interval,i)))
             if count > 0:
