@@ -49,3 +49,17 @@ def get_eos_settings(key, tab):
 
     return [dict(zip(keys, row)) for row in rows]
 
+def get_channel_status(board):
+    '''
+    Returns the channel status for all channels
+    '''
+    conn = engine.connect()
+
+    result = conn.execute(text("SELECT * FROM current_channel_status WHERE board=%d ORDER BY channel ASC" % (board)))
+
+    keys = result.keys()
+    rows = result.fetchall()
+
+    conn.close()
+
+    return [dict(zip(keys, row)) for row in rows]
