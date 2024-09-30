@@ -13,7 +13,7 @@ from minard.tools import parseiso, total_seconds
 from minard.timeseries import get_timeseries, get_interval, get_hash_timeseries
 from minard.timeseries import get_timeseries_field, get_hash_interval
 from minard.timeseries import get_cavity_temp
-from minard.eos import get_eos_runs, get_eos_settings, get_gold_runs
+from minard.eos import get_eos_runs, get_eos_settings, get_gold_runs, get_channel_status
 from minard.high_voltage import get_all_hvs
 
 TRIGGER_NAMES = ['100L', '100M', '100H']
@@ -372,6 +372,15 @@ def eos_runs():
         timestamps.append(str(data[i]['timestamp'])[:19])
 
     return render_template('eos_runs.html', data=data, timestamps=timestamps, run_type=RUN_TYPES, source_type=SOURCE_TYPES)
+
+@app.route("/channel_status")
+def channel_status():
+    board = request.args.get("board", 0, type=int)
+
+    data = get_channel_status(board)
+
+    return render_template('channel_status.html', data=data)
+
 
 @app.route("/eos_run")
 def eos_run():
