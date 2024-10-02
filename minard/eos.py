@@ -63,3 +63,19 @@ def get_channel_status(board):
     conn.close()
 
     return [dict(zip(keys, row)) for row in rows]
+
+def get_hvss_thresholds(crate, board):
+    '''
+    Returns the hvss thresholds for all channels
+    '''
+    conn = engine.connect()
+
+    result = conn.execute(text("SELECT * FROM current_hvss_thresholds WHERE crate=%d AND board=%d ORDER BY channel ASC" % (crate, board)))
+
+    keys = result.keys()
+    rows = result.fetchall()
+
+    conn.close()
+
+    return [dict(zip(keys, row)) for row in rows]
+

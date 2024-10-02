@@ -13,7 +13,7 @@ from minard.tools import parseiso, total_seconds
 from minard.timeseries import get_timeseries, get_interval, get_hash_timeseries
 from minard.timeseries import get_timeseries_field, get_hash_interval
 from minard.timeseries import get_cavity_temp
-from minard.eos import get_eos_runs, get_eos_settings, get_gold_runs, get_channel_status
+from minard.eos import get_eos_runs, get_eos_settings, get_gold_runs, get_channel_status, get_hvss_thresholds
 from minard.high_voltage import get_all_hvs
 
 TRIGGER_NAMES = ['100L', '100M', '100H']
@@ -370,6 +370,15 @@ def channel_status():
     data = get_channel_status(board)
 
     return render_template('channel_status.html', data=data)
+
+@app.route("/hvss_thresholds")
+def hvss_thresholds():
+    crate = request.args.get("crate", 0, type=int)
+    board = request.args.get("board", 0, type=int)
+
+    data = get_hvss_thresholds(crate, board)
+
+    return render_template('hvss_thresholds.html', data=data)
 
 
 @app.route("/eos_run")
