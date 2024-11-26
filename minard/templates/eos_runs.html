@@ -31,8 +31,13 @@
             <td> {{ timestamps[i] }} </td>
             <td> {{ data[i]['run_number'] }} </td>
             <td> {{ run_type[data[i]['run_type']] }} </td>
-            <td> {{ data[i]['events']/17 }} </td>
-            <td> {{ data[i]['files'] }} </td>
+	    {% if data[i]['events'] == 1 %}
+	      <td> N/A (Builder run) </td>
+	      <td> N/A </td>
+	   {% else %}
+              <td> {{ data[i]['events']/17 }} </td>
+	      <td> {{ data[i]['files'] }} </td>
+           {% endif %}
             {% if data[i]['run_type'] == 3 %}
               {% if data[i]['source_type'] == 0 %}
 	        <td> {{ source_type[data[i]['source_type']] }} ({{ data[i]['laserball_size'] }} mm, {{ data[i]['laser_wavelength'] }} nm) </td>
