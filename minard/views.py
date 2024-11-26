@@ -16,9 +16,19 @@ from minard.timeseries import get_cavity_temp
 from minard.eos import get_eos_runs, get_eos_settings, get_gold_runs, get_channel_status, get_hvss_thresholds
 from minard.high_voltage import get_all_hvs
 
-TRIGGER_NAMES = ['100L', '100M', '100H']
+TRIGGER_NAMES = [
+'Pulsed trigger',
+'Any MTCA',
+'High energy veto',
+'Directional source + MTCA',
+'Directional source',
+'AmBe Prompt',
+'AmBe Delayed',
+'Dir follower, prompt',
+'Dir follower, delayed'
+]
 RUN_TYPES = {0: 'Diagnostic', 1: 'Physics', 2: 'Fiber calibration', 3: 'Deployed calibration'}
-SOURCE_TYPES = {0: 'Laserball', 1: 'AmBe', 2: 'PuBe', 3: '137Cs', 4: 'Directional Sr-90', 5: 'Directional Ru-106', 6: 'Thorium', 7: 'Cherenkov'}
+SOURCE_TYPES = {0: 'Laserball', 1: 'AmBe', 2: 'PuBe', 3: '137Cs', 4: 'Directional Sr-90', 5: 'Directional Ru-106', 6: 'Thorium', 7: 'Cherenkov UVT', 8: 'Cherenkov UVA Stycast', 9: 'Cherenkov UVA Reynolds'}
 
 
 redis = Redis(decode_responses=True)
@@ -149,10 +159,18 @@ def get_status():
 @app.route('/cavity-temp')
 def cavity_temp():
     if len(request.args) == 0:
-        return redirect(url_for('cavity_temp',step=867,height=20,_external=True))
+        return redirect(url_for('cavity_temp',step=90,height=50,_external=True))
     step = request.args.get('step',1,type=int)
     height = request.args.get('height',40,type=int)
     return render_template('cavity_temp.html',step=step,height=height,_external=True)
+
+@app.route('/cavity-leak')
+def cavity_leak():
+    if len(request.args) == 0:
+        return redirect(url_for('cavity_leak',step=90,height=50,_external=True))
+    step = request.args.get('step',1,type=int)
+    height = request.args.get('height',40,type=int)
+    return render_template('cavity_leak.html',step=step,height=height,_external=True)
 
 @app.route('/digitizer')
 def digitizer():
@@ -184,6 +202,12 @@ def detector():
 
 CHANNELS = np.arange(16*17)
 SENSORS = 1+np.arange(24) # SZ
+
+@app.route('/nhit')
+def nhit():
+    if not request.args.get("name"):
+        return redirect(url_for('nhit', name='all'))
+    return render_template('nhit.html',name=request.args.get("name","all"))
 
 @app.route('/query')
 @nocache
@@ -285,7 +309,21 @@ def metric_hash():
 def get_metric(expr, start, stop, step):
     if expr.split('-')[0] == 'temp':
         sensor = int(expr.split('-')[1])
-        values = get_cavity_temp(sensor, start, stop, step)
+        if sensor in SENSORS[:16]:
+            values = get_timeseries_field('temp',sensor,start,stop,step)
+            values = [float(value) if value is not None else None for value in values] # convert strings to floats (???)
+        else:
+            raise ValueError('unknown sensor ID %s' % sensor)
+    elif expr.split('-')[0] == 'depth':
+        sensor = int(expr.split('-')[1])
+        if sensor in SENSORS[16:18]:
+            values = get_timeseries_field('depth',sensor,start,stop,step)
+            values = [float(value) if value is not None else None for value in values] # convert strings to floats (???)
+    elif expr.split('-')[0] == 'leak':
+        sensor = int(expr.split('-')[1])
+        if sensor in SENSORS[18:24]:
+            values = get_timeseries_field('leak',sensor,start,stop,step)
+            values = [float(value) if value is not None else None for value in values] # convert strings to floats (???) 
     elif expr in ('run'):
         values = get_timeseries_field('trig', expr, start, stop, step)
     elif 'heartbeat' in expr:

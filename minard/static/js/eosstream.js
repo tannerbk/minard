@@ -1,10 +1,16 @@
 $("#step-menu").on("change", function() {
-    window.location.replace($SCRIPT_ROOT + "/snostream?step=" + this.value + "&height=" + height);
+    window.location.replace($SCRIPT_ROOT + "/eosstream?step=" + this.value + "&height=" + height);
 });
 
 setInterval(function() {
     $.getJSON($SCRIPT_ROOT + '/query', {'name': 'dispatcher'}, function(reply) {
         $('#dispatcher').text(reply.name);
+    });
+},1000);
+
+setInterval(function() {
+    $.getJSON($SCRIPT_ROOT + '/query', {'name': 'scdispatcher'}, function(reply) {
+        $('#scdispatcher').text(reply.name);
     });
 },1000);
 
@@ -31,7 +37,7 @@ function stopMonitor() {
 }
 var context = create_context('#main', step);
 
-var TRIGGER_NAMES = ['TOTAL','100L','100M','100H'];
+var TRIGGER_NAMES = ['TOTAL','Pulsed trigger','Any MTCA','High energy veto','Directional source + MTCA','Directional source','AmBe Prompt','AmBe Delayed','Dir follower, prompt','Dir follower, delayed'];
 
 function metric(name) {
     var display = name;
@@ -99,12 +105,16 @@ function add_baseline_horizon(expressions, format, colors, extent, baseline, mv_
 }
 
 add_horizon(TRIGGER_NAMES,format_rate);
-add_horizon(["run"],format_int,[]);
-add_horizon(["heartbeat"],format_int,null,[0,4]);
-add_horizon(["Temperature"],format_temp,null,[0,4]);
-add_horizon(["Water"],format_water,null,[0,4]);
-add_horizon(["data_rate"],format_rate, null,[0,4]);
+add_horizon(["TOTAL-nhit","TOTAL-charge"], format('.2s'));
+add_horizon(["gtid"],format_int,[]);
+//add_horizon(["run"],format_int,[]);
+//add_horizon(["heartbeat"],format_int,null,[0,4]);
+//add_horizon(["Temperature"],format_temp,null,[0,4]);
+//add_horizon(["Water"],format_water,null,[0,4]);
+//add_horizon(["data_rate"],format_rate, null,[0,4]);
 add_horizon(["d0_ch0_mean"],format_rate, null,[0,4]);
+add_horizon(["temp-16"],format_temp, null,[0,4]);
+add_horizon(["leak-19"],format_water, null,[0,4]);
 context.on("focus", function(i) {
   d3.selectAll(".value").style("right", i === null ? null : context.size() - i + "px");
 });
