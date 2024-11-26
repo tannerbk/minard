@@ -8,7 +8,7 @@ def get_gold_runs():
     '''
     conn = engine.connect()
 
-    result = conn.execute(text("SELECT * FROM gold_runs ORDER BY run_number ASC"))
+    result = conn.execute(text("SELECT * FROM gold_runs ORDER BY run_number DESC"))
 
     keys = result.keys()
     rows = result.fetchall()
