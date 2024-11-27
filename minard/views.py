@@ -13,7 +13,7 @@ from minard.tools import parseiso, total_seconds
 from minard.timeseries import get_timeseries, get_interval, get_hash_timeseries
 from minard.timeseries import get_timeseries_field, get_hash_interval
 from minard.timeseries import get_cavity_temp
-from minard.eos import get_eos_runs, get_eos_settings, get_gold_runs, get_channel_status, get_hvss_thresholds
+from minard.eos import get_eos_runs, get_eos_settings, get_gold_runs, get_channel_status, get_hvss_thresholds, get_trigger_threshold
 from minard.high_voltage import get_all_hvs
 
 TRIGGER_NAMES = [
@@ -435,6 +435,8 @@ def eos_run():
 
     data = get_eos_settings(key, 'run_settings')
     data = data[0]
+    run_number = data['run_number']
+    trigger_thresh = float(data['trig_thresh'])/1000.0
 
     hvs = []
     for i in range(6):
@@ -453,7 +455,11 @@ def eos_run():
 
     ptb = get_eos_settings(int(data["ptb"]), 'ptb')[0]
 
-    return render_template('eos_run.html', data=data, hvs=hvs, caens=caens, hvsss=hvsss, ptb=ptb)
+    trigger_threshold = get_trigger_threshold(run_number)
+    if not trigger_threshold:
+        trigger_threshold = [{'trigger_name': 'MTCA Low', 'threshold': trigger_thresh}]
+
+    return render_template('eos_run.html', data=data, hvs=hvs, caens=caens, hvsss=hvsss, ptb=ptb, trigger_threshold=trigger_threshold)
 
 @app.route("/hv")
 def hv():

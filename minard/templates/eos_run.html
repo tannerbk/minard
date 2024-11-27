@@ -30,6 +30,21 @@
         {% endfor %}
         </table>
       </div>
+      <div class="col-md-6">
+        <h3 style="color:#04AA6D"> Trigger thresholds </h3>
+        <table class="table table-bordered" id="hvtable">
+          <tr>
+            <th> Trigger name </th>
+            <th> Trigger threshold (mV) </th>
+          </tr>
+	  {% for i in range(trigger_threshold|length) %} 
+          <tr>
+            <td> {{ trigger_threshold[i]['trigger_name'] }} </td>
+            <td> {{ (trigger_threshold[i]['threshold'])*1000 }} </td>
+          </tr>
+        {% endfor %}
+        </table>
+      </div>
       <div class="col-md-8">
         <h3 style="color:#04AA6D"> PTB summary </h3>
         <table class="table table-bordered" id="hvtable">
@@ -84,24 +99,7 @@
         {% endfor %}
         </table>
       </div>
-      <div class="col-md-6">
-        <h3 style="color:#04AA6D"> HVSS summary (TO-DO) </h3>
-        <table class="table table-bordered" id="hvtable">
-          <tr>
-            <th> Board </th>
-            <th> Thresholds </th>
-            <th> Nhit Widths </th>
-          </tr>
-        {% for i in range(hvsss[0]|length) %}
-          <tr>
-            <td> {{ i }} </td>
-            <td> 1.6 </td>
-            <td> 2.0 </td>
-          </tr>
-        {% endfor %}
-        </table>
-      </div>
-    </div>\
+    </div>
   </div>
 
 {% endblock %}

@@ -21,7 +21,6 @@
           <th> Files </th>
           <th> Source </th>
           <th> Source z (mm) </th>
-	  <th> Threshold (mV) </th>
           <th> Comment </th>
           <th> State </th>
        </tr>
@@ -52,7 +51,6 @@
                 <td> </td>
                 <td> </td>
             {% endif %}
-	    <td> {{ data[i]['trig_thresh'] }} </td>
             <td> {{ data[i]['comment'] }} </td>
             <td> <a onclick="location.href='{{ url_for('eos_run') }}?key={{ data[i]['key'] }}'"; style="cursor: pointer; cursor: hand;"> {{ data[i]['key'] }}  </a> </td>
           </tr>

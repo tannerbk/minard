@@ -1,7 +1,6 @@
 from minard.db import engine
 from sqlalchemy import text
 
-
 def get_gold_runs():
     '''
     Returns the list of Eos PMTs
@@ -49,6 +48,7 @@ def get_eos_settings(key, tab):
 
     return [dict(zip(keys, row)) for row in rows]
 
+
 def get_channel_status(board):
     '''
     Returns the channel status for all channels
@@ -64,6 +64,7 @@ def get_channel_status(board):
 
     return [dict(zip(keys, row)) for row in rows]
 
+
 def get_hvss_thresholds(crate, board):
     '''
     Returns the hvss thresholds for all channels
@@ -71,6 +72,22 @@ def get_hvss_thresholds(crate, board):
     conn = engine.connect()
 
     result = conn.execute(text("SELECT * FROM current_hvss_thresholds WHERE crate=%d AND board=%d ORDER BY channel ASC" % (crate, board)))
+
+    keys = result.keys()
+    rows = result.fetchall()
+
+    conn.close()
+
+    return [dict(zip(keys, row)) for row in rows]
+
+
+def get_trigger_threshold(run):
+    '''
+    Returns the casb or mtca threshold for specified run
+    '''
+    conn = engine.connect()
+
+    result = conn.execute(text("select distinct on (trigger_name) * from casb_trigger_threshold where timestamp < (select timestamp from run_settings where run_number=%d) order by trigger_name, timestamp desc" % (run)))
 
     keys = result.keys()
     rows = result.fetchall()
