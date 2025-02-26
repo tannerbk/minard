@@ -9,7 +9,7 @@
         <div class="row">
             <div class="col-md-2 col-md-offset-10 text-right">
                 <select id="trigger-menu">
-                    {% for trigger in ['all', 'Pulsed trigger','Any MTCA','High energy veto','Directional source + MTCA','Directional source','AmBe Prompt','AmBe Delayed','Dir follower, prompt','Dir follower, delayed'] %}
+                    {% for trigger in ['all', 'Pulsed trigger','Any threshold', 'Higih energy veto', 'Dir. source coinc.', 'Dir. source', 'Prompt coinc.', 'Delayed coinc'] %}
                         <option {% if trigger == name %}selected="selected" {% endif %}value="{{ trigger }}">{{ trigger }}</option>
                     {% endfor %}
                 </select>

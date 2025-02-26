@@ -37,7 +37,7 @@ function stopMonitor() {
 }
 var context = create_context('#main', step);
 
-var TRIGGER_NAMES = ['TOTAL','Pulsed trigger','Any MTCA','High energy veto','Directional source + MTCA','Directional source','AmBe Prompt','AmBe Delayed','Dir follower, prompt','Dir follower, delayed'];
+var TRIGGER_NAMES = ['TOTAL','Pulsed trigger','Any threshold','High energy veto','Dir. source coinc.','Dir. source','Prompt coinc.','Delayed coinc.'];
 
 function metric(name) {
     var display = name;

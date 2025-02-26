@@ -18,14 +18,12 @@ from minard.high_voltage import get_all_hvs
 
 TRIGGER_NAMES = [
 'Pulsed trigger',
-'Any MTCA',
+'Any threshold',
 'High energy veto',
-'Directional source + MTCA',
-'Directional source',
-'AmBe Prompt',
-'AmBe Delayed',
-'Dir follower, prompt',
-'Dir follower, delayed'
+'Dir. source coinc',
+'Dir. source',
+'Prompt coinc.',
+'Delayed coinc.',
 ]
 RUN_TYPES = {0: 'Diagnostic', 1: 'Physics', 2: 'Fiber calibration', 3: 'Deployed calibration'}
 SOURCE_TYPES = {0: 'Laserball', 1: 'AmBe', 2: 'PuBe', 3: '137Cs', 4: 'Directional Sr-90', 5: 'Directional Ru-106', 6: 'Thorium', 7: 'Cherenkov UVT', 8: 'Cherenkov UVA Stycast', 9: 'Cherenkov UVA Reynolds'}
