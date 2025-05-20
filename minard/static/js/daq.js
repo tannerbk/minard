@@ -22,7 +22,7 @@ function metric(timeseries, crate, card, channel) {
             method: METHOD
         };
 
-        d3.json($SCRIPT_ROOT + '/query?' + $.param(params),
+        d3.json($SCRIPT_ROOT + '/metric_hash?' + $.param(params),
             function(data) {
                 if (!data)
                     return callback(new Error('unable to load data'));
@@ -65,40 +65,17 @@ function update_metrics(timeseries) {
     timeseries.metrics = [];
 
     if (typeof timeseries.crate === 'undefined') {
-		console.log("Updating crate");
-        timeseries.metrics[0] = timeseries.context.metric(function(start, stop, step, callback) {
-            var params = {
-                name: SOURCE,
-                start: start.toISOString(),
-                stop: stop.toISOString(),
-                now: new Date().toISOString(),
-                step: Math.floor(step/1000),
-                method: METHOD
-            };
-			
-			console.log("Getting owl_tubes query with params" + params);
-
-            d3.json($SCRIPT_ROOT + '/owl_tubes?' + $.param(params),
-                function(data) {
-                    if (!data)
-                        return callback(new Error('unable to load data'));
-
-                    return callback(null,data.values);
-                }
-            );
-        }, 'UFOWL');
-
-        for (var i=0; i < 20; i++) {
-            timeseries.metrics[i+1] = metric(timeseries, i, null, null);
+        console.log("Updating all crates");
+        for (var i=0; i < 2; i++) {
+            timeseries.metrics[i] = metric(timeseries, i, null, null);
         }
-
     } else if (typeof timeseries.card === 'undefined') {
-		console.log("Updating card");
+        console.log("Updating cards for crate " + timeseries.crate);
         for (var i=0; i < 16; i++) {
             timeseries.metrics[i] = metric(timeseries, timeseries.crate, i, null);
         }
     } else {
-		console.log("Updating crate and card");
+        console.log("Updating channels for crate " + timeseries.crate + " card " + timeseries.card);
         for (var i=0; i < 32; i++) {
             timeseries.metrics[i] = metric(timeseries, timeseries.crate, timeseries.card, i);
         }
@@ -106,8 +83,9 @@ function update_metrics(timeseries) {
 }
 
 var default_thresholds = {
-    cmos: [100,5e3],
-    base: [10, 80],
+    charge: [100, 5e3],
+    nhit: [10, 80],
+    sds: [0, 80],
     occupancy: [0.001, 0.005]
 };
 
@@ -150,7 +128,7 @@ horizon: null,
 metrics:null,
 format: my_si_format,
 click: function(d, i) {
-    if ((i > 0) && (i <= 20))
+    if ((i > 0) && (i <= 2))
         switch_to_crate(i-1);
     },
 state: NEEDS_UPDATE,
@@ -216,23 +194,19 @@ function setup() {
 }
 
 function update_format() {
-    if (SOURCE == 'cmos') {
-        card.format(my_si_format);
-    } else if (SOURCE == "occupancy") {
-        card.format(d3.format('.0e'));
-    } else {
-        card.format(base_format);
+    var source = $('#data-source').val();
+    var thresholds = default_thresholds[source];
+
+    if (!thresholds) {
+        console.error("No thresholds defined for source: " + source);
+        return;
     }
 
-    timeseries.forEach(function(ts) {
-        if (SOURCE == 'cmos') {
-            ts.format = my_si_format;
-        } else if (SOURCE == 'occupancy') {
-            ts.format = my_percentage_format;
-        } else {
-            ts.format = base_format;
-        }
-    });
+    SCALE = d3.scale.threshold()
+        .domain(thresholds)
+        .range(colorbrewer[$("#colors").val()][3]);
+
+    set_thresholds(thresholds[0], thresholds[1]);
 }
 
 var timeseries = [spam, blah, channelts];
@@ -348,6 +322,7 @@ $('.carousel').on('slid.bs.carousel', function(e) {
 
 function query(name){
 	console.log("Fetching data");
+        console.log("query_name"+name) //Samm
 	/* return context.metric(function(name, callback) {
 	$.getJSON($SCRIPT_ROOT + '/query', {name: SOURCE, step: CRATE_WINDOW})}); */
 };
@@ -397,7 +372,8 @@ function update() {
                     newData.push(value)
                 }
             }
-
+           console.log(newData)//samm
+           console.log("update_name"+SOURCE) //samm
             d3.select('#bargraph')
             .select("svg")
             .html("");
