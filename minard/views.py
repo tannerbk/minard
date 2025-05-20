@@ -522,3 +522,6 @@ def hv():
 
     return render_template("hv.html", data=data, ts=ts)
 
+@app.route('/evdisp')
+def evdisp():
+    return render_template('evdisp.html')
