@@ -76,7 +76,7 @@ function update_metrics(timeseries) {
         }
     } else {
         console.log("Updating channels for crate " + timeseries.crate + " card " + timeseries.card);
-        for (var i=0; i < 32; i++) {
+        for (var i=0; i < 16; i++) {
             timeseries.metrics[i] = metric(timeseries, timeseries.crate, timeseries.card, i);
         }
     }
@@ -86,7 +86,9 @@ var default_thresholds = {
     charge: [100, 5e3],
     nhit: [10, 80],
     sds: [0, 80],
-    occupancy: [0.001, 0.005]
+    occupancy: [0.001, 0.005],
+    avgs: [0,16000],
+    time: [0,500]
 };
 
 function set_thresholds(lo, hi) {
@@ -146,7 +148,7 @@ click: function(d, i) {
     switch_to_channel(blah.crate, i);
     },
 state: NEEDS_UPDATE,
-slide: 1
+slide: 3
 };
     
 var channelts = {
@@ -158,7 +160,7 @@ format: my_si_format,
 crate: 0,
 card: 0,
 state: NEEDS_UPDATE,
-slide: 2
+slide: 1
 };
 
 function setup() {
@@ -436,3 +438,15 @@ var axis = d3.svg.axis()
 canvas.append("g")
 .attr("transform", "translate(0,480)")
 .call(axis);
+
+// Attach click handler to <td id="channel"> elements
+$(document).on('click', 'td#channel', function(e) {
+    var title = $(this).attr('title'); // e.g., "Card 7, Channel 15"
+    var match = /Card (\d+), Channel (\d+)/.exec(title);
+    if (match) {
+        var card = parseInt(match[1], 10);
+        // Always call switch_to_channel(0, card)
+        console.log('Clicked card', card, 'channel 0');
+        switch_to_channel(0, card);
+    }
+});
