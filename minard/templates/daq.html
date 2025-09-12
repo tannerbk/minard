@@ -28,6 +28,35 @@
 {% block body %}
     {{ super() }}
     <div class="container">
+        <div class="row">
+            <div class="col-md-10 col-md-offset-1" id="hero">
+                <select id="projection-menu"></select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-10 col-md-offset-1">
+                <div class="panel-group" id="accordion">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                                    Histogram 
+                                </a>
+                            </h4>
+                        </div>
+                        <div id="collapseOne" class="panel-collapse collapse in">
+                            <div class="panel-body" id="hist">
+                                <select class="pull-right" id="color-scale-menu"></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>  
+    </div>
+
+
+    <div class="container">
         <div class="alert alert-info" id="status-message" style="display:none;">
             <strong>Status:</strong> <span id="status-text"></span>
         </div>
@@ -58,9 +87,8 @@
                                                     <select id="data-source"
                                                      class="form-control">
                                                         <option value="charge">Charge</option>
-                                                        <option value="nhit">NHit</option>
                                                         <option value="sds">SDS</option>
-                                                        <option value="occupancy">Occupancy</option>
+                                                        <option value="occupancy">Occupancy(%)</option>
                                                         <option value="time">Time</option>
                                                         <option value="avgs">Baseline</option>
                                                     </select>
@@ -234,5 +262,16 @@
     </script>
 
     <script src="{{ url_for('static', filename='js/stream_utilities.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/daq.js') }}"></script>
+    <!--<script src="{{ url_for('static', filename='js/daq.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/detector.js') }}"></script>-->
+    <script>
+        var pmtinfo = {% include 'pmtinfo.json' %};
+    </script>
+
+    <script src="{{ url_for('static', filename='js/d3.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/colorbrewer.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/d3.geo.projection.v0.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/crate.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/histogram.js') }}"></script>
+    <script src="{{ url_for('static',filename='js/daq.js')}}"></script>
 {% endblock %}

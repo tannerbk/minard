@@ -234,7 +234,7 @@ def query():
         for i in range(seconds):
             p.lrange('ts:1:{ts}:{name}'.format(ts=now-i,name=name),0,-1)
         nhit = map(int,sum(p.execute(),[]))
-        return jsonify(value=nhit)
+        return jsonify(value=list(nhit))
 
     if name in ('occupancy','cmos','base','slowcontrols','avgs','sds','charge','time'):
         now = int(time.time())
@@ -277,11 +277,15 @@ def query():
             hits = redis.hmget('ts:%i:%i:occupancy:hits' % (interval,i), CHANNELS)
             count = int(redis.get('ts:%i:%i:occupancy:count' % (interval,i)))
             if count > 0:
-                values = [int(n)/count if n is not None else None for n in hits]
+                values = [100*(int(n)/count) if n is not None else None for n in hits]
             else:
                 values = [None]*len(CHANNELS)
 
         return jsonify(values=values)
+    if name == 'event_json':
+        evdisp = redis.get('ts:evdisp')
+
+        return jsonify(name=evdisp)
 
 @app.route('/metric_hash')
 @nocache
