@@ -32,7 +32,7 @@ function card_view() {
 
     var scale = d3.scale.threshold().domain([100]).range(['#bababa','#ca0020']);
 
-    var format = d3.format('.0f');
+    var format = d3.format('.3f');
 
     function chart(selection) {
         selection.each(function(data) {

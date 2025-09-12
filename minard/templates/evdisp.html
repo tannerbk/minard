@@ -36,7 +36,8 @@
         align-items: center;
         margin: 0 20px;
       } #chargeSlider .ui-slider-range {
-        background: linear-gradient(to right, blue, cyan, green, yellow, red);
+        /*background: linear-gradient(to right, blue, cyan, green, yellow, red);*/
+        background: linear-gradient(to right, #440154, #3B518B, #21918C, #5EC962, #FDE729);
         border-radius: 0;
       } #chargeSlider .ui-slider-handle {
         width: 8px;
@@ -58,6 +59,9 @@
         padding: 5px;
         border-radius: 3px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      } #freeze-button{
+        background: red;
+        border-radius: 3px;
       }
     </style>
 
@@ -72,6 +76,9 @@
 
     <span id="eos-logo" style="position: absolute; top: 10px; left: 10px; width: 100px;"><img src="{{ url_for('static', filename='/images/eos_logo.png') }}" width="100px"/></span>
     <span id="event-meta"  class="plot" style="top: 10px; left: 130px; width: 180px; height: 90px">
+    <div>
+      <button id="freeze-button">Freeze</button>
+    </div>
       <b>Eos web evd</b><br/>
       NHIT: <span id="meta-nhit"></span><br/>
       GTID: <span id="meta-gtid"></span><br/>
@@ -100,13 +107,19 @@
 	<script src="{{ url_for('static', filename='js/metrics_request.js') }}"></script>
 
     <span id="plot-charge" class="plot" style="top: 215px; width: 300px; height: 175px"></span>
-    <span id="plot-time" class="plot" style="top: 400px; width: 300px; height: 175px"></span>
+    <div id="chargeBinsControl" style="top: 395px; width: 290px; height:30px; color:white; background:rgba(1,1,1,0.8); border: 1px solid blue; padding: 5px; position:absolute;">
+      <label for="chargeBins">Charge bins:</label>
+      <input id="chargeBins" type="number" min="5" max="200" value="20" style="width:60px;">
+      <button id="updateBins">Update</button>
+    </div>
 
-    <div class="slider-container" style="top: 580px; height: 80px; display: flex; align-items: center; justify-content: space-between;">
+    <span id="plot-time" class="plot" style="top: 440px; width: 300px; height: 175px"></span>
+
+    <div class="slider-container" style="top: 620px; height: 80px; display: flex; align-items: center; justify-content: space-between;">
         <div class="slider-group">
             <div id="chargeSlider" style="width: 110px;" ></div>
             <div style="text-align: center; margin-top: 5px">
-                <span id="lowerCharge">0</span> - <span id="upperCharge">1000</span> pC
+                <span id="lowerCharge">-10000</span> to <span id="upperCharge">-50</span> pC
             </div> 
         </div>
         <div class="slider-group">
@@ -288,6 +301,7 @@
       }
 
       function getJetColorString(val, hex) {
+        val = clamp(val, 0, .875);
         var red   = Math.floor(clamp(255 * Math.min(4 * val - 1.5, -4 * val + 4.5), 0, 255));
         var green = Math.floor(clamp(255 * Math.min(4 * val - 0.5, -4 * val + 3.5), 0, 255));
         var blue  = Math.floor(clamp(255 * Math.min(4 * val + 0.5, -4 * val + 2.5), 0, 255));
@@ -295,6 +309,32 @@
           return rgbToHex(red, green, blue);
 
         return 'rgb(' + red + ',' + green + ',' + blue + ')'
+      }
+
+      function getViridisColorString(val, hex) {
+        // Clamp the input
+        val = clamp(val,0,1);
+        // Viridis polynomial coefficients
+        var c = [
+          [68.0,  1.0, 84.0],    // c0: start (purple)
+          [59.0, 81.0, 139.0],   // c1: blue
+          [33.0, 145.0, 140.0],  // c2: green-cyan
+          [94.0, 201.0, 98.0],   // c3: green
+          [253.0, 231.0, 37.0]   // c4: yellow
+        ];
+
+        // Use an interpolation between points on the 4 intervals
+        var n = c.length - 1;
+        var i = val === 1 ? n - 1 : Math.floor(val * n);
+        var t = val === 1 ? 1 : (val * n - i);
+        var r = Math.round((1 - t) * c[i][0] + t * c[i+1][0]);
+        var g = Math.round((1 - t) * c[i][1] + t * c[i+1][1]);
+        var b = Math.round((1 - t) * c[i][2] + t * c[i+1][2]);
+
+        if (hex)
+          return rgbToHex(r, g, b);
+
+        return 'rgb(' + r + ',' + g + ',' + b + ')';
       }
 
       function rgbToHex(R,G,B) {
@@ -331,7 +371,8 @@
           elem.style.background = '#333333';
         }
         var qMax = parseInt(document.getElementById("upperCharge").innerText);
-        var qScale = 1/(qMax*0.875)*1e5;
+        var qMin = parseInt(document.getElementById("lowerCharge").innerText);
+        var qScale = qMax - qMin;
         console.log('Processing data...');
         for (let i=0; i<data.nhit; i++) {
           var id = data.id[i];
@@ -343,11 +384,9 @@
           var elem = document.getElementById(channel_selector);
           elem.title = data.q[i];
           $(elem).tooltip();
-          if(data.q[i] < qMax) { // if q below #upperCharge, get heatmap color
-            elem.style.background = getJetColorString(data.q[i]*qScale/1e5);
-          } else { // if q above #upperCharge, just return red
-            elem.style.background = getJetColorString(0.875);
-          }
+          var qval = data.q[i]-qMin;
+          //elem.style.background = getJetColorString(qval/qScale*.875);
+          elem.style.background = getViridisColorString(qval/qScale);
         }
         // ~~~~~~~~~~ Update Three particles ~~~~~~~~~~
         var color = new THREE.Color();
@@ -356,11 +395,9 @@
         for (let i=0; i<hits.length; i++) {
           if (hits[i] > -1) {
             var id = hits[i];
-            if (data.q[id] < qMax) { // if q below #upperCharge, get heatmap color
-              var ccc = getJetColorString(data.q[id]*qScale/1e5, true);
-            } else { // if q above #upperCharge, just return red
-              var ccc = getJetColorString(0.875, true);
-            } 
+            var qval = data.q[id]-qMin;
+            //var ccc = getJetColorString(qval/qScale*.875, true);
+            var ccc = getViridisColorString(qval/qScale);
             color.set(ccc);
             s =  100 + 50 * data.t[id]*dataStruct.t_scale/1000;
           }
@@ -380,7 +417,7 @@
         document.getElementById("meta-gtid").innerHTML = data.gtid;
         // ~~~~~~~~~~ Update charge & time hists ~~~~~~~~~~
         var qhist = new Array(data.q.length);
-        var qNumBins = 20;
+        var qNumBins = parseInt(document.getElementById("chargeBins")?.value || 20);
         for (let i=0; i<qhist.length; i++) {
           qhist[i] = -1;
         }
@@ -400,13 +437,13 @@
         var plotChargeRenderHeight = parseFloat(window.getComputedStyle(plotChargeElem).height)-20;
         var plotChargePadding = 50;
 
-        console.log(plotChargeHeight);
+        console.log(plotChargeWidth);
         var y = d3.scale.linear()
           .domain([0, d3.max(q_histogram.map(function (i) {return i.length;}))])
           .range([0,plotChargeRenderHeight-20]);
         
         var x = d3.scale.linear()
-           .domain([0, d3.max(qhist)])
+           .domain([d3.min(qhist), d3.max(qhist)])
            .range([0, plotChargeWidth-10]);
 
         var qXAxis = d3.svg.axis()
@@ -438,16 +475,16 @@
         bars.append("rect")
           .attr("x", function (d) { return 5+x(d.x); })
           .attr("y", function (d) { return plotChargeRenderHeight - y(d.y); })
-          .attr("width", function (d) { return x(d.dx); })
+          .attr("width", function (d) { return x(q_histogram[1].x) - x(q_histogram[0].x); })
           .attr("height", function (d) { return y(d.y); })
           .attr("fill", "lightskyblue");
 
         // Add text to histogram bars
         bars.append("text")
           .attr("x", function (d) { return 5+x(d.x); })
-          .attr("y", function (d) { return plotChargeRenderHeight-10 - y(d.y); })
+          .attr("y", function (d) { return plotChargeRenderHeight-11 - y(d.y); })
           .attr("dy", "10px")
-          .attr("dx", function (d) {return x(d.dx)/2; })
+          .attr("dx", "10px")
           .attr("style","fill: #fff")
           .attr("text-anchor","middle")
           .text(function (d) {return (d.y>0) ? d.y : null;})
@@ -583,20 +620,22 @@
           console.error('Run data request failed: ', error);
         }
       }
-
+      let prev_data;
+      let freeze = true;
       async function loadHitData() {
         if (dataStruct.name === "live_data") {
           try {
             const response = await fetch('http://eos-daq.localdomain/query?name=event_json');
-            if (response.ok) {
+            if (response.ok && freeze) {
               const jsonResponse = await response.json();
               const validJsonString = jsonResponse.name.replace(/'/g, '"');
               const data = JSON.parse(validJsonString);
               console.log(data);
               processData(data);
+              prev_data = data;
               console.log('Live data processed!');
             } else {
-              console.log('Error: ' + response.status);
+              console.log('Error/freeze: ' + response.status);
             }
           } catch (error) {
             console.error('Request failed: ', error);
@@ -635,6 +674,40 @@
           loadRunData(dataStruct.name, document.getElementById('eventNumber').value);
         }
       }
+
+      $("#freeze-button").click(function(){
+        if(freeze){
+          freeze = false;
+          $(this).css("background-color", "green");
+          $(this).html("Unfreeze");
+        }
+        else {
+          freeze = true;
+          $(this).css("background-color", "red");
+          $(this).html("Freeze");
+        }
+      })
+      $("#chargeSlider").on("slidechange", function() {
+        if(freeze){
+          loadHitData();
+        }
+        else {
+          processData(prev_data);
+        }
+      });
+
+      $("#updateBins").click(function () {
+        const bins = parseInt(document.getElementById("chargeBins").value);
+        if (!isNaN(bins) && bins > 0) {
+          console.log("Updating charge bins to", bins);
+          if (freeze){
+            loadHitData();  // reload data and re-render with new bin number
+          }
+          else {
+            processData(prev_data);
+          }
+        }
+      });
 
       function addEventSelector() {
         console.log('Hello world');
