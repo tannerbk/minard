@@ -97,13 +97,13 @@ def flush_to_redis(dict_, name, time_):
 
     for interval in HASH_INTERVALS:
         basekey = 'ts:%i:%i:%s' % (interval, time_//interval, name)
-        print("BASEKEY:",basekey)
+#        print("BASEKEY:",basekey)
         if len(dict_) > 0:
             p.expire(basekey + ':sum', interval)
             p.expire(basekey + ':len', interval)
         prev = time_//interval - 1
         prev_key = 'ts:%i:%i:%s' % (interval, prev, name)
-        print("PREVKEY:", prev_key)
+#        print("PREVKEY:", prev_key)
         if redis.incr(prev_key + ':lock') == 1:
             hdivh(prev_key, prev_key + ':sum', prev_key + ':len',
                   range(272), format='%.2g', client=p)
